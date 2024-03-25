@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { CRUD } from "@/api/utils";
-import { download, sync } from "@/api/generator/generator";
+import { download, sync, getColumns } from "@/api/generator/generator";
+import { getAllDepts } from "@/api/system/dict";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 import { isString, isEmpty } from "@pureadmin/utils";
@@ -22,6 +23,7 @@ export function useRole() {
     page: 0
   });
   const dataList = ref([]);
+  const dictsAll = ref([]);
   const changeList = ref([]);
   const loading = ref(true);
   const pagination = reactive<PaginationProps>({
@@ -100,6 +102,10 @@ export function useRole() {
     });
     dataList.value = data.content;
     pagination.total = data.totalElements;
+    //初始化dict
+    await getAllDepts().then(data => {
+      dictsAll.value = data.data;
+    });
 
     setTimeout(() => {
       loading.value = false;
@@ -244,37 +250,31 @@ export function useRole() {
       label: "关联字典",
       prop: "dictName",
       cellRenderer: ({ row }) => (
-        <el-date-picker
-          v-model={row.date}
+        <el-select
+          v-model={row.dictName}
+          filterable
+          clearable
+          size="small"
           type="date"
-          format="YYYY/MM/DD"
-          value-format="YYYY-MM-DD"
-          placeholder="请选择日期"
-        />
+          placeholder="请选择"
+        >
+          {dictsAll.value.map(item => (
+            <el-option
+              key={item.id}
+              label={item.remark === "" ? item.name : item.remark}
+              value={item.name}
+            />
+          ))}
+        </el-select>
       ),
       minWidth: 110
-    },
-    {
-      label: "操作",
-      fixed: "right",
-      width: 90,
-      slot: "operation"
     }
   ];
 
-  function onAdd() {
-    dataList1.value.push({
-      id: dataList1.value.length + 1,
-      columnName: "字段名称",
-      columnType: "字段类型",
-      remark: "字段描述",
-      notNull: true,
-      listShow: false,
-      formShow: true,
-      formType: "Textarea",
-      sex: 0,
-      hobby: "",
-      date: ""
+  function onAdd(tableName: string | any) {
+    getColumns(tableName).then(data => {
+      console.log(data.data.content);
+      dataList1.value.push(...data.data.content);
     });
   }
 

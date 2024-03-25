@@ -27,3 +27,11 @@ export function sync(tables) {
     data: tables
   });
 }
+
+export const getColumns = tableName => {
+  return http.request<ApiAbstract<Generator>>(
+    "get",
+    baseUrlApi("generator/columns"),
+    { params: { tableName } }
+  );
+};
