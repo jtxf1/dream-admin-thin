@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { CRUD } from "@/api/utils";
-import { download, sync, getColumns } from "@/api/generator/generator";
+import { download, sync, getColumns, put } from "@/api/generator/generator";
 import { getAllDepts } from "@/api/system/dict";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
@@ -139,12 +139,20 @@ export function useRole() {
     });
   };
 
-  const syncCode = () => {
-    sync(changeList.value).then(() => {
+  const syncCode = (syncList?: string[]) => {
+    sync(syncList?.length > 0 ? syncList : changeList.value).then(() => {
       message("同步成功", {
         type: "success"
       });
       onSearch();
+    });
+  };
+
+  const saveCode = () => {
+    put(dataList1.value).then(() => {
+      message("保存成功", {
+        type: "success"
+      });
     });
   };
 
@@ -301,7 +309,8 @@ export function useRole() {
     handleCurrentChange,
     handleSelectionChange,
     downloadCode,
-    syncCode
+    syncCode,
+    saveCode
   };
 }
 

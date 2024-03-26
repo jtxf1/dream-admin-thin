@@ -12,6 +12,17 @@ export const get = (tableName, type) => {
     baseUrlApi("generator/") + tableName + "/" + type
   );
 };
+export const put = generators => {
+  return http.request<ApiAbstract<Generator>>("put", baseUrlApi("generator"), {
+    data: generators
+  });
+};
+export const generate = tableName => {
+  return http.request<ApiAbstract<Generator>>(
+    "post",
+    baseUrlApi("generator/") + tableName + "/0"
+  );
+};
 
 export const download = (name: String) => {
   return http.request<Blob>(
