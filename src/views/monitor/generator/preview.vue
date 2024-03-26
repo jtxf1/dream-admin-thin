@@ -30,8 +30,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex">
-    <div class="w-[100%]">
+  <el-row :gutter="15">
+    <el-col style="margin-bottom: 10px">
       <PureTableBar
         :title="'字段配置：' + getParameter.id"
         :columns="columns1"
@@ -75,6 +75,7 @@ onMounted(() => {
               background: 'var(--el-fill-color-light)',
               color: 'var(--el-text-color-primary)'
             }"
+            maxHeight="600px"
           >
             <template #empty>
               <Empty fill="var(--el-svg-monochrome-grey)" class="m-auto" />
@@ -82,8 +83,27 @@ onMounted(() => {
           </pure-table>
         </template>
       </PureTableBar>
-    </div>
-  </div>
+    </el-col>
+    <el-col>
+      <el-card>
+        <template #header>
+          <el-row :gutter="24">
+            <el-col :span="2">生成配置</el-col>
+            <el-col :span="2" :offset="20">
+              <el-button
+                type="primary"
+                :icon="useRenderIcon(Select)"
+                @click="saveCode"
+              >
+                保存
+              </el-button></el-col
+            >
+          </el-row>
+        </template>
+        <p v-for="o in 4" :key="o" class="text item">{{ "List item " + o }}</p>
+      </el-card>
+    </el-col>
+  </el-row>
 </template>
 
 <style scoped>
