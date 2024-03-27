@@ -37,4 +37,58 @@ interface RoleFormProps {
   formInline: RoleFormItemProps;
 }
 
-export type { FormItemProps, FormProps, RoleFormItemProps, RoleFormProps };
+interface LogProps {
+  id: number;
+  /**
+   * 操作用户
+   */
+  username: string;
+  /**
+   * 描述
+   */
+  description: string;
+  /**
+   * 方法名
+   */
+  method: string;
+  /**
+   * 参数
+   */
+  params: string;
+  /**
+   * 日志类型
+   */
+  logType: string;
+  /**
+   * 请求ip
+   */
+  requestIp: string;
+  /**
+   * 地址
+   */
+  address: string;
+  /**
+   * 浏览器
+   */
+  browser: string;
+  /**
+   * 请求耗时
+   */
+  time: number;
+  /**
+   * 异常详细
+   */
+  exceptionDetail: Uint8Array;
+  /**
+   * 创建日期
+   */
+  createTime: Date;
+}
+
+export type {
+  FormItemProps,
+  FormProps,
+  RoleFormItemProps,
+  RoleFormProps,
+  LogProps
+};

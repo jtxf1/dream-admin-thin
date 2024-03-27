@@ -17,6 +17,9 @@ import { message } from "@/utils/message";
 import { formRulesPwd, formRulesEmail } from "./rule";
 import type { FormInstance } from "element-plus";
 import type { DataInfo } from "@/utils/auth";
+import { putUserInfo } from "@/utils/auth";
+import type { PaginationProps } from "@pureadmin/table";
+import type { LogProps } from "./types";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   console.log(tableRef, treeRef);
@@ -294,29 +297,91 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       }
     });
   }
-  //更新用户谢谢
+  //更新用户信息
   const submitEditUser = async (formEl: FormInstance | undefined, userI) => {
     if (!formEl) return;
     await formEl.validate((valid, fields) => {
       if (valid) {
-        console.log("userI!", userI);
-        User.editUser({
-          id: userI.id,
-          nickName: userI.nickName,
-          gender: userI.gender,
-          phone: userI.phone
-        });
+        User.editUser(userI);
+        putUserInfo(userI);
       } else {
         console.log("error submit!", fields);
       }
     });
   };
+
+  const columns: TableColumnList = [
+    {
+      label: "行为",
+      prop: "description"
+    },
+    {
+      label: "IP",
+      prop: "requestIp"
+    },
+    {
+      label: "IP来源",
+      prop: "address"
+    },
+    {
+      label: "浏览器",
+      prop: "browser"
+    },
+    {
+      label: "请求耗时",
+      prop: "center"
+    },
+    {
+      label: "创建日期",
+      prop: "createTime"
+    }
+  ];
+
+  const dataList = ref();
+  /** 分页配置 */
+  const pagination = reactive<PaginationProps>({
+    total: 0,
+    pageSize: 10,
+    pageSizes: [10, 15, 20],
+    currentPage: 1,
+    align: "left",
+    background: true
+  });
+
+  function handleSizeChange(val: number) {
+    console.log(`${val} items per page`);
+  }
+
+  function handleCurrentChange(val: number) {
+    console.log(`current page: ${val}`);
+  }
+  /** 当CheckBox选择项发生变化时会触发该事件 */
+  function handleSelectionChange(val: number) {
+    console.log(`handleSelectionChange current page: ${val}`);
+  }
+  function getLogs() {
+    User.getLog<LogProps>(pagination.currentPage - 1, pagination.pageSize).then(
+      res => {
+        console.log("res", res);
+        dataList.value = res.data.content;
+        pagination.total = res.data.totalElements;
+      }
+    );
+  }
+
   return {
     form,
     userInfo,
+    pagination,
+    columns,
+    dataList,
     handleUpload,
     handleReset,
     handleResetEmail,
-    submitEditUser
+    submitEditUser,
+    handleSizeChange,
+    handleCurrentChange,
+    handleSelectionChange,
+    getLogs
   };
 }

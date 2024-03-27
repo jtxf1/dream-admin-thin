@@ -13,21 +13,30 @@ import Mail from "@iconify-icons/ri/mail-fill";
 import Secure from "@iconify-icons/ri/secure-payment-fill";
 
 const activeName = ref("first");
+const loading = ref(true);
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log("tab", tab.paneName);
   console.log("event", event);
+  loading.value = false;
+  getLogs();
 };
-
 const treeRef = ref();
 const tableRef = ref();
 const ruleFormRef = ref<FormInstance>();
 const {
   userInfo,
+  pagination,
+  columns,
+  dataList,
   handleUpload,
   handleReset,
   handleResetEmail,
-  submitEditUser
+  submitEditUser,
+  handleSizeChange,
+  handleCurrentChange,
+  handleSelectionChange,
+  getLogs
 } = useUser(tableRef, treeRef);
 
 const user = reactive(userInfo.value);
@@ -183,10 +192,30 @@ defineOptions({
                 </el-form-item>
               </el-form>
             </el-tab-pane>
-            <el-tab-pane label="操作日志" name="second">操作日志</el-tab-pane>
-          </el-tabs>
-        </div></el-col
-      >
+            <el-tab-pane label="操作日志" name="second">
+              <pure-table
+                ref="tableRef"
+                row-key="id"
+                adaptive
+                align-whole="center"
+                table-layout="auto"
+                :loading="loading"
+                size="small"
+                :data="dataList"
+                :columns="columns"
+                :pagination="pagination"
+                :paginationSmall="true"
+                :header-cell-style="{
+                  background: 'var(--el-fill-color-light)',
+                  color: 'var(--el-text-color-primary)'
+                }"
+                @selection-change="handleSelectionChange"
+                @page-size-change="handleSizeChange"
+                @page-current-change="handleCurrentChange"
+              />
+            </el-tab-pane>
+          </el-tabs></div
+      ></el-col>
     </el-row>
   </div>
 </template>

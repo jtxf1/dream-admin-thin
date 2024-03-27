@@ -102,3 +102,11 @@ export function removeToken() {
 export const formatToken = (token: string): string => {
   return "Bearer " + token;
 };
+
+/** 更新`user-info`的user信息 */
+export function putUserInfo(user) {
+  const userInfo: DataInfo<number> =
+    storageLocal().getItem<DataInfo<number>>(userKey);
+  userInfo.user = user;
+  storageLocal().setItem(userKey, userInfo);
+}

@@ -153,6 +153,12 @@ export function editUser(data) {
   });
 }
 
-export function getLog() {
-  return http.request("get", baseUrlApi("logs/user"));
+export function getLog<T>(page: number, size: number) {
+  return http.request<ApiAbstract<T>>("get", baseUrlApi("logs/user"), {
+    params: {
+      page: page,
+      size: size,
+      sort: "id,desc"
+    }
+  });
 }
