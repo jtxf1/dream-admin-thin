@@ -1,7 +1,13 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { CRUD } from "@/api/utils";
-import { download, sync, getColumns, put } from "@/api/generator/generator";
+import {
+  download,
+  sync,
+  getColumns,
+  put,
+  generate
+} from "@/api/generator/generator";
 import { getAllDepts } from "@/api/system/dict";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
@@ -281,7 +287,6 @@ export function useRole() {
 
   function onAdd(tableName: string | any) {
     getColumns(tableName).then(data => {
-      console.log(data.data.content);
       dataList1.value.push(...data.data.content);
     });
   }
@@ -291,6 +296,13 @@ export function useRole() {
     if (index !== -1) dataList1.value.splice(index, 1);
   }
 
+  async function generateCode(name) {
+    generate(name).then(() => {
+      message("生成成功", {
+        type: "success"
+      });
+    });
+  }
   return {
     form,
     loading,
@@ -310,7 +322,8 @@ export function useRole() {
     handleSelectionChange,
     downloadCode,
     syncCode,
-    saveCode
+    saveCode,
+    generateCode
   };
 }
 

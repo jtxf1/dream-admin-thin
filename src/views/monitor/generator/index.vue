@@ -21,7 +21,7 @@ const {
   changeList,
   onSearch,
   resetForm,
-  handleOffline,
+  generateCode,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange,
@@ -67,7 +67,7 @@ const {
           type="success"
           :icon="useRenderIcon(Refresh)"
           :disabled="changeList.length <= 0"
-          @click="syncCode"
+          @click="syncCode(null)"
         >
           同步
         </el-button>
@@ -137,7 +137,13 @@ const {
               >
                 配置
               </el-button>
-              <el-button class="reset-margin" link type="primary" :size="size">
+              <el-button
+                class="reset-margin"
+                link
+                type="primary"
+                :size="size"
+                @click="generateCode(row.tableName)"
+              >
                 生成
               </el-button>
             </div>
