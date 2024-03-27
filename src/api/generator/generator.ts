@@ -46,3 +46,14 @@ export const getColumns = tableName => {
     { params: { tableName } }
   );
 };
+
+export const generateConfig = <T>(tableName: string | any) => {
+  return http.request<ApiAbstract<T>>(
+    "get",
+    baseUrlApi("genConfig/") + tableName
+  );
+};
+
+export const pugGenerateConfig = <T>(data: T) => {
+  return http.request<ApiAbstract<T>>("put", baseUrlApi("genConfig"), { data });
+};

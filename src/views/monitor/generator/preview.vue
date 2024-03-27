@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { useRole, useDetail } from "./hook";
-import { getColumns } from "@/api/generator/generator";
-import { onMounted, ref } from "vue";
+import {
+  getColumns,
+  generateConfig,
+  pugGenerateConfig,
+  generate
+} from "@/api/generator/generator";
+import { onMounted, ref, reactive } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import ReCol from "@/components/ReCol";
+import { FormItemProps } from "./types";
+import { formRules } from "./rule";
+import { message } from "@/utils/message";
 
 import Empty from "../empty.svg?component";
 import Refresh from "@iconify-icons/ep/refresh";
@@ -13,20 +22,58 @@ import Finished from "@iconify-icons/ep/finished";
 defineOptions({
   name: "TabQueryPreview"
 });
+
+const props = reactive<FormItemProps>({
+  author: "",
+  pack: "",
+  moduleName: "",
+  path: "",
+  apiAlias: "",
+  apiPath: "",
+  prefix: "",
+  cover: false
+});
+
 const tableRef = ref();
+const ruleFormRef = ref();
 const { initToDetail, getParameter } = useDetail();
 initToDetail();
 const { columns1, dataList1, syncCode, saveCode } = useRole();
 
+function getRef() {
+  return ruleFormRef.value;
+}
 async function onSearch() {
   await getColumns(getParameter.id).then(data => {
     dataList1.value.push(...data.data.content);
   });
+  generateConfig<FormItemProps>(getParameter.id).then(data => {
+    Object.assign(props, data.data);
+  });
 }
 
+async function putConfig() {
+  await pugGenerateConfig(props).then(data => {
+    message("保存成功", {
+      type: "success"
+    });
+    onSearch();
+  });
+}
+
+async function generateCode() {
+  await getColumns(getParameter.id).then(data => {
+    generate(getParameter.id).then(data => {
+      message("保存&生成成功", {
+        type: "success"
+      });
+    });
+  });
+}
 onMounted(() => {
   onSearch();
 });
+defineExpose({ getRef });
 </script>
 
 <template>
@@ -53,7 +100,11 @@ onMounted(() => {
           >
             保存
           </el-button>
-          <el-button type="warning" :icon="useRenderIcon(Finished)">
+          <el-button
+            type="warning"
+            :icon="useRenderIcon(Finished)"
+            @click="generateCode"
+          >
             保存&生成
           </el-button>
         </template>
@@ -93,14 +144,123 @@ onMounted(() => {
               <el-button
                 type="primary"
                 :icon="useRenderIcon(Select)"
-                @click="saveCode"
+                @click="putConfig"
               >
                 保存
               </el-button></el-col
             >
           </el-row>
         </template>
-        <p v-for="o in 4" :key="o" class="text item">{{ "List item " + o }}</p>
+        <p>
+          <el-form
+            ref="ruleFormRef"
+            label-width="82px"
+            :model="props"
+            :rules="formRules"
+          >
+            <el-row :gutter="22">
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="作者名称" prop="author">
+                  <el-input
+                    v-model="props.author"
+                    clearable
+                    placeholder="请输入作者名称"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                类上面的作者名称
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="模块名称" prop="moduleName">
+                  <el-input
+                    v-model="props.moduleName"
+                    clearable
+                    placeholder="请输入模块名称"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                模块的名称，请选择项目中已存在的模块
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="至于包下" prop="pack">
+                  <el-input
+                    v-model="props.pack"
+                    clearable
+                    placeholder="请输入包名"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                项目包的名称，生成的代码放到哪个包里面
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="接口名称" prop="apiAlias">
+                  <el-input
+                    v-model="props.apiAlias"
+                    clearable
+                    placeholder="请输入接口名称"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                接口的名称，用于控制器与接口文档中
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="前端路径" prop="path">
+                  <el-input
+                    v-model="props.path"
+                    clearable
+                    placeholder="请输入前端路径"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                输入views文件夹下的目录，不存在即创建
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="接口目录" prop="apiPath">
+                  <el-input
+                    v-model="props.apiPath"
+                    clearable
+                    placeholder="请输入接口目录"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                Api存放路径[src/api]，为空则自动生成路径
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="去表前缀" prop="prefix">
+                  <el-input
+                    v-model="props.prefix"
+                    clearable
+                    placeholder="请输入去表前缀"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                默认不去除表前缀，可自定义
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="是否覆盖" prop="cover">
+                  <el-radio-group
+                    v-model="props.cover"
+                    size="small"
+                    style="width: 40%"
+                  >
+                    <el-radio-button label="是" value="true" />
+                    <el-radio-button label="否" value="false" />
+                  </el-radio-group>
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                谨防误操作，请慎重选择
+              </re-col>
+            </el-row>
+          </el-form>
+        </p>
       </el-card>
     </el-col>
   </el-row>
@@ -109,5 +269,10 @@ onMounted(() => {
 <style scoped>
 :deep(.el-table__inner-wrapper::before) {
   height: 0;
+}
+
+.spenFone {
+  margin-left: 10px;
+  color: #c0c0c0;
 }
 </style>
