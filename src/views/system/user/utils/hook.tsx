@@ -19,7 +19,7 @@ import {
 import { baseUrlAvatar } from "@/api/utils";
 import * as User from "@/api/system/user";
 import * as Dept from "@/api/system/dept";
-import * as Job from "@/api/system/job";
+import { CRUD } from "@/api/utils";
 import * as Role from "@/api/system/role";
 import {
   ElForm,
@@ -562,7 +562,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
     // 角色列表
     roleOptions.value = (await Role.get()).data.content;
-    jobOptions.value = (await Job.get()).data.content;
+    jobOptions.value = (await CRUD.get("job")).data.content;
   });
 
   return {

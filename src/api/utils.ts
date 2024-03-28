@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 import type { PureHttpRequestConfig } from "@/utils/http/types";
 import type { AxiosRequestConfig } from "axios";
-import type { ApiAbstract } from "@/utils/http/ApiAbstract";
+import type { ApiAbstract, Page } from "@/utils/http/ApiAbstract";
 
 export const baseUrlApi = (url: string) => `/api/${url}`;
 export const baseUrlAuth = (url: string) => `/auth/${url}`;
@@ -14,8 +14,8 @@ class crud {
     url: string,
     params?: AxiosRequestConfig<T>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<P>> {
-    return http.get<T, ApiAbstract<P>>(baseUrlApi(url), params, config);
+  ): Promise<ApiAbstract<Page<P>>> {
+    return http.get<T, ApiAbstract<Page<P>>>(baseUrlApi(url), params, config);
   }
 
   /** 单独抽离的post工具函数 */
@@ -37,12 +37,16 @@ class crud {
   }
 
   /** 单独抽离的delete工具函数 */
-  public delete<T, P>(
+  public delete(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<Number[]>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<P>> {
-    return http.delete<T, ApiAbstract<P>>(baseUrlApi(url), params, config);
+  ): Promise<ApiAbstract<String>> {
+    return http.delete<Number[], ApiAbstract<String>>(
+      baseUrlApi(url),
+      params,
+      config
+    );
   }
 
   /** 单独抽离的delete工具函数 */

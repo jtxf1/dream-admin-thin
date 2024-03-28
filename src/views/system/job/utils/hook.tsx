@@ -9,7 +9,6 @@ import { cloneDeep } from "@pureadmin/utils";
 import { usePublicHooks } from "../../hooks";
 import { ElMessageBox } from "element-plus";
 import { CRUD } from "@/api/utils";
-import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 
 export function useDept() {
   //查询条件
@@ -36,7 +35,7 @@ export function useDept() {
   });
   /** 表格索引 */
   const indexMethod = (index: number) => {
-    return index + 1;
+    return index + 1 + (pagination.currentPage - 1) * pagination.pageSize;
   };
   /**
    * 定义表头和数据格式
@@ -108,7 +107,7 @@ export function useDept() {
     formQuery.page = pagination.currentPage - 1;
     formQuery.size = pagination.pageSize;
     dataList.splice(0, dataList.length);
-    await CRUD.get<any, ApiAbstract<FormItemProps>>(crudURL, {
+    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
       params: formQuery
     }).then(res => {
       pagination.total = res.data.totalElements;
@@ -130,16 +129,11 @@ export function useDept() {
       props: {
         formInline: {
           higherDeptOptions: cloneDeep(dataList),
-          id: row?.id ?? 0,
+          id: row?.id,
           name: row?.name ?? "",
           jobSort: row?.jobSort ?? 0,
-          principal: row?.principal ?? "",
-          phone: row?.phone ?? "",
-          email: row?.email ?? "",
-          sort: row?.sort ?? 0,
           version: row?.version ?? 0,
-          enabled: row?.enabled ?? false,
-          remark: row?.remark ?? ""
+          enabled: row?.enabled ?? false
         }
       },
       width: "40%",
@@ -162,7 +156,7 @@ export function useDept() {
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post(crudURL, {
+              CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: {
                   name: curData.name,
                   enabled: curData.enabled,
@@ -170,7 +164,7 @@ export function useDept() {
                 }
               }).finally(() => chores());
             } else if (title === "编辑") {
-              CRUD.put(crudURL, {
+              CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
               }).finally(() => chores());
             }
@@ -215,7 +209,7 @@ export function useDept() {
     )
       .then(() => {
         setTimeout(() => {
-          CRUD.put(crudURL, {
+          CRUD.put<FormItemProps, FormItemProps>(crudURL, {
             data: row
           });
           message("已成功修改岗位状态", {
