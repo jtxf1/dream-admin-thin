@@ -16,12 +16,14 @@ export function useDept() {
   const formQuery = reactive<FormQuery>({ sort: "id,asc" });
   /** 请求URL */
   const crudURL = "job";
-
+  /** 新增编辑内容渲染 */
   const formRef = ref();
+  /** 表格数据 */
   const dataList = reactive([]);
+  /** 表格加载状态 */
   const loading = ref(true);
+  /** 多选选中的数据 */
   const multipleSelection = ref([]);
-  const switchLoadMap = ref({});
   const { switchStyle } = usePublicHooks();
 
   /** 分页配置 */
@@ -66,7 +68,6 @@ export function useDept() {
         <el-switch
           v-model={scope.row.enabled}
           size={scope.props.size === "small" ? "small" : "default"}
-          loading={switchLoadMap.value[scope.row.index]?.loading}
           style={switchStyle.value}
           inline-prompt
           active-value={true}
@@ -196,7 +197,7 @@ export function useDept() {
    * @param index 数据索引
    *
    */
-  function onChange({ row, index }) {
+  function onChange({ row }) {
     ElMessageBox.confirm(
       `确认要<strong>${
         !row.enabled ? "停用" : "启用"
@@ -213,21 +214,7 @@ export function useDept() {
       }
     )
       .then(() => {
-        switchLoadMap.value[index] = Object.assign(
-          {},
-          switchLoadMap.value[index],
-          {
-            loading: true
-          }
-        );
         setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign(
-            {},
-            switchLoadMap.value[index],
-            {
-              loading: false
-            }
-          );
           CRUD.put(crudURL, {
             data: row
           });
