@@ -107,12 +107,11 @@ defineExpose({ onTreeReset });
         clearable
       >
         <template #suffix>
-          <el-icon class="el-input__icon">
-            <IconifyIconOffline
-              v-show="searchValue.length === 0"
-              icon="search"
-            />
-          </el-icon>
+          <div v-show="searchValue?.length === 0">
+            <el-icon class="el-input__icon">
+              <IconifyIconOffline icon="search" />
+            </el-icon>
+          </div>
         </template>
       </el-input>
       <el-dropdown :hide-on-click="false">

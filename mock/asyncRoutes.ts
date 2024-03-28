@@ -39,7 +39,7 @@ const systemManagementRouter = {
       name: "SystemMenu",
       meta: {
         icon: "ep:menu",
-        title: "menus.hsSystemMenu",
+        title: "menus.pureSystemMenu",
         roles: ["admin"]
       }
     },
@@ -57,7 +57,7 @@ const systemManagementRouter = {
       name: "SystemJob",
       meta: {
         icon: "ri:account-circle-fill",
-        title: "menus.hsDept",
+        title: "menus.hsJob",
         roles: ["admin"]
       }
     }

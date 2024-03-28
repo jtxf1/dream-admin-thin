@@ -46,6 +46,7 @@ menus:
   hsOperationLog: Operation Log
   hsSystemLog: System Log
   hsGenerator: code generation
+  pureSystemMenu: Menu Manage
 status:
   hsLoad: Loading...
 login:
