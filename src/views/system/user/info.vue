@@ -13,13 +13,10 @@ import Mail from "@iconify-icons/ri/mail-fill";
 import Secure from "@iconify-icons/ri/secure-payment-fill";
 
 const activeName = ref("first");
-const loading = ref(true);
-
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log("tab", tab.paneName);
-  console.log("event", event);
-  loading.value = false;
-  getLogs();
+  if (tab.paneName === "second") {
+    getLogs();
+  }
 };
 const treeRef = ref();
 const tableRef = ref();
@@ -28,6 +25,7 @@ const {
   userInfo,
   pagination,
   columns,
+  loading,
   dataList,
   handleUpload,
   handleReset,
@@ -35,7 +33,6 @@ const {
   submitEditUser,
   handleSizeChange,
   handleCurrentChange,
-  handleSelectionChange,
   getLogs
 } = useUser(tableRef, treeRef);
 
@@ -195,21 +192,13 @@ defineOptions({
             <el-tab-pane label="操作日志" name="second">
               <pure-table
                 ref="tableRef"
-                row-key="id"
                 adaptive
-                align-whole="center"
-                table-layout="auto"
                 :loading="loading"
-                size="small"
                 :data="dataList"
                 :columns="columns"
+                height="80%"
+                style="height: 80%"
                 :pagination="pagination"
-                :paginationSmall="true"
-                :header-cell-style="{
-                  background: 'var(--el-fill-color-light)',
-                  color: 'var(--el-text-color-primary)'
-                }"
-                @selection-change="handleSelectionChange"
                 @page-size-change="handleSizeChange"
                 @page-current-change="handleCurrentChange"
               />

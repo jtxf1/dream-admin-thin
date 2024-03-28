@@ -329,7 +329,20 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     },
     {
       label: "请求耗时",
-      prop: "center"
+      prop: "time",
+      cellRenderer: scope => (
+        <el-text
+          type={
+            scope.row.time <= 300
+              ? "success"
+              : scope.row.time > 1000
+                ? "danger"
+                : "warning"
+          }
+        >
+          {scope.row.time}ms
+        </el-text>
+      )
     },
     {
       label: "创建日期",
@@ -337,36 +350,37 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     }
   ];
 
+  const loading = ref(true);
+
   const dataList = ref();
   /** 分页配置 */
   const pagination = reactive<PaginationProps>({
     total: 0,
     pageSize: 10,
-    pageSizes: [10, 15, 20],
+    pageSizes: [10, 20, 50],
     currentPage: 1,
     align: "left",
     background: true
   });
 
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    pagination.pageSize = val;
+    getLogs();
   }
 
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
-  }
-  /** 当CheckBox选择项发生变化时会触发该事件 */
-  function handleSelectionChange(val: number) {
-    console.log(`handleSelectionChange current page: ${val}`);
+    pagination.currentPage = val;
+    getLogs();
   }
   function getLogs() {
-    User.getLog<LogProps>(pagination.currentPage - 1, pagination.pageSize).then(
-      res => {
-        console.log("res", res);
+    User.getLog<LogProps>(pagination.currentPage - 1, pagination.pageSize)
+      .then(res => {
         dataList.value = res.data.content;
         pagination.total = res.data.totalElements;
-      }
-    );
+      })
+      .finally(() => {
+        loading.value = false;
+      });
   }
 
   return {
@@ -375,13 +389,13 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     pagination,
     columns,
     dataList,
+    loading,
     handleUpload,
     handleReset,
     handleResetEmail,
     submitEditUser,
     handleSizeChange,
     handleCurrentChange,
-    handleSelectionChange,
     getLogs
   };
 }
