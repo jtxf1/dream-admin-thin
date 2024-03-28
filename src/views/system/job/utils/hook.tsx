@@ -1,21 +1,21 @@
 import dayjs from "dayjs";
 import editForm from "../form.vue";
 import { message } from "@/utils/message";
-import * as Job from "@/api/system/job";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h } from "vue";
-import type { FormItemProps } from "../utils/types";
-import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
+import type { FormItemProps, FormQuery } from "./types";
+import { cloneDeep } from "@pureadmin/utils";
 import { usePublicHooks } from "../../hooks";
 import { ElMessageBox } from "element-plus";
+import { CRUD } from "@/api/utils";
+import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 
 export function useDept() {
-  const form = reactive({
-    name: "",
-    enabled: null,
-    createTime: ""
-  });
+  //查询条件
+  const formQuery = reactive<FormQuery>({ sort: "id,asc" });
+  /** 请求URL */
+  const crudURL = "job";
 
   const formRef = ref();
   const dataList = reactive([]);
@@ -27,17 +27,18 @@ export function useDept() {
   /** 分页配置 */
   const pagination = reactive<PaginationProps>({
     total: 10,
-    pageSize: 2,
+    pageSize: 10,
     pageSizes: [10, 20, 50],
     currentPage: 1,
-    align: "left",
-    background: true
+    align: "left"
   });
   /** 表格索引 */
   const indexMethod = (index: number) => {
     return index + 1;
   };
-
+  /**
+   * 定义表头和数据格式
+   */
   const columns: TableColumnList = [
     {
       type: "selection"
@@ -90,39 +91,38 @@ export function useDept() {
       slot: "operation"
     }
   ];
-
+  /**
+   * 重置函数
+   * @param formEl form对象
+   */
   function resetForm(formEl) {
     if (!formEl) return;
     formEl.resetFields();
     onSearch();
   }
-
+  /**
+   * 加载数据
+   */
   async function onSearch() {
-    loading.value = true;
-    const queryType = new Job.JobQueryCriteria();
-    if (!isAllEmpty(form.name)) {
-      queryType.name = form.name;
-    }
-    if (!isAllEmpty(form.enabled)) {
-      queryType.enabled = form.enabled;
-    }
-    if (!isAllEmpty(form.createTime)) {
-      queryType.createTime = form.createTime;
-    }
-    queryType.page = pagination.currentPage - 1;
-    queryType.size = pagination.pageSize;
-    const depts = (await Job.get(queryType)).data;
-    pagination.total = depts.totalElements;
-    let newData = depts.content;
-    dataList.splice(0, dataList.length); // 清空数组
-    newData.forEach(x => {
-      dataList.push(x);
+    formQuery.page = pagination.currentPage - 1;
+    formQuery.size = pagination.pageSize;
+    dataList.splice(0, dataList.length);
+    await CRUD.get<any, ApiAbstract<FormItemProps>>(crudURL, {
+      params: formQuery
+    }).then(res => {
+      pagination.total = res.data.totalElements;
+      dataList.push(...res.data.content);
     });
+    /** 表格加载完成 */
     setTimeout(() => {
       loading.value = false;
     }, 500);
   }
-
+  /**
+   * 新增修改函数
+   * @param title 标题
+   * @param row 数据
+   */
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}岗位`,
@@ -161,19 +161,16 @@ export function useDept() {
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
-              Job.add({
-                name: curData.name,
-                enabled: curData.enabled,
-                version: curData.version,
-                jobSort: curData.jobSort
+              CRUD.post(crudURL, {
+                data: {
+                  name: curData.name,
+                  enabled: curData.enabled,
+                  jobSort: curData.jobSort
+                }
               }).finally(() => chores());
             } else if (title === "编辑") {
-              Job.edit({
-                id: curData.id,
-                name: curData.name,
-                enabled: curData.enabled,
-                version: curData.version,
-                jobSort: curData.jobSort
+              CRUD.put(crudURL, {
+                data: curData
               }).finally(() => chores());
             }
           }
@@ -181,14 +178,24 @@ export function useDept() {
       }
     });
   }
-
+  /**
+   * 删除函数
+   * @param row 删除的数据
+   */
   function handleDelete(row) {
-    Job.del([row.id]).then(() => {
+    CRUD.delete(crudURL, {
+      data: [row.id]
+    }).then(() => {
       message(`您删除了岗位名称为${row.name}的这条数据`, { type: "success" });
     });
     onSearch();
   }
-
+  /**
+   * 状态: 停用 启用
+   * @param row   表数据
+   * @param index 数据索引
+   *
+   */
   function onChange({ row, index }) {
     ElMessageBox.confirm(
       `确认要<strong>${
@@ -221,12 +228,8 @@ export function useDept() {
               loading: false
             }
           );
-          Job.edit({
-            id: row.id,
-            name: row.name,
-            enabled: row.enabled,
-            version: row.version,
-            jobSort: row.jobSort
+          CRUD.put(crudURL, {
+            data: row
           });
           message("已成功修改岗位状态", {
             type: "success"
@@ -237,21 +240,71 @@ export function useDept() {
         row.enabled ? (row.enabled = false) : (row.enabled = true);
       });
   }
+
+  async function deleteAll() {
+    ElMessageBox.confirm(
+      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个岗位吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        CRUD.delete(crudURL, {
+          data: multipleSelection.value.map(dept => dept.id)
+        }).then(() => {
+          message("已删除所选的岗位", {
+            type: "success"
+          });
+          onSearch();
+        });
+      })
+      .catch(() => {
+        onSearch();
+      });
+  }
+  const exportClick = async () => {
+    CRUD.download("job");
+
+    message("导出成功", {
+      type: "success"
+    });
+  };
+  /**
+   * 分页大小
+   * @param val pageSize
+   */
   function handleSizeChange(val: number) {
     pagination.pageSize = val;
     onSearch();
   }
-
+  /**
+   * 第几页
+   * @param val 第几页
+   */
   function handleCurrentChange(val: number) {
     pagination.currentPage = val;
     onSearch();
   }
+
+  /**
+   * 多选
+   * @param val 选中的数据
+   */
+  const handleSelectionChange = val => {
+    multipleSelection.value = val;
+  };
+  /** 页面初始化完成执行的函数 */
   onMounted(() => {
     onSearch();
   });
 
   return {
-    form,
+    formQuery,
     loading,
     columns,
     dataList,
@@ -265,7 +318,15 @@ export function useDept() {
     openDialog,
     /** 删除岗位 */
     handleDelete,
+    /** 分页大小 */
     handleSizeChange,
-    handleCurrentChange
+    /** 第几页 */
+    handleCurrentChange,
+    /** 多选 */
+    handleSelectionChange,
+    /** 删除 */
+    deleteAll,
+    /** 导出 */
+    exportClick
   };
 }

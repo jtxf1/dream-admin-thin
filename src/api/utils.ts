@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import type { PureHttpRequestConfig } from "@/utils/http/types.d";
+import type { PureHttpRequestConfig } from "@/utils/http/types";
 import type { AxiosRequestConfig } from "axios";
 import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 
@@ -46,12 +46,23 @@ class crud {
   }
 
   /** 单独抽离的delete工具函数 */
-  public download<T, P>(
-    url: string,
-    params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig
-  ): Promise<P> {
-    return http.get<T, P>(baseUrlApi(url + "/download"), params, config);
+  public download(url: string) {
+    http
+      .get<null, Blob>(baseUrlApi(url + "/download"), null, {
+        responseType: "blob"
+      })
+      .then(res => {
+        const response: Blob = res;
+        const a = document.createElement("a");
+        const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
+
+        a.href = url;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        a.parentNode.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      });
   }
 }
 

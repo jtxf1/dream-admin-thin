@@ -4,72 +4,21 @@ import { useDept } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
-import * as Job from "@/api/system/job";
 
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
-import { message } from "@/utils/message";
-import { ElMessageBox } from "element-plus";
+import Search from "@iconify-icons/ep/search";
 
 defineOptions({
+  // 定义组件的名称
   name: "Dept"
 });
-
-const handleSelectionChange = val => {
-  multipleSelection.value = val;
-  if (val != null && val.length > 0) {
-    value2.value = false;
-  } else {
-    value2.value = true;
-  }
-};
-
-async function deleteAll() {
-  ElMessageBox.confirm(
-    `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个岗位吗?`,
-    "系统提示",
-    {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
-      dangerouslyUseHTMLString: true,
-      draggable: true
-    }
-  )
-    .then(() => {
-      Job.del(multipleSelection.value.map(dept => dept.id)).then(() => {
-        message("已删除所选的岗位", {
-          type: "success"
-        });
-        onSearch();
-      });
-    })
-    .catch(() => {
-      onSearch();
-    });
-}
-const exportClick = async () => {
-  const response: Blob = await Job.download(null);
-  const a = document.createElement("a");
-  const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
-
-  a.href = url;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  a.parentNode.removeChild(a);
-  window.URL.revokeObjectURL(url); // 删除创建的媒体流 url 对象
-  message("导出成功", {
-    type: "success"
-  });
-};
 const formRef = ref();
 const tableRef = ref();
-const value2 = ref(true);
 const {
-  form,
+  formQuery,
   loading,
   columns,
   dataList,
@@ -80,7 +29,10 @@ const {
   openDialog,
   handleDelete,
   handleSizeChange,
-  handleCurrentChange
+  handleCurrentChange,
+  handleSelectionChange,
+  deleteAll,
+  exportClick
 } = useDept();
 </script>
 
@@ -89,20 +41,23 @@ const {
     <el-form
       ref="formRef"
       :inline="true"
-      :model="form"
+      :model="formQuery"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
       <el-form-item label="岗位名称：" prop="name">
         <el-input
-          v-model="form.name"
+          v-model="formQuery.name"
           placeholder="请输入岗位名称"
           clearable
           class="!w-[200px]"
         />
       </el-form-item>
+      <el-form-item label="" prop="createTime">
+        <datePicker v-model="formQuery.createTime" />
+      </el-form-item>
       <el-form-item label="状态：" prop="status">
         <el-select
-          v-model="form.enabled"
+          v-model="formQuery.enabled"
           placeholder="请选择状态"
           clearable
           class="!w-[180px]"
@@ -111,13 +66,10 @@ const {
           <el-option label="停用" :value="false" />
         </el-select>
       </el-form-item>
-      <el-form-item label="" prop="createTime">
-        <datePicker v-model="form.createTime" />
-      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
-          :icon="useRenderIcon('search')"
+          :icon="useRenderIcon(Search)"
           :loading="loading"
           @click="onSearch"
         >
@@ -129,55 +81,55 @@ const {
       </el-form-item>
     </el-form>
 
-    <PureTableBar
-      title="岗位列表"
-      :columns="columns"
-      :tableRef="tableRef?.getTableRef()"
-      @refresh="onSearch"
-    >
-      <template #add>
+    <PureTableBar title="岗位列表" :columns="columns" @refresh="onSearch">
+      <template #buttons>
         <el-button
           type="primary"
           :icon="useRenderIcon(AddFill)"
           @click="openDialog()"
         >
-          新增岗位
+          新增
         </el-button>
-      </template>
-      <template #delete>
+        <el-button
+          type="success"
+          :disabled="multipleSelection.length !== 1"
+          :icon="useRenderIcon(Delete)"
+          @click="openDialog('编辑', multipleSelection[0])"
+        >
+          编辑
+        </el-button>
         <el-button
           type="danger"
-          :disabled="value2"
+          :disabled="multipleSelection.length <= 0"
           :icon="useRenderIcon(Delete)"
           @click="deleteAll()"
         >
-          删除岗位
+          删除
         </el-button>
-      </template>
-      <template #export>
         <el-button
-          type="success"
+          type="warning"
           :icon="useRenderIcon('solar:upload-bold')"
           @click="exportClick()"
         >
-          导出数据
+          导出
         </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
-          adaptive
-          :adaptiveConfig="{ offsetBottom: 32 }"
-          align-whole="center"
+          ref="tableRef"
           row-key="id"
-          showOverflowTooltip
+          align-whole="center"
           table-layout="auto"
-          default-expand-all
           :loading="loading"
           :size="size"
-          :columns="dynamicColumns"
+          adaptive
+          :adaptiveConfig="{ offsetBottom: 108 }"
           :data="dataList"
+          :columns="dynamicColumns"
           :pagination="pagination"
           :paginationSmall="size === 'small' ? true : false"
+          showOverflowTooltip
+          default-expand-all
           :header-cell-style="{
             background: 'var(--el-fill-color-light)',
             color: 'var(--el-text-color-primary)'
@@ -221,6 +173,14 @@ const {
 </template>
 
 <style lang="scss" scoped>
+:deep(.el-dropdown-menu__item i) {
+  margin: 0;
+}
+
+.main-content {
+  margin: 24px 24px 0 !important;
+}
+
 .search-form {
   :deep(.el-form-item) {
     margin-bottom: 12px;
