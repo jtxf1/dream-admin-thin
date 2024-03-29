@@ -6,7 +6,7 @@ import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps, FormQuery } from "./types";
 import { cloneDeep } from "@pureadmin/utils";
-import { usePublicHooks } from "../../hooks";
+import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox } from "element-plus";
 import { CRUD } from "@/api/utils";
 
@@ -95,11 +95,12 @@ export function useDept() {
    * 重置函数
    * @param formEl form对象
    */
-  function resetForm(formEl) {
+  const resetForm = formEl => {
     if (!formEl) return;
     formEl.resetFields();
     onSearch();
-  }
+  };
+
   /**
    * 加载数据
    */

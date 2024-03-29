@@ -6,7 +6,7 @@ import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps } from "../utils/types";
 import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
-import { usePublicHooks } from "../../hooks";
+import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox, type CascaderProps } from "element-plus";
 
 export function useDept() {

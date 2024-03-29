@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import ReCol from "@/components/ReCol";
 import { formRules } from "./utils/rule";
 import { FormProps } from "./utils/types";
-import { usePublicHooks } from "../hooks";
+import { usePublicHooks } from "@/utils/theme";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -77,3 +77,4 @@ defineExpose({ getRef });
     </el-row>
   </el-form>
 </template>
+../../../utils/hooks

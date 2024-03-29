@@ -55,7 +55,7 @@ const {
       <el-form-item label="" prop="createTime">
         <datePicker v-model="formQuery.createTime" />
       </el-form-item>
-      <el-form-item label="状态：" prop="status">
+      <el-form-item label="状态：" prop="enabled">
         <el-select
           v-model="formQuery.enabled"
           placeholder="请选择状态"
