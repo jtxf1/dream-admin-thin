@@ -23,8 +23,8 @@ onMounted(() => {
 const clickFn = (item: Generator) => {
   if (item.name.indexOf("Xml") > -1) {
     type.value = "xml";
-  } else if (item.name.indexOf("api") > -1) {
-    type.value = "javascript";
+  } else if (item.name.indexOf("types") > -1) {
+    type.value = "typescript";
   } else if (item.name.indexOf("index") > -1) {
     type.value = "html";
   } else {
