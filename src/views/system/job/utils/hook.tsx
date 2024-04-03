@@ -9,6 +9,7 @@ import { cloneDeep } from "@pureadmin/utils";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox } from "element-plus";
 import { CRUD } from "@/api/utils";
+import { getDictDetail } from "@/api/system/dict";
 
 export function useDept() {
   //查询条件
@@ -24,6 +25,8 @@ export function useDept() {
   /** 多选选中的数据 */
   const multipleSelection = ref([]);
   const { switchStyle } = usePublicHooks();
+  /** 字典列表 */
+  const dictsDetails = ref([]);
 
   /** 分页配置 */
   const pagination = reactive<PaginationProps>({
@@ -69,10 +72,10 @@ export function useDept() {
           size={scope.props.size === "small" ? "small" : "default"}
           style={switchStyle.value}
           inline-prompt
-          active-value={true}
-          inactive-value={false}
-          active-text="启用"
-          inactive-text="停用"
+          active-value={dictsDetails.value[0].value === "true"}
+          inactive-value={dictsDetails.value[1].value === "true"}
+          active-text={dictsDetails.value[0].label}
+          inactive-text={dictsDetails.value[1].label}
           onChange={() => onChange(scope as any)}
         />
       )
@@ -105,6 +108,7 @@ export function useDept() {
    * 加载数据
    */
   async function onSearch() {
+    await getDictDetails("job_status");
     formQuery.page = pagination.currentPage - 1;
     formQuery.size = pagination.pageSize;
     dataList.splice(0, dataList.length);
@@ -134,7 +138,8 @@ export function useDept() {
           name: row?.name ?? "",
           jobSort: row?.jobSort ?? 0,
           version: row?.version ?? 0,
-          enabled: row?.enabled ?? false
+          enabled: row?.enabled ?? false,
+          dictsDetails: dictsDetails.value ?? []
         }
       },
       width: "40%",
@@ -285,6 +290,13 @@ export function useDept() {
     onSearch();
   });
 
+  /** 字典查询 */
+  function getDictDetails(name) {
+    getDictDetail(name).then(data => {
+      dictsDetails.value = data.data.content;
+    });
+  }
+
   return {
     formQuery,
     loading,
@@ -292,6 +304,7 @@ export function useDept() {
     dataList,
     multipleSelection,
     pagination,
+    dictsDetails,
     /** 搜索 */
     onSearch,
     /** 重置 */

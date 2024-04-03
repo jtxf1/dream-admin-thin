@@ -18,7 +18,8 @@ const props = withDefaults(defineProps<FormProps>(), {
     email: "",
     version: 0,
     sort: 0,
-    remark: ""
+    remark: "",
+    dictsDetails: []
   })
 });
 
@@ -67,9 +68,10 @@ defineExpose({ getRef });
           <el-switch
             v-model="newFormInline.enabled"
             inline-prompt
-            :inactive-value="false"
-            active-text="启用"
-            inactive-text="停用"
+            :active-value="newFormInline.dictsDetails[0].value === 'true'"
+            :inactive-value="newFormInline.dictsDetails[1].value === 'true'"
+            :active-text="newFormInline.dictsDetails[0].label"
+            :inactive-text="newFormInline.dictsDetails[1].label"
             :style="switchStyle"
           />
         </el-form-item>

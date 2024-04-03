@@ -1,5 +1,5 @@
 import { http } from "@/utils/http";
-import type { ApiAbstract } from "@/utils/http/ApiAbstract";
+import type { ApiAbstract, Page } from "@/utils/http/ApiAbstract";
 import { baseUrlApi } from "../utils";
 
 export class Dict {
@@ -22,4 +22,18 @@ export class DictSmallDto {
 
 export const getAllDepts = () => {
   return http.request<ApiAbstract<Dict>>("get", baseUrlApi("dict/all"));
+};
+
+export const getDictDetail = (name: string) => {
+  return http.request<ApiAbstract<Page<Dict>>>(
+    "get",
+    baseUrlApi("dictDetail"),
+    {
+      params: {
+        dictName: name,
+        page: 0,
+        size: 9999
+      }
+    }
+  );
 };

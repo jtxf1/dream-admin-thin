@@ -24,6 +24,7 @@ const {
   dataList,
   multipleSelection,
   pagination,
+  dictsDetails,
   onSearch,
   resetForm,
   openDialog,
@@ -62,8 +63,12 @@ const {
           clearable
           class="!w-[180px]"
         >
-          <el-option label="启用" :value="true" />
-          <el-option label="停用" :value="false" />
+          <el-option
+            v-for="(item, index) in dictsDetails"
+            :key="index"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>

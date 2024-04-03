@@ -5,6 +5,7 @@ interface FormItemProps extends BaseEntity {
   name: string;
   jobSort: number;
   enabled: boolean;
+  dictsDetails?: any[];
 }
 interface FormProps {
   formInline: FormItemProps;
