@@ -5,7 +5,6 @@ import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps, FormQuery } from "./types";
-import { cloneDeep } from "@pureadmin/utils";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox } from "element-plus";
 import { CRUD } from "@/api/utils";
@@ -133,7 +132,6 @@ export function useDept() {
       title: `${title}岗位`,
       props: {
         formInline: {
-          higherDeptOptions: cloneDeep(dataList),
           id: row?.id,
           name: row?.name ?? "",
           jobSort: row?.jobSort ?? 0,
