@@ -9,6 +9,8 @@ interface FormItemProps {
   apiPath: string;
   prefix: string;
   cover: boolean;
+  apiCover: boolean;
+  webCover: boolean;
 }
 
 export type { FormItemProps };

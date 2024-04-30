@@ -31,7 +31,9 @@ const props = reactive<FormItemProps>({
   apiAlias: "",
   apiPath: "",
   prefix: "",
-  cover: false
+  cover: false,
+  apiCover: true,
+  webCover: true
 });
 
 const tableRef = ref();
@@ -247,6 +249,36 @@ defineExpose({ getRef });
                 <el-form-item label="是否覆盖" prop="cover">
                   <el-radio-group
                     v-model="props.cover"
+                    size="small"
+                    style="width: 40%"
+                  >
+                    <el-radio-button label="是" value="true" />
+                    <el-radio-button label="否" value="false" />
+                  </el-radio-group>
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                谨防误操作，请慎重选择
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="前端代码" prop="webCover">
+                  <el-radio-group
+                    v-model="props.webCover"
+                    size="small"
+                    style="width: 40%"
+                  >
+                    <el-radio-button label="是" value="true" />
+                    <el-radio-button label="否" value="false" />
+                  </el-radio-group>
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                谨防误操作，请慎重选择
+              </re-col>
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="后端代码" prop="apiCover">
+                  <el-radio-group
+                    v-model="props.apiCover"
                     size="small"
                     style="width: 40%"
                   >
