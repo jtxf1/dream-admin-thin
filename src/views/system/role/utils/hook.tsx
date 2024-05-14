@@ -125,6 +125,9 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
     onSearch();
   };
 
+  function isFiniteNumber(value: any): value is number {
+    return typeof value === "number" && isFinite(value);
+  }
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}角色`,
@@ -168,10 +171,13 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
               delete obj.id; // 删除指定字段
               Role.add(obj).finally(() => chores());
             } else if (title === "编辑") {
+              console.log(curData);
               const roleOne = {
                 ...curData,
                 depts: curData.deptIds.map(person => ({
-                  id: Object.values(person)[Object.values(person).length - 1]
+                  id: isFiniteNumber(person)
+                    ? person
+                    : Object.values(person)[Object.values(person).length - 1]
                 }))
               };
               Role.edit(roleOne).finally(() => chores());
@@ -181,7 +187,6 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
       }
     });
   }
-
   function getDeptTree() {
     Dept.getDeptTree([]).then(data => {
       if (data.status) {
