@@ -171,7 +171,6 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
               delete obj.id; // 删除指定字段
               Role.add(obj).finally(() => chores());
             } else if (title === "编辑") {
-              console.log(curData);
               const roleOne = {
                 ...curData,
                 depts: curData.deptIds.map(person => ({

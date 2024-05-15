@@ -1,4 +1,4 @@
-import { type Ref, h, ref, watch, reactive, onMounted, computed } from "vue";
+import { type Ref, h, ref, watch, reactive, computed } from "vue";
 import croppingUpload from "../upload.vue";
 import { baseUrlAvatar } from "@/api/utils";
 import { zxcvbn } from "@zxcvbn-ts/core";
@@ -86,9 +86,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         });
     }
   };
-  onMounted(async () => {
-    console.log(userInfo);
-  });
 
   /** 上传头像 */
   function handleUpload(row) {
