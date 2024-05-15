@@ -128,7 +128,7 @@ const systemMonitorRouter = {
 const permissionRouter = {
   path: "/permission",
   meta: {
-    title: "menus.permission",
+    title: "menus.purePermission",
     icon: "ep:lollipop",
     rank: 10
   },
@@ -167,7 +167,7 @@ const permissionRouter = {
       path: "/permission/page/index",
       name: "PermissionPage",
       meta: {
-        title: "menus.permissionPage",
+        title: "menus.purePermissionPage",
         roles: ["admin", "common"]
       }
     },
@@ -175,7 +175,7 @@ const permissionRouter = {
       path: "/permission/button/index",
       name: "PermissionButton",
       meta: {
-        title: "menus.permissionButton",
+        title: "menus.purePermissionButton",
         roles: ["admin", "common"],
         auths: [
           "permission:btn:add",

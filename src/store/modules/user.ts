@@ -1,19 +1,26 @@
 import { defineStore } from "pinia";
-import { store } from "@/store";
-import type { userType } from "./types";
-import { routerArrays } from "@/layout/types";
-import { router, resetRouter } from "@/router";
-import { storageLocal } from "@pureadmin/utils";
+import {
+  type userType,
+  store,
+  router,
+  resetRouter,
+  routerArrays,
+  storageLocal
+} from "../utils";
 import { type UserLogResult, login } from "@/api/login";
-import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { useMultiTagsStoreHook } from "./multiTags";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 import { encrypt } from "@/utils/rsaEncrypt";
 
 export const useUserStore = defineStore({
   id: "pure-user",
   state: (): userType => ({
+    // 头像
+    avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
     // 用户名
     username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
+    // 昵称
+    nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
     // 页面级别权限
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
     // 判断登录页面显示哪个组件（0：登录（默认）、1：手机登录、2：二维码登录、3：注册、4：忘记密码）
@@ -24,9 +31,17 @@ export const useUserStore = defineStore({
     loginDay: 7
   }),
   actions: {
+    /** 存储头像 */
+    SET_AVATAR(avatar: string) {
+      this.avatar = avatar;
+    },
     /** 存储用户名 */
     SET_USERNAME(username: string) {
       this.username = username;
+    },
+    /** 存储昵称 */
+    SET_NICKNAME(nickname: string) {
+      this.nickname = nickname;
     },
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {

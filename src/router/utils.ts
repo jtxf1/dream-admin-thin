@@ -22,12 +22,12 @@ import {
   isIncludeAllChildren
 } from "@pureadmin/utils";
 import { getConfig } from "@/config";
-import type { menuType } from "@/layout/types";
 import { buildHierarchyTree } from "@/utils/tree";
 import { userKey, type DataInfo } from "@/utils/auth";
+import { type menuType, routerArrays } from "@/layout/types";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-const IFrame = () => import("@/layout/frameView.vue");
+const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
@@ -86,7 +86,7 @@ function isOneOfArray(a: Array<string>, b: Array<string>) {
     : true;
 }
 
-/** 从localStorage里取出当前登陆用户的角色roles，过滤无权限的菜单 */
+/** 从localStorage里取出当前登录用户的角色roles，过滤无权限的菜单 */
 function filterNoPermissionTree(data: RouteComponent[]) {
   const currentRoles =
     storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
@@ -182,6 +182,14 @@ function handleAsyncRoutes(routeList) {
       }
     );
     usePermissionStoreHook().handleWholeMenus(routeList);
+  }
+  if (!useMultiTagsStoreHook().getMultiTagsCache) {
+    useMultiTagsStoreHook().handleTags("equal", [
+      ...routerArrays,
+      ...usePermissionStoreHook().flatteningRoutes.filter(
+        v => v?.meta?.fixedTag
+      )
+    ]);
   }
   addPathMatch();
 }
@@ -364,9 +372,23 @@ function hasAuth(value: string | Array<string>): boolean {
   return isAuths ? true : false;
 }
 
+function handleTopMenu(route) {
+  if (route?.children && route.children.length > 1) {
+    if (route.redirect) {
+      return route.children.filter(cur => cur.path === route.redirect)[0];
+    } else {
+      return route.children[0];
+    }
+  } else {
+    return route;
+  }
+}
+
 /** 获取所有菜单中的第一个菜单（顶级菜单）*/
 function getTopMenu(tag = false): menuType {
-  const topMenu = usePermissionStoreHook().wholeMenus[0]?.children[0];
+  const topMenu = handleTopMenu(
+    usePermissionStoreHook().wholeMenus[0]?.children[0]
+  );
   tag && useMultiTagsStoreHook().handleTags("push", topMenu);
   return topMenu;
 }

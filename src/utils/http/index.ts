@@ -35,13 +35,13 @@ class PureHttp {
     this.httpInterceptorsResponse();
   }
 
-  /** token过期后，暂存待执行的请求 */
+  /** `token`过期后，暂存待执行的请求 */
   private static requests = [];
 
   /** 初始化配置对象 */
   private static initConfig: PureHttpRequestConfig = {};
 
-  /** 保存当前Axios实例对象 */
+  /** 保存当前`Axios`实例对象 */
   private static axiosInstance: AxiosInstance = Axios.create(defaultConfig);
 
   /** 请求拦截 */
@@ -59,9 +59,9 @@ class PureHttp {
           PureHttp.initConfig.beforeRequestCallback(config);
           return config;
         }
-        /** 请求白名单，放置一些不需要token的接口（通过设置请求白名单，防止token过期后再请求造成的死循环问题） */
+        /** 请求白名单，放置一些不需要`token`的接口（通过设置请求白名单，防止`token`过期后再请求造成的死循环问题） */
         const whiteList = ["/refresh-token", "/login", "/auth", "/auth/*"];
-        return whiteList.find(
+        return whiteList.some(
           url =>
             url === config.url ||
             (url.endsWith("*") &&
@@ -144,22 +144,22 @@ class PureHttp {
     });
   }
 
-  /** 单独抽离的post工具函数 */
+  /** 单独抽离的`post`工具函数 */
   public post<T, P>(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
-  ): Promise<P> {
-    return this.request<P>("post", url, params, config);
+  ): Promise<T> {
+    return this.request<T>("post", url, params, config);
   }
 
-  /** 单独抽离的get工具函数 */
+  /** 单独抽离的`get`工具函数 */
   public get<T, P>(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
-  ): Promise<P> {
-    return this.request<P>("get", url, params, config);
+  ): Promise<T> {
+    return this.request<T>("get", url, params, config);
   }
   /** 单独抽离的put工具函数 */
   public put<T, P>(

@@ -8,9 +8,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { ElConfigProvider } from "element-plus";
-import en from "element-plus/dist/locale/en.mjs";
-import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 import { ReDialog } from "@/components/ReDialog";
+import en from "element-plus/es/locale/lang/en";
+import zhCn from "element-plus/es/locale/lang/zh-cn";
+
 export default defineComponent({
   name: "app",
   components: {
