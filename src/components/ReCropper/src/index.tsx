@@ -95,6 +95,15 @@ export default defineComponent({
     let scaleX = 1;
     let scaleY = 1;
 
+    onUnmounted(() => {
+      cropper.value?.destroy();
+      isReady.value = false;
+      cropper.value = null;
+      imgBase64.value = "";
+      scaleX = 1;
+      scaleY = 1;
+    });
+
     const debounceRealTimeCroppered = debounce(realTimeCroppered, 80);
 
     const getImageStyle = computed((): CSSProperties => {
@@ -131,15 +140,6 @@ export default defineComponent({
     });
 
     onMounted(init);
-
-    onUnmounted(() => {
-      cropper.value?.destroy();
-      isReady.value = false;
-      cropper.value = null;
-      imgBase64.value = "";
-      scaleX = 1;
-      scaleY = 1;
-    });
 
     useResizeObserver(tippyElRef, () => handCropper("reset"));
 

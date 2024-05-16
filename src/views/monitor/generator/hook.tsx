@@ -8,7 +8,7 @@ import {
   put,
   generate
 } from "@/api/generator/generator";
-import { getAllDepts, getDictDetail } from "@/api/system/dict";
+import { getAllDepts } from "@/api/system/dict";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 import { isString, isEmpty } from "@pureadmin/utils";
@@ -30,7 +30,6 @@ export function useRole() {
   });
   const dataList = ref([]);
   const dictsAll = ref([]);
-  const dictsDetails = ref([]);
   const changeList = ref([]);
   const loading = ref(true);
   const pagination = reactive<PaginationProps>({
@@ -100,7 +99,6 @@ export function useRole() {
   }
 
   async function onSearch() {
-    console.log("getDictDetails():", getDictDetails("job_status"));
     loading.value = true;
     const forms = toRaw(form);
     forms.page = pagination.currentPage - 1;
@@ -304,17 +302,6 @@ export function useRole() {
         type: "success"
       });
     });
-  }
-  function getDictDetails(name) {
-    getDictDetail(name)
-      .then(data => {
-        console.log(data.data.content);
-        dictsDetails.value.push(...data.data.content);
-        return data.data.content;
-      })
-      .catch(() => {
-        return [];
-      });
   }
   return {
     form,

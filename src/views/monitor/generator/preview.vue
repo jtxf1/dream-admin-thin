@@ -267,8 +267,8 @@ defineExpose({ getRef });
                     size="small"
                     style="width: 40%"
                   >
-                    <el-radio-button label="是" value="true" />
-                    <el-radio-button label="否" value="false" />
+                    <el-radio-button label="是" :value="true" />
+                    <el-radio-button label="否" :value="false" />
                   </el-radio-group>
                 </el-form-item>
               </re-col>
@@ -282,8 +282,8 @@ defineExpose({ getRef });
                     size="small"
                     style="width: 40%"
                   >
-                    <el-radio-button label="是" value="true" />
-                    <el-radio-button label="否" value="false" />
+                    <el-radio-button label="是" :value="true" />
+                    <el-radio-button label="否" :value="false" />
                   </el-radio-group>
                 </el-form-item>
               </re-col>

@@ -101,6 +101,7 @@ const {
                 link
                 type="primary"
                 :size="size"
+                :disabled="!row.previewType"
                 @click="
                   toDetail({
                     id: row.tableName,
@@ -142,6 +143,7 @@ const {
                 link
                 type="primary"
                 :size="size"
+                :disabled="!row.previewType"
                 @click="generateCode(row.tableName)"
               >
                 生成

@@ -26,6 +26,7 @@ import RightArrow from "@iconify-icons/ri/arrow-right-s-line";
 import DayIcon from "@/assets/svg/day.svg?component";
 import DarkIcon from "@/assets/svg/dark.svg?component";
 import SystemIcon from "@/assets/svg/system.svg?component";
+onUnmounted(() => removeMatchMedia);
 
 const { t } = useI18n();
 const { device } = useNav();
@@ -308,8 +309,6 @@ onBeforeMount(() => {
     settings.hideFooter && hideFooterChange();
   });
 });
-
-onUnmounted(() => removeMatchMedia);
 </script>
 
 <template>
