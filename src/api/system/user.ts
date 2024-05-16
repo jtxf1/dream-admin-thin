@@ -6,7 +6,6 @@ import {
 } from "@/utils/http/ApiAbstract";
 import { baseUrlApi } from "../utils";
 import type { Role } from "./role";
-import type { Job } from "./job";
 import type { Dept } from "./dept";
 import { encrypt } from "@/utils/rsaEncrypt";
 
@@ -19,7 +18,6 @@ export class User extends VersionEntity {
   /**
    * 用户岗位
    */
-  jobs: Job[];
   /**
    * 用户部门
    */
@@ -160,5 +158,11 @@ export function getLog<T>(page: number, size: number) {
       size: size,
       sort: "id,desc"
     }
+  });
+}
+
+export function resetPwd(data) {
+  return http.request("put", baseUrlApi("users/resetPwd"), {
+    data
   });
 }
