@@ -14,6 +14,7 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import Search from "@iconify-icons/ep/search";
 
 defineOptions({
   name: "User"
@@ -91,7 +92,7 @@ const {
         <el-form-item>
           <el-button
             type="primary"
-            :icon="useRenderIcon('search')"
+            :icon="useRenderIcon(Search)"
             :loading="loading"
             @click="onSearch"
           >

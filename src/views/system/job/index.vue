@@ -98,7 +98,7 @@ const {
         <el-button
           type="success"
           :disabled="multipleSelection.length !== 1"
-          :icon="useRenderIcon(Delete)"
+          :icon="useRenderIcon(EditPen)"
           @click="openDialog('编辑', multipleSelection[0])"
         >
           编辑
