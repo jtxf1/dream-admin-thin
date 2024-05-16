@@ -59,7 +59,9 @@ async function putConfig() {
     message("保存成功", {
       type: "success"
     });
-    onSearch();
+    generateConfig<FormItemProps>(getParameter.id).then(data => {
+      Object.assign(props, data.data);
+    });
   });
 }
 
