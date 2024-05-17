@@ -49,7 +49,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const pagination = reactive<PaginationProps>({
     total: 0,
     pageSize: 10,
-    pageSizes: [10, 15, 20],
+    pageSizes: [10, 20, 50, 100],
     currentPage: 1,
     align: "left",
     background: true
@@ -233,11 +233,13 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    pagination.pageSize = val;
+    onSearch();
   }
 
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
+    pagination.currentPage = val;
+    onSearch();
   }
 
   /** 当CheckBox选择项发生变化时会触发该事件 */
