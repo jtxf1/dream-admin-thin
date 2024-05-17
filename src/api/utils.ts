@@ -12,19 +12,19 @@ class crud {
   /** 单独抽离的get工具函数 */
   public get<T, P>(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<Page<P>>> {
-    return http.get<T, ApiAbstract<Page<P>>>(baseUrlApi(url), params, config);
+  ): Promise<ApiAbstract<Page<T>>> {
+    return http.get<ApiAbstract<Page<T>>, P>(baseUrlApi(url), params, config);
   }
 
   /** 单独抽离的post工具函数 */
   public post<T, P>(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<P>> {
-    return http.post<T, ApiAbstract<P>>(baseUrlApi(url), params, config);
+  ): Promise<ApiAbstract<T>> {
+    return http.post<ApiAbstract<T>, P>(baseUrlApi(url), params, config);
   }
 
   /** 单独抽离的put工具函数 */

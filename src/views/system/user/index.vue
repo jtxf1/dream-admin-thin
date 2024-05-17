@@ -46,7 +46,8 @@ const {
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange,
-  handleResetBatch
+  handleResetBatch,
+  exportClick
 } = useUser(tableRef, treeRef);
 </script>
 
@@ -131,7 +132,7 @@ const {
           <el-button
             type="info"
             :icon="useRenderIcon('solar:upload-bold')"
-            @click="onbatchDel()"
+            @click="exportClick()"
           >
             导出数据
           </el-button>

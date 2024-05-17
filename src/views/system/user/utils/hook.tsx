@@ -499,6 +499,13 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     jobOptions.value = (await CRUD.get("job")).data.content;
   });
 
+  const exportClick = async () => {
+    CRUD.download("users");
+
+    message("导出成功", {
+      type: "success"
+    });
+  };
   return {
     form,
     loading,
@@ -523,6 +530,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     onSelectionCancel,
     handleCurrentChange,
     handleSelectionChange,
-    handleResetBatch
+    handleResetBatch,
+    exportClick
   };
 }
