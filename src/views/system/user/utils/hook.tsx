@@ -1,6 +1,5 @@
 import "./reset.css";
 import dayjs from "dayjs";
-import roleForm from "../form/role.vue";
 import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
@@ -9,7 +8,7 @@ import croppingUpload from "../upload.vue";
 import { usePublicHooks } from "@/utils/theme";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
-import type { FormItemProps, RoleFormItemProps } from "../utils/types";
+import type { FormItemProps } from "../utils/types";
 import {
   hideTextAtIndex,
   getKeyList,
@@ -33,6 +32,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     phone: "",
     status: ""
   });
+  //要编辑的user
+  const userEdit = reactive({ user: {} });
   const formRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
@@ -244,11 +245,17 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     selectedNum.value = val.length;
     // 重置表格高度
     tableRef.value.setAdaptive();
+    if (val.length === 1) {
+      userEdit.user = val[0];
+    } else {
+      userEdit.user = {};
+    }
   }
 
   /** 取消选择 */
   function onSelectionCancel() {
     selectedNum.value = 0;
+    userEdit.user = {};
     // 用于多选表格，清空用户的选择
     tableRef.value.getTableRef().clearSelection();
   }
@@ -320,7 +327,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     return newTreeList;
   }
 
-  function openDialog(title = "新增", row?: FormItemProps) {
+  function openDialog(title = "新增", row?: FormItemProps | any) {
     addDialog({
       title: `${title}用户`,
       props: {
@@ -380,15 +387,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
               User.add(userClone).finally(() => {
                 chores();
               });
-              console.log("curData", userClone);
             } else {
               // 返回当前选中的行
-              const curSelected = tableRef.value
-                .getTableRef()
-                .getSelectionRows();
-              console.log(curSelected);
-
-              User.edit(userClone).finally(() => {
+              User.edit(
+                tableRef.value.getTableRef().getSelectionRows()
+              ).finally(() => {
                 chores();
               });
             }
@@ -450,48 +453,30 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       }
     });
   }
-
-  /** 分配角色 */
-  async function handleRole(row) {
-    const roleIds = row.roles.map(x => x.id);
-    // 选中的角色列表
-    const ids = roleIds ?? [];
+  /** 批量重置密码 */
+  function handleResetBatch() {
     addDialog({
-      title: `分配 ${row.username} 用户的角色`,
-      props: {
-        formInline: {
-          username: row?.username ?? "",
-          nickName: row?.nickName ?? "",
-          roleOptions: roleOptions.value ?? [],
-          ids
-        }
-      },
-      width: "400px",
+      title: `重置 ${getKeyList(tableRef.value.getTableRef().getSelectionRows(), "id")} 用户的密码`,
+      width: "10%",
       draggable: true,
-      fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(roleForm),
-      beforeSure: (done, { options }) => {
-        const curData = options.props.formInline as RoleFormItemProps;
-        const userClone = cloneDeep(row);
-        userClone["dept"] = { id: userClone.parentId };
-        userClone["roles"] = curData.ids.map(x => ({
-          id: x
-        }));
-        userClone["jobs"] = userClone.jobOptionsId.map(x => ({
-          id: x
-        }));
-        delete userClone.title;
-        delete userClone.higherDeptOptions;
-        delete userClone.parentId;
-        delete userClone.roleOptions;
-        delete userClone.jobOptions;
-        delete userClone.roleOptionsId;
-        delete userClone.jobOptionsId;
-        User.edit(userClone).finally(() => {
-          done();
-          onSearch();
+      contentRenderer: () => (
+        <>
+          <div class="mt-1 flex"></div>
+        </>
+      ),
+      beforeSure: done => {
+        // 返回当前选中的行
+        const curSelected = tableRef.value.getTableRef().getSelectionRows();
+        // 表单规则校验通过
+        User.resetPwd(getKeyList(curSelected, "id")).then(() => {
+          message(`已成功重置 ${getKeyList(curSelected, "id")} 用户的密码`, {
+            type: "success"
+          });
         });
+        // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
+        done(); // 关闭弹框
+        onSearch(); // 刷新表格数据
       }
     });
   }
@@ -522,6 +507,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     selectedNum,
     pagination,
     buttonClass,
+    userEdit,
     onSearch,
     resetForm,
     onbatchDel,
@@ -531,10 +517,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     handleDelete,
     handleUpload,
     handleReset,
-    handleRole,
     handleSizeChange,
     onSelectionCancel,
     handleCurrentChange,
-    handleSelectionChange
+    handleSelectionChange,
+    handleResetBatch
   };
 }

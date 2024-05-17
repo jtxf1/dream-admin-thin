@@ -7,7 +7,6 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
 
 import Upload from "@iconify-icons/ri/upload-line";
-import Role from "@iconify-icons/ri/admin-line";
 import Password from "@iconify-icons/ri/lock-password-line";
 import More from "@iconify-icons/ep/more-filled";
 import Delete from "@iconify-icons/ep/delete";
@@ -34,6 +33,7 @@ const {
   selectedNum,
   pagination,
   buttonClass,
+  userEdit,
   onSearch,
   resetForm,
   onbatchDel,
@@ -43,11 +43,10 @@ const {
   handleDelete,
   handleUpload,
   handleReset,
-  handleRole,
   handleSizeChange,
-  onSelectionCancel,
   handleCurrentChange,
-  handleSelectionChange
+  handleSelectionChange,
+  handleResetBatch
 } = useUser(tableRef, treeRef);
 </script>
 
@@ -117,7 +116,7 @@ const {
             type="primary"
             :disabled="selectedNum !== 1"
             :icon="useRenderIcon(AddFill)"
-            @click="openDialog('编辑')"
+            @click="openDialog('编辑', userEdit.user)"
           >
             编辑用户
           </el-button>
@@ -125,7 +124,7 @@ const {
             type="danger"
             :disabled="selectedNum <= 0"
             :icon="useRenderIcon(Delete)"
-            @click="openDialog()"
+            @click="onbatchDel()"
           >
             删除用户
           </el-button>
@@ -140,7 +139,7 @@ const {
             type="warning"
             :disabled="selectedNum <= 0"
             :icon="useRenderIcon(Refresh)"
-            @click="openDialog()"
+            @click="handleResetBatch()"
           >
             重置密码
           </el-button>
@@ -226,18 +225,6 @@ const {
                         @click="handleReset(row)"
                       >
                         重置密码
-                      </el-button>
-                    </el-dropdown-item>
-                    <el-dropdown-item>
-                      <el-button
-                        :class="buttonClass"
-                        link
-                        type="primary"
-                        :size="size"
-                        :icon="useRenderIcon(Role)"
-                        @click="handleRole(row)"
-                      >
-                        分配角色
                       </el-button>
                     </el-dropdown-item>
                   </el-dropdown-menu>
