@@ -330,7 +330,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           id: row?.id,
           parentId: row?.dept.id ?? 0,
           nickName: row?.nickName ?? "",
-          username: row?.nickName ?? "",
+          username: row?.username ?? "",
           password: row?.password ?? "",
           phone: row?.phone ?? "",
           email: row?.email ?? "",
@@ -377,10 +377,17 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             delete userClone.jobOptionsId;
             // 表单规则校验通过
             if (title === "新增") {
-              User.add(userClone);
-              chores();
+              User.add(userClone).finally(() => {
+                chores();
+              });
               console.log("curData", userClone);
             } else {
+              // 返回当前选中的行
+              const curSelected = tableRef.value
+                .getTableRef()
+                .getSelectionRows();
+              console.log(curSelected);
+
               User.edit(userClone).finally(() => {
                 chores();
               });

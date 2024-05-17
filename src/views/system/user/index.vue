@@ -107,22 +107,38 @@ const {
       <PureTableBar title="用户管理" :columns="columns" @refresh="onSearch">
         <template #buttons>
           <el-button
-            type="primary"
+            type="success"
             :icon="useRenderIcon(AddFill)"
             @click="openDialog()"
           >
             新增用户
           </el-button>
           <el-button
-            type="success"
-            :icon="useRenderIcon('solar:upload-bold')"
+            type="primary"
+            :disabled="selectedNum !== 1"
+            :icon="useRenderIcon(AddFill)"
+            @click="openDialog('编辑')"
+          >
+            编辑用户
+          </el-button>
+          <el-button
+            type="danger"
+            :disabled="selectedNum <= 0"
+            :icon="useRenderIcon(Delete)"
             @click="openDialog()"
+          >
+            删除用户
+          </el-button>
+          <el-button
+            type="info"
+            :icon="useRenderIcon('solar:upload-bold')"
+            @click="onbatchDel()"
           >
             导出数据
           </el-button>
           <el-button
-            type="danger"
-            disabled
+            type="warning"
+            :disabled="selectedNum <= 0"
             :icon="useRenderIcon(Refresh)"
             @click="openDialog()"
           >
