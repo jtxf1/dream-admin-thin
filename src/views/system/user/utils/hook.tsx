@@ -30,7 +30,9 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     username: "",
     createTime: "",
     phone: "",
-    status: ""
+    status: "",
+    blurry: "",
+    enabled: ""
   });
   //要编辑的user
   const userEdit = reactive({ user: {} });
@@ -279,8 +281,14 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   async function onSearch() {
     loading.value = true;
     const queryType = new User.UserQueryCriteria();
-    if (!isAllEmpty(form.username)) {
-      queryType.name = form.username;
+    if (!isAllEmpty(form.blurry)) {
+      queryType.blurry = form.blurry;
+    }
+    if (!isAllEmpty(form.enabled)) {
+      queryType.enabled = form.enabled;
+    }
+    if (!isAllEmpty(form.createTime)) {
+      queryType.createTime = form.createTime;
     }
     if (
       form.deptId !== null &&
@@ -392,7 +400,9 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             } else {
               // 返回当前选中的行
               User.edit(
-                tableRef.value.getTableRef().getSelectionRows()
+                row == null || row.id == null
+                  ? tableRef.value.getTableRef().getSelectionRows()
+                  : userClone
               ).finally(() => {
                 chores();
               });

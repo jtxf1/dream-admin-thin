@@ -73,6 +73,7 @@ export class UserQueryCriteria extends PageQuery {
   deptIds: number[];
   enabled: boolean;
   createTime: Date[];
+  blurry: string;
 }
 
 export const get = (params: number | any) => {

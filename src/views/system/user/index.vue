@@ -67,9 +67,9 @@ const {
         :model="form"
         class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
       >
-        <el-form-item label="用户名称：" prop="username">
+        <el-form-item label="用户名称：" prop="blurry">
           <el-input
-            v-model="form.username"
+            v-model="form.blurry"
             placeholder="请输入用户名或邮箱"
             clearable
             class="!w-[160px]"
@@ -78,15 +78,15 @@ const {
         <el-form-item label="" prop="createTime">
           <datePicker v-model="form.createTime" />
         </el-form-item>
-        <el-form-item label="状态：" prop="status">
+        <el-form-item label="状态：" prop="enabled">
           <el-select
-            v-model="form.status"
+            v-model="form.enabled"
             placeholder="请选择"
             clearable
             class="!w-[160px]"
           >
-            <el-option label="激活" value="1" />
-            <el-option label="锁定" value="0" />
+            <el-option label="激活" value="true" />
+            <el-option label="锁定" value="false" />
           </el-select>
         </el-form-item>
         <el-form-item>
