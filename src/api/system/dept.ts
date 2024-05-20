@@ -8,6 +8,7 @@ export class Dept {
   deptSort: number;
   enabled: boolean;
   hasChildren: boolean;
+  children: Dept[];
   id: number;
   pid: number;
   status: number;

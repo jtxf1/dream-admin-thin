@@ -172,7 +172,7 @@ const {
     <tree
       v-model:currentRow="currentRow"
       v-model:deptId="deptId"
-      class="min-w-[300px] mr-2"
+      class="w-[calc(25%-180px)]"
       :treeData="treeData"
       :treeLoading="treeLoading"
       @tree-select="onTreeSelect"
