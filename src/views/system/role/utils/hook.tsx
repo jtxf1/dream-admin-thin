@@ -88,7 +88,7 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
   }
 
   function handleSizeChange(val: number) {
-    form.size = val - 1;
+    form.size = val;
     onSearch();
   }
 
