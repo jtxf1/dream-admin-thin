@@ -6,7 +6,7 @@ import { formatBytes } from "@pureadmin/utils";
 const props = defineProps({
   imgSrc: String
 });
-
+//定义组件内部可以触发的cropper函数,可以被父组件或其他监听该事件的组件捕获并作出响应。
 const emit = defineEmits(["cropper"]);
 
 const infos = ref();

@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineModel, getCurrentInstance } from "vue";
+import { ElTree } from "element-plus";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
 import Dept from "@iconify-icons/ri/git-branch-line";
 // import Reset from "@iconify-icons/ri/restart-line";
 import More2Fill from "@iconify-icons/ri/more-2-fill";
 import OfficeBuilding from "@iconify-icons/ep/office-building";
 import LocationCompany from "@iconify-icons/ep/add-location";
+import Check from "@iconify-icons/ep/check";
+import CheckListAll from "@iconify-icons/ep/circle-check-filled";
+import CircleCheck from "@iconify-icons/ep/circle-check";
+import SemiSelect from "@iconify-icons/ep/semi-select";
+import ExpandIcon from "../user/svg/expand.svg?component";
+import UnExpandIcon from "../user/svg/unexpand.svg?component";
 import { TreeKey } from "element-plus/es/components/tree/src/tree.type.mjs";
 
 interface Tree {
@@ -24,9 +32,10 @@ const deptId = defineModel<Number>("deptId");
 
 const emit = defineEmits(["tree-select"]);
 
-const treeRef = ref();
+const treeRef = ref<InstanceType<typeof ElTree>>();
 const treeRef2 = ref();
 const isExpand = ref(true);
+const isSelectAll = ref(true);
 const searchValue = ref("");
 const highlightMap = ref({});
 const { proxy } = getCurrentInstance();
@@ -57,10 +66,44 @@ function toggleRowExpansionAll(status) {
   }
 }
 /** 重置部门树状态（选中状态、搜索框值、树初始化） */
-function onTreeReset() {
-  highlightMap.value = {};
-  searchValue.value = "";
-  toggleRowExpansionAll(true);
+function onTreeReset(isa?: boolean) {
+  isSelectAll.value = isa;
+  toggleRowExpansionAll(isa);
+  if (!isa) {
+    treeRef.value!.setCheckedKeys(currentRowList(props.treeData), false);
+  } else {
+    treeRef.value!.setCheckedKeys([], false);
+  }
+}
+/** 重置部门树状态（选中状态、搜索框值、树初始化） */
+function onTreeInvert() {
+  const treeSelicts = treeRef.value!.getCheckedKeys(false);
+  treeRef.value!.setCheckedKeys(
+    currentRowList(props.treeData).filter(x => !treeSelicts.includes(x)),
+    false
+  );
+}
+const currentRowList = tree => {
+  const ids: number[] = [];
+  function traverse(node) {
+    if (node.id) {
+      ids.push(node.id);
+    }
+    if (node.children) {
+      node.children.forEach(traverse);
+    }
+  }
+  tree.forEach(traverse);
+  return ids;
+};
+function handleNodeClick(data: Tree) {
+  if (data.children) {
+    data.children.forEach(item => {
+      item.highlight = false;
+    });
+  }
+  data.highlight = !data.highlight;
+  highlightMap.value = { ...highlightMap.value, [data.id]: data.highlight };
 }
 
 function testClick() {
@@ -80,19 +123,18 @@ defineExpose({ onTreeReset });
     class="h-full bg-bg_color overflow-auto"
     :style="{ minHeight: `calc(100vh - 133px)` }"
   >
-    <div class="flex items-center h-[34px]">
-      <el-row :gutter="24">
-        <el-col :span="16"
-          ><div class="grid-content ep-bg-purple" />
-          菜单分配</el-col
+    <el-row :gutter="20" style="margin: 2">
+      <el-col :span="17"> 菜单分配</el-col>
+      <el-col :span="3">
+        <el-button
+          type="primary"
+          :icon="useRenderIcon(Check)"
+          size="small"
+          @click="testClick"
+          >保存</el-button
         >
-        <el-col :span="6"
-          ><div class="grid-content ep-bg-purple" />
-          <el-button type="primary" @click="testClick">✔保存</el-button>
-        </el-col>
-      </el-row>
-    </div>
-
+      </el-col>
+    </el-row>
     <div class="flex items-center h-[34px]">
       <el-input
         v-model="searchValue"
@@ -120,6 +162,7 @@ defineExpose({ onTreeReset });
                 :class="buttonClass"
                 link
                 type="primary"
+                :icon="useRenderIcon(isExpand ? ExpandIcon : UnExpandIcon)"
                 @click="toggleRowExpansionAll(isExpand ? false : true)"
               >
                 {{ isExpand ? "折叠全部" : "展开全部" }}
@@ -130,9 +173,10 @@ defineExpose({ onTreeReset });
                 :class="buttonClass"
                 link
                 type="primary"
-                @click="onTreeReset"
+                :icon="useRenderIcon(isSelectAll ? CheckListAll : CircleCheck)"
+                @click="onTreeReset(isSelectAll ? false : true)"
               >
-                全选
+                {{ isSelectAll ? "全选" : "全不选" }}
               </el-button>
             </el-dropdown-item>
             <el-dropdown-item>
@@ -140,9 +184,10 @@ defineExpose({ onTreeReset });
                 :class="buttonClass"
                 link
                 type="primary"
-                @click="onTreeReset"
+                :icon="useRenderIcon(SemiSelect)"
+                @click="onTreeInvert"
               >
-                取消全选
+                反选
               </el-button>
             </el-dropdown-item>
           </el-dropdown-menu>
