@@ -106,7 +106,7 @@ export function useDept() {
       queryType.createTime = form.createTime;
     }
     const depts = (await Dept.getDepts(queryType)).data; // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
-    let newData = depts.content;
+    let newData = depts;
     //dataList.value = handleTree2(newData); // 处理成树结构
     dataList.splice(0, dataList.length); // 清空数组
     newData.forEach(x => {
@@ -138,7 +138,7 @@ export function useDept() {
           queryDept = null;
         }
         Dept.getDepts(queryDept).then(contentData => {
-          const nodes = contentData.data.content.map(item => ({
+          const nodes = contentData.data.map(item => ({
             value: item.id,
             label: item.name,
             subCount: item.subCount,
@@ -197,6 +197,7 @@ export function useDept() {
                 enabled: curData.enabled
               });
               chores();
+              onSearch();
             } else if (title === "修改") {
               Dept.edit({
                 id: curData.id,
@@ -207,8 +208,10 @@ export function useDept() {
               });
               // 实际开发先调用编辑接口，再进行下面操作
               chores();
+              onSearch();
             } else {
               chores();
+              onSearch();
             }
           }
         });

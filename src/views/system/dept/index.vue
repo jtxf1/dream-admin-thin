@@ -10,6 +10,7 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import Search from "@iconify-icons/ep/search";
 import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
 
@@ -49,20 +50,6 @@ async function deleteAll() {
       onSearch();
     });
 }
-const load = (
-  row: Partial<Dept.Dept>,
-  treeNode: unknown,
-  resolve: (date: Partial<Dept.Dept>[]) => void
-) => {
-  let queryDept = { pid: row?.id };
-  if (!row?.id) {
-    queryDept = null;
-  }
-  Dept.getDepts(queryDept).then(contentData => {
-    // 调用' resolve '回调以返回子节点数据并指示加载完成。
-    resolve(contentData.data.content);
-  });
-};
 const exportClick = async () => {
   const response: Blob = await Dept.download(null);
   const a = document.createElement("a");
@@ -127,7 +114,7 @@ const {
       <el-form-item>
         <el-button
           type="primary"
-          :icon="useRenderIcon('search')"
+          :icon="useRenderIcon(Search)"
           :loading="loading"
           @click="onSearch"
         >
@@ -145,7 +132,7 @@ const {
       :tableRef="tableRef?.getTableRef()"
       @refresh="onSearch"
     >
-      <template #add>
+      <template #buttons>
         <el-button
           type="primary"
           :icon="useRenderIcon(AddFill)"
@@ -153,8 +140,6 @@ const {
         >
           新增部门
         </el-button>
-      </template>
-      <template #delete>
         <el-button
           type="danger"
           :disabled="value2"
@@ -163,8 +148,6 @@ const {
         >
           删除部门
         </el-button>
-      </template>
-      <template #export>
         <el-button
           type="success"
           :icon="useRenderIcon('solar:upload-bold')"
@@ -177,7 +160,7 @@ const {
         <pure-table
           ref="tableRef"
           adaptive
-          :adaptiveConfig="{ offsetBottom: 32 }"
+          :adaptiveConfig="{ offsetBottom: 45 }"
           align-whole="center"
           row-key="id"
           showOverflowTooltip
@@ -191,8 +174,6 @@ const {
             background: 'var(--el-fill-color-light)',
             color: 'var(--el-text-color-primary)'
           }"
-          lazy
-          :load="load"
           @selection-change="handleSelectionChange"
         >
           <template #operation="{ row }">
