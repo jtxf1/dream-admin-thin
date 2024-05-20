@@ -39,7 +39,6 @@ const {
   onbatchDel,
   openDialog,
   onTreeSelect,
-  handleUpdate,
   handleDelete,
   handleUpload,
   handleReset,
@@ -200,7 +199,6 @@ const {
                   type="primary"
                   :size="size"
                   :icon="useRenderIcon(More)"
-                  @click="handleUpdate(row)"
                 />
                 <template #dropdown>
                   <el-dropdown-menu>
