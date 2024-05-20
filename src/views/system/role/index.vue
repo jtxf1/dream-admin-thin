@@ -98,7 +98,7 @@ const {
       </el-form>
 
       <PureTableBar title="角色列表" :columns="columns" @refresh="onSearch">
-        <template #add>
+        <template #buttons>
           <el-button
             type="primary"
             :icon="useRenderIcon(AddFill)"
@@ -106,8 +106,6 @@ const {
           >
             新增角色
           </el-button>
-        </template>
-        <template #export>
           <el-button
             type="success"
             :icon="useRenderIcon('solar:upload-bold')"

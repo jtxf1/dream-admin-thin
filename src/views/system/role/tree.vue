@@ -68,7 +68,7 @@ function toggleRowExpansionAll(status) {
 /** 重置部门树状态（选中状态、搜索框值、树初始化） */
 function onTreeReset(isa?: boolean) {
   isSelectAll.value = isa;
-  toggleRowExpansionAll(isa);
+  toggleRowExpansionAll(!isa);
   if (!isa) {
     treeRef.value!.setCheckedKeys(currentRowList(props.treeData), false);
   } else {
@@ -85,15 +85,17 @@ function onTreeInvert() {
 }
 const currentRowList = tree => {
   const ids: number[] = [];
+
   function traverse(node) {
-    if (node.id) {
+    if (node.children || node.children === null) {
+      node.children?.forEach(traverse);
+    } else {
       ids.push(node.id);
     }
-    if (node.children) {
-      node.children.forEach(traverse);
-    }
   }
+
   tree.forEach(traverse);
+
   return ids;
 };
 function handleNodeClick(data: Tree) {
