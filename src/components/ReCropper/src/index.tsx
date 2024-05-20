@@ -21,6 +21,7 @@ import {
   downloadByBase64,
   useResizeObserver
 } from "@pureadmin/utils";
+import { http } from "@/utils/http";
 import {
   Reload,
   Upload,
@@ -146,24 +147,32 @@ export default defineComponent({
     async function init() {
       const imgEl = unref(imgElRef);
       if (!imgEl) return;
-      cropper.value = new Cropper(imgEl, {
-        ...defaultOptions,
-        ready: () => {
-          isReady.value = true;
-          realTimeCroppered();
-          delay(400).then(() => emit("readied", cropper.value));
-        },
-        crop() {
-          debounceRealTimeCroppered();
-        },
-        zoom() {
-          debounceRealTimeCroppered();
-        },
-        cropmove() {
-          debounceRealTimeCroppered();
-        },
-        ...props.options
-      });
+      http
+        .request("get", imgEl.src)
+        .catch(() => {
+          imgEl.src =
+            "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNNDAwIDMxNy43aDczLjlWNjU2YzAgNC40IDMuNiA4IDggOGg2MGM0LjQgMCA4LTMuNiA4LThWMzE3LjdINjI0YzYuNyAwIDEwLjQtNy43IDYuMy0xMi45TDUxOC4zIDE2M2E4IDggMCAwIDAtMTIuNiAwbC0xMTIgMTQxLjdjLTQuMSA1LjMtLjQgMTMgNi4zIDEzTTg3OCA2MjZoLTYwYy00LjQgMC04IDMuNi04IDh2MTU0SDIxNFY2MzRjMC00LjQtMy42LTgtOC04aC02MGMtNC40IDAtOCAzLjYtOCA4djE5OGMwIDE3LjcgMTQuMyAzMiAzMiAzMmg2ODRjMTcuNyAwIDMyLTE0LjMgMzItMzJWNjM0YzAtNC40LTMuNi04LTgtOCIvPjwvc3ZnPg==";
+        })
+        .finally(() => {
+          cropper.value = new Cropper(imgEl, {
+            ...defaultOptions,
+            ready: () => {
+              isReady.value = true;
+              realTimeCroppered();
+              delay(400).then(() => emit("readied", cropper.value));
+            },
+            crop() {
+              debounceRealTimeCroppered();
+            },
+            zoom() {
+              debounceRealTimeCroppered();
+            },
+            cropmove() {
+              debounceRealTimeCroppered();
+            },
+            ...props.options
+          });
+        });
     }
 
     function realTimeCroppered() {

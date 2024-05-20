@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { getKeyList } from "@pureadmin/utils";
 import { getLoginLogsList } from "@/api/system";
-import { usePublicHooks } from "@/views/system/hooks";
+import { usePublicHooks } from "@/utils/theme";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 

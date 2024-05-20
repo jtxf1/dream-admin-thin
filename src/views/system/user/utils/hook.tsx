@@ -102,15 +102,13 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       label: "性别",
       prop: "gender",
       minWidth: 90,
-      cellRenderer: ({ row, props }) => (
-        <el-tag
-          size={props.size}
-          type={row.sex === 1 ? "danger" : "success"}
-          effect="plain"
-        >
-          {row.gender}
-        </el-tag>
-      )
+      cellRenderer: ({ row }) => {
+        return (
+          <el-tag type={row.gender === "女" ? "danger" : "success"}>
+            {row.gender}
+          </el-tag>
+        );
+      }
     },
     {
       label: "部门",
