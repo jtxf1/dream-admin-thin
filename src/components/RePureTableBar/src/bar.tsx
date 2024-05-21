@@ -34,11 +34,6 @@ const props = {
   tableRef: {
     type: Object as PropType<any>
   },
-  /** 头部最左边的标题 */
-  loadingBool: {
-    type: Boolean,
-    default: false
-  },
   /** 需要展示的列 */
   columns: {
     type: Array as PropType<TableColumnList>,
@@ -246,6 +241,7 @@ export default defineComponent({
         />
       )
     };
+
     return () => (
       <>
         <div {...attrs} class="w-[99/100] mt-2 px-2 pb-2 bg-bg_color">
@@ -348,10 +344,10 @@ export default defineComponent({
                                 }
                               >
                                 <span
-                                  title={item}
+                                  title={transformI18n(item)}
                                   class="inline-block w-[120px] truncate hover:text-text_color_primary"
                                 >
-                                  {item}
+                                  {transformI18n(item)}
                                 </span>
                               </el-checkbox>
                             </div>
