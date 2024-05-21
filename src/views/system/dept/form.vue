@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     higherDeptOptions: [],
     higherDeptOptions2: {},
+    deptCascader: [],
     parentId: 0,
     id: 0,
     pid: 0,
@@ -49,7 +50,8 @@ defineExpose({ getRef });
           <el-cascader
             v-model="newFormInline.pid"
             class="w-full"
-            :props="newFormInline.higherDeptOptions2"
+            :props="{ checkStrictly: true }"
+            :options="newFormInline.deptCascader"
             clearable
             filterable
             placeholder="请选择上级部门"

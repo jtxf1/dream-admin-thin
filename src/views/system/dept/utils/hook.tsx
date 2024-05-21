@@ -17,7 +17,8 @@ export function useDept() {
   });
 
   const formRef = ref();
-  const dataList = reactive([]);
+  const dataList = ref([]);
+  const deptCascader = ref([]);
   const loading = ref(true);
   const multipleSelection = ref([]);
   const switchLoadMap = ref({});
@@ -106,17 +107,32 @@ export function useDept() {
       queryType.createTime = form.createTime;
     }
     const depts = (await Dept.getDepts(queryType)).data; // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
-    let newData = depts;
     //dataList.value = handleTree2(newData); // 处理成树结构
-    dataList.splice(0, dataList.length); // 清空数组
-    newData.forEach(x => {
-      dataList.push(x);
-    });
+    dataList.value = depts;
+    deptCascader.value = extractFields(depts);
     setTimeout(() => {
       loading.value = false;
     }, 500);
   }
+  function extractFields(arr) {
+    let result = [];
 
+    arr.forEach(item => {
+      let obj = {
+        value: item.id,
+        label: item.name,
+        subCount: item.subCount,
+        leaf: item.subCount === 0,
+        children: []
+      };
+      if (item.children !== null && item.children.length > 0) {
+        obj.children = extractFields(item.children);
+      }
+      result.push(obj);
+    });
+
+    return result;
+  }
   function formatHigherDeptOptions(treeList) {
     // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
     if (!treeList || !treeList.length) return;
@@ -137,6 +153,7 @@ export function useDept() {
         if (!node.data) {
           queryDept = null;
         }
+
         Dept.getDepts(queryDept).then(contentData => {
           const nodes = contentData.data.map(item => ({
             value: item.id,
@@ -157,6 +174,7 @@ export function useDept() {
         formInline: {
           higherDeptOptions: formatHigherDeptOptions(cloneDeep(dataList)),
           higherDeptOptions2: higherDeptOptions2,
+          deptCascader: deptCascader,
           parentId: row?.parentId ?? 0,
           id: row?.id ?? 0,
           pid: row?.pid ?? 0,
@@ -198,7 +216,7 @@ export function useDept() {
               });
               chores();
               onSearch();
-            } else if (title === "修改") {
+            } else if (title === "编辑") {
               Dept.edit({
                 id: curData.id,
                 name: curData.name,
@@ -283,6 +301,7 @@ export function useDept() {
     loading,
     columns,
     dataList,
+    deptCascader,
     multipleSelection,
     /** 搜索 */
     onSearch,

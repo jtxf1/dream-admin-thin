@@ -2,6 +2,7 @@ import type { CascaderProps } from "element-plus";
 interface FormItemProps {
   higherDeptOptions: Record<string, unknown>[];
   higherDeptOptions2: CascaderProps;
+  deptCascader?: any[];
   parentId: number;
   id: number;
   pid: number;

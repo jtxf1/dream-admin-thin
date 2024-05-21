@@ -79,6 +79,12 @@ const {
   openDialog,
   handleDelete
 } = useDept();
+
+const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
+  setTimeout(() => {
+    resolve(row.children);
+  }, 100);
+};
 </script>
 
 <template>
@@ -165,9 +171,11 @@ const {
           row-key="id"
           showOverflowTooltip
           table-layout="auto"
-          default-expand-all
           :loading="loading"
           :size="size"
+          lazy
+          :load="load"
+          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
           :columns="dynamicColumns"
           :data="dataList"
           :header-cell-style="{
