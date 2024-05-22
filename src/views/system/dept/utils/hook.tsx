@@ -3,13 +3,16 @@ import editForm from "../form.vue";
 import { message } from "@/utils/message";
 import * as Dept from "@/api/system/dept";
 import { addDialog } from "@/components/ReDialog";
-import { reactive, ref, onMounted, h } from "vue";
+import { reactive, ref, onMounted, type Ref, h } from "vue";
 import type { FormItemProps } from "../utils/types";
 import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox, type CascaderProps } from "element-plus";
 
-export function useDept() {
+export function useDept(tableRef: Ref, treeRef: Ref) {
+  console.log(tableRef);
+  console.log(treeRef);
+
   const form = reactive({
     name: "",
     enabled: null,
@@ -94,6 +97,7 @@ export function useDept() {
   }
 
   async function onSearch() {
+    dataList.value = [];
     loading.value = true;
     const queryType = new Dept.DeptQueryCriteria();
 
@@ -229,9 +233,9 @@ export function useDept() {
                 pid: curData.pid === 0 ? null : curData.pid[0],
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
+              }).then(() => {
+                chores();
               });
-              chores();
-              onSearch();
             } else if (title === "编辑") {
               Dept.edit({
                 id: curData.id,
@@ -239,13 +243,11 @@ export function useDept() {
                 pid: curData.pid === 0 ? null : curData.pid,
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
+              }).then(() => {
+                chores();
               });
-              // 实际开发先调用编辑接口，再进行下面操作
-              chores();
-              onSearch();
             } else {
               chores();
-              onSearch();
             }
           }
         });

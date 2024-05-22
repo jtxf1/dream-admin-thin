@@ -78,7 +78,7 @@ const {
   resetForm,
   openDialog,
   handleDelete
-} = useDept();
+} = useDept(formRef, tableRef);
 
 const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
   setTimeout(() => {
@@ -132,12 +132,7 @@ const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
       </el-form-item>
     </el-form>
 
-    <PureTableBar
-      title="部门列表"
-      :columns="columns"
-      :tableRef="tableRef?.getTableRef()"
-      @refresh="onSearch"
-    >
+    <PureTableBar title="部门列表" @refresh="onSearch">
       <template #buttons>
         <el-button
           type="primary"
@@ -162,11 +157,10 @@ const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
           导出数据
         </el-button>
       </template>
-      <template v-slot="{ size, dynamicColumns }">
+      <template v-slot="{ size }">
         <pure-table
-          ref="tableRef"
+          :ref="tableRef"
           adaptive
-          :adaptiveConfig="{ offsetBottom: 45 }"
           align-whole="center"
           row-key="id"
           showOverflowTooltip
@@ -175,8 +169,7 @@ const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
           :size="size"
           lazy
           :load="load"
-          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-          :columns="dynamicColumns"
+          :columns="columns"
           :data="dataList"
           :header-cell-style="{
             background: 'var(--el-fill-color-light)',
