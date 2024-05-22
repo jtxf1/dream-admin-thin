@@ -33,6 +33,7 @@ function getRef() {
 }
 onMounted(() => {
   // 在这里编写页面加载后要执行的代码
+  console.log(newFormInline.value.deptCascader);
 });
 defineExpose({ getRef });
 </script>
@@ -51,6 +52,7 @@ defineExpose({ getRef });
             v-model="newFormInline.pid"
             class="w-full"
             :props="{ checkStrictly: true }"
+            :show-all-levels="false"
             :options="newFormInline.deptCascader"
             clearable
             filterable

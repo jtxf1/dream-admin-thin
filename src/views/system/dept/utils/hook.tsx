@@ -133,6 +133,22 @@ export function useDept() {
 
     return result;
   }
+
+  function copyFields(arr: any[], id?: number) {
+    let result: any[] = cloneDeep(arr);
+    result.forEach(item => {
+      if (item.value === id) {
+        item.disabled = true;
+        //item["disabled"] = true;
+        console.log(item.disabled);
+      }
+      if (item.children !== null && item.children.length > 0) {
+        item.children = copyFields(item.children, id);
+      }
+    });
+    return result;
+  }
+
   function formatHigherDeptOptions(treeList) {
     // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
     if (!treeList || !treeList.length) return;
@@ -174,7 +190,7 @@ export function useDept() {
         formInline: {
           higherDeptOptions: formatHigherDeptOptions(cloneDeep(dataList)),
           higherDeptOptions2: higherDeptOptions2,
-          deptCascader: deptCascader,
+          deptCascader: copyFields(deptCascader.value, row?.id),
           parentId: row?.parentId ?? 0,
           id: row?.id ?? 0,
           pid: row?.pid ?? 0,
