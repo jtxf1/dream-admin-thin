@@ -82,7 +82,7 @@ const {
 
 const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
   setTimeout(() => {
-    resolve(row.children);
+    resolve(row?.children ?? []);
   }, 100);
 };
 </script>
