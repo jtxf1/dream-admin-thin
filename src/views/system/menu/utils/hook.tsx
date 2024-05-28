@@ -1,7 +1,7 @@
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { getMenuList } from "@/api/system";
+import { get } from "@/api/system/menu";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -11,7 +11,13 @@ import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 
 export function useMenu() {
   const form = reactive({
-    title: ""
+    title: null,
+    blurry: null,
+    pid: null,
+    createTime: null,
+    page: 0,
+    size: 10,
+    sort: "id,asc"
   });
 
   const formRef = ref();
@@ -21,49 +27,39 @@ export function useMenu() {
   const getMenuType = (type, text = false) => {
     switch (type) {
       case 0:
-        return text ? "菜单" : "primary";
+        return text ? "目录" : "primary";
       case 1:
-        return text ? "iframe" : "warning";
+        return text ? "菜单" : "warning";
       case 2:
-        return text ? "外链" : "danger";
-      case 3:
-        return text ? "按钮" : "info";
+        return text ? "按钮" : "danger";
     }
   };
 
   const columns: TableColumnList = [
     {
-      label: "菜单名称",
+      label: "菜单标题",
       prop: "title",
       align: "left",
       cellRenderer: ({ row }) => (
         <>
           <span class="inline-block mr-1">
-            {h(useRenderIcon(row.icon), {
+            {h(useRenderIcon("ep:" + row.icon), {
               style: { paddingTop: "1px" }
             })}
           </span>
           <span>{transformI18n(row.title)}</span>
         </>
-      )
+      ),
+      width: 170
     },
     {
-      label: "菜单类型",
-      prop: "menuType",
-      width: 100,
-      cellRenderer: ({ row, props }) => (
-        <el-tag
-          size={props.size}
-          type={getMenuType(row.menuType)}
-          effect="plain"
-        >
-          {getMenuType(row.menuType, true)}
-        </el-tag>
-      )
+      label: "排序",
+      prop: "menuSort",
+      width: 80
     },
     {
-      label: "路由路径",
-      prop: "path"
+      label: "权限标识",
+      prop: "permission"
     },
     {
       label: "组件路径",
@@ -72,19 +68,37 @@ export function useMenu() {
         isAllEmpty(component) ? path : component
     },
     {
-      label: "权限标识",
-      prop: "auths"
+      label: "路由路径",
+      prop: "path"
     },
     {
-      label: "排序",
-      prop: "rank",
-      width: 100
+      label: "外链",
+      prop: "iframe",
+      formatter: ({ iframe }) => (iframe ? "是" : "否")
     },
     {
-      label: "隐藏",
-      prop: "showLink",
-      formatter: ({ showLink }) => (showLink ? "否" : "是"),
-      width: 100
+      label: "缓存",
+      prop: "cache",
+      formatter: ({ cache }) => (cache ? "是" : "否")
+    },
+    {
+      label: "可见",
+      prop: "hidden",
+      formatter: ({ hidden }) => (hidden ? "否" : "是")
+    },
+    {
+      label: "创建时间",
+      prop: "createTime"
+    },
+    {
+      label: "菜单类型",
+      prop: "type",
+      width: 100,
+      cellRenderer: ({ row, props }) => (
+        <el-tag size={props.size} type={getMenuType(row.type)} effect="plain">
+          {getMenuType(row.type, true)}
+        </el-tag>
+      )
     },
     {
       label: "操作",
@@ -106,15 +120,17 @@ export function useMenu() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getMenuList(); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
-    let newData = data;
-    if (!isAllEmpty(form.title)) {
-      // 前端搜索菜单名称
-      newData = newData.filter(item =>
-        transformI18n(item.title).includes(form.title)
-      );
-    }
-    dataList.value = handleTree(newData); // 处理成树结构
+    await get(form).then(data => {
+      let newData = data.data;
+      if (!isAllEmpty(form.title)) {
+        // 前端搜索菜单名称
+        newData = newData.filter(item =>
+          transformI18n(item.title).includes(form.title)
+        );
+      }
+      dataList.value = handleTree(newData, null, "pid"); // 处理成树结构
+    });
+
     setTimeout(() => {
       loading.value = false;
     }, 500);
