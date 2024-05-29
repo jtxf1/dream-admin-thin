@@ -74,21 +74,25 @@ export function useMenu() {
     {
       label: "外链",
       prop: "iframe",
-      formatter: ({ iframe }) => (iframe ? "是" : "否")
+      formatter: ({ iframe }) => (iframe ? "是" : "否"),
+      width: 80
     },
     {
       label: "缓存",
       prop: "cache",
-      formatter: ({ cache }) => (cache ? "是" : "否")
+      formatter: ({ cache }) => (cache ? "是" : "否"),
+      width: 80
     },
     {
       label: "可见",
       prop: "hidden",
-      formatter: ({ hidden }) => (hidden ? "否" : "是")
+      formatter: ({ hidden }) => (hidden ? "否" : "是"),
+      width: 80
     },
     {
       label: "创建时间",
-      prop: "createTime"
+      prop: "createTime",
+      width: 160
     },
     {
       label: "菜单类型",
@@ -103,7 +107,7 @@ export function useMenu() {
     {
       label: "操作",
       fixed: "right",
-      width: 210,
+      width: 180,
       slot: "operation"
     }
   ];
