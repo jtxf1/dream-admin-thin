@@ -2,20 +2,16 @@ import type { OptionsType } from "@/components/ReSegmented";
 
 const menuTypeOptions: Array<OptionsType> = [
   {
-    label: "菜单",
+    label: "目录",
     value: 0
   },
   {
-    label: "iframe",
+    label: "菜单",
     value: 1
   },
   {
-    label: "外链",
-    value: 2
-  },
-  {
     label: "按钮",
-    value: 3
+    value: 2
   }
 ];
 
@@ -42,6 +38,23 @@ const keepAliveOptions: Array<OptionsType> = [
     label: "不缓存",
     tip: "不会保存该页面的整体状态",
     value: false
+  }
+];
+const iframeOptions: Array<OptionsType> = [
+  {
+    label: "正常",
+    tip: "在当前页面打开",
+    value: 0
+  },
+  {
+    label: "ifrom",
+    tip: "在当前页面打开",
+    value: 1
+  },
+  {
+    label: "外链",
+    tip: "跳转到其它页面",
+    value: 2
   }
 ];
 
@@ -86,6 +99,7 @@ const frameLoadingOptions: Array<OptionsType> = [
 
 export {
   menuTypeOptions,
+  iframeOptions,
   showLinkOptions,
   keepAliveOptions,
   hiddenTagOptions,

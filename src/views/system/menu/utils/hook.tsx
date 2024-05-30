@@ -62,10 +62,18 @@ export function useMenu() {
       prop: "permission"
     },
     {
+      label: "组件名称",
+      prop: "componentName"
+    },
+    {
       label: "组件路径",
       prop: "component",
       formatter: ({ path, component }) =>
         isAllEmpty(component) ? path : component
+    },
+    {
+      label: "路由名称",
+      prop: "mane"
     },
     {
       label: "路由路径",
@@ -74,7 +82,7 @@ export function useMenu() {
     {
       label: "外链",
       prop: "iframe",
-      formatter: ({ iframe }) => (iframe ? "是" : "否"),
+      formatter: ({ iframe }) => (iframe > 0 ? "是" : "否"),
       width: 80
     },
     {
@@ -156,27 +164,21 @@ export function useMenu() {
       title: `${title}菜单`,
       props: {
         formInline: {
-          menuType: row?.menuType ?? 0,
           higherMenuOptions: formatHigherMenuOptions(cloneDeep(dataList.value)),
           parentId: row?.parentId ?? 0,
           title: row?.title ?? "",
-          name: row?.name ?? "",
-          path: row?.path ?? "",
+          icon: "ep:" + row?.icon ?? "",
+          menuSort: row?.menuSort ?? "",
+          permission: row?.permission ?? "",
           component: row?.component ?? "",
-          rank: row?.rank ?? 99,
-          redirect: row?.redirect ?? "",
-          icon: row?.icon ?? "",
-          extraIcon: row?.extraIcon ?? "",
-          enterTransition: row?.enterTransition ?? "",
-          leaveTransition: row?.leaveTransition ?? "",
-          activePath: row?.activePath ?? "",
-          auths: row?.auths ?? "",
-          frameSrc: row?.frameSrc ?? "",
-          frameLoading: row?.frameLoading ?? true,
-          keepAlive: row?.keepAlive ?? false,
-          hiddenTag: row?.hiddenTag ?? false,
-          showLink: row?.showLink ?? true,
-          showParent: row?.showParent ?? false
+          componentName: row?.componentName ?? "",
+          path: row?.path ?? "",
+          name: row?.name ?? "",
+          iframe: row?.iframe ?? false,
+          cache: row?.cache ?? false,
+          hidden: row?.hidden ?? false,
+          createTime: row?.createTime ?? "",
+          type: row?.type ?? 0
         }
       },
       width: "45%",
