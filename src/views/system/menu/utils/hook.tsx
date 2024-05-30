@@ -1,7 +1,7 @@
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { get } from "@/api/system/menu";
+import { get, del, edit } from "@/api/system/menu";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -43,7 +43,7 @@ export function useMenu() {
       cellRenderer: ({ row }) => (
         <>
           <span class="inline-block mr-1">
-            {h(useRenderIcon("ep:" + row.icon), {
+            {h(useRenderIcon(row.icon), {
               style: { paddingTop: "1px" }
             })}
           </span>
@@ -165,6 +165,8 @@ export function useMenu() {
       props: {
         formInline: {
           higherMenuOptions: formatHigherMenuOptions(cloneDeep(dataList.value)),
+          id: row?.id ?? 0,
+          pid: row?.pid ?? 0,
           parentId: row?.parentId ?? 0,
           title: row?.title ?? "",
           icon: "ep:" + row?.icon ?? "",
@@ -208,8 +210,7 @@ export function useMenu() {
               // 实际开发先调用新增接口，再进行下面操作
               chores();
             } else {
-              // 实际开发先调用修改接口，再进行下面操作
-              chores();
+              edit(curData).finally(() => chores());
             }
           }
         });
@@ -218,10 +219,12 @@ export function useMenu() {
   }
 
   function handleDelete(row) {
-    message(`您删除了菜单名称为${transformI18n(row.title)}的这条数据`, {
-      type: "success"
+    del([row.id]).finally(() => {
+      message(`您删除了菜单名称为${transformI18n(row.title)}的这条数据`, {
+        type: "success"
+      });
+      onSearch();
     });
-    onSearch();
   }
 
   onMounted(() => {

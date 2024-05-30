@@ -1,6 +1,8 @@
 interface FormItemProps {
   type?: number;
   higherMenuOptions: Record<string, unknown>[];
+  id?: number;
+  pid?: number;
   parentId: number;
   title: string;
   menuSort: number;
