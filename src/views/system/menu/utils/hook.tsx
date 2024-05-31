@@ -13,13 +13,9 @@ import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 
 export function useMenu() {
   const form = reactive({
-    title: null,
     blurry: null,
     pid: null,
-    createTime: null,
-    page: 0,
-    size: 10,
-    sort: "id,asc"
+    createTime: []
   });
 
   const formRef = ref();
@@ -141,12 +137,6 @@ export function useMenu() {
     loading.value = true;
     await get(form).then(data => {
       let newData = data.data;
-      if (!isAllEmpty(form.title)) {
-        // 前端搜索菜单名称
-        newData = newData.filter(item =>
-          transformI18n(item.title).includes(form.title)
-        );
-      }
       dataList.value = handleTree(newData, null, "pid"); // 处理成树结构
     });
 

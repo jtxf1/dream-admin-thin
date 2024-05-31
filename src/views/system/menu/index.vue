@@ -4,6 +4,7 @@ import { useMenu } from "./utils/hook";
 import { transformI18n } from "@/plugins/i18n";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import datePicker from "@/views/components/date-picker.vue";
 
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
@@ -40,13 +41,16 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="菜单名称：" prop="title">
+      <el-form-item label="菜单名称：" prop="blurry">
         <el-input
-          v-model="form.title"
+          v-model="form.blurry"
           placeholder="请输入菜单名称"
           clearable
           class="!w-[180px]"
         />
+      </el-form-item>
+      <el-form-item label="" prop="createTime">
+        <datePicker v-model="form.createTime" />
       </el-form-item>
       <el-form-item>
         <el-button
