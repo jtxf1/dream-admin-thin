@@ -21,11 +21,14 @@ const {
   loading,
   columns,
   dataList,
+  multipleSelection,
   onSearch,
   resetForm,
   openDialog,
   handleDelete,
-  handleSelectionChange
+  handleSelectionChange,
+  deleteAll,
+  exportClick
 } = useMenu();
 </script>
 
@@ -76,23 +79,25 @@ const {
           新增
         </el-button>
         <el-button
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openDialog()"
+          type="success"
+          :disabled="multipleSelection.length !== 1"
+          :icon="useRenderIcon(EditPen)"
+          @click="openDialog('编辑', multipleSelection[0])"
         >
-          修改
+          编辑
         </el-button>
         <el-button
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openDialog()"
+          type="danger"
+          :disabled="multipleSelection.length <= 0"
+          :icon="useRenderIcon(Delete)"
+          @click="deleteAll()"
         >
           删除
         </el-button>
         <el-button
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openDialog()"
+          type="warning"
+          :icon="useRenderIcon('solar:upload-bold')"
+          @click="exportClick()"
         >
           导出
         </el-button>

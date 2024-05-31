@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     permission: "",
     path: "",
     routeName: "",
-    iframe: false,
+    iframe: 0,
     cache: false,
     hidden: false,
     componentName: "",

@@ -1,7 +1,9 @@
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { get, del, edit } from "@/api/system/menu";
+import { CRUD } from "@/api/utils";
+import { get, del, edit, add } from "@/api/system/menu";
+import { ElMessageBox } from "element-plus";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -23,6 +25,8 @@ export function useMenu() {
   const formRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
+  /** 多选选中的数据 */
+  const multipleSelection = ref([]);
 
   const getMenuType = (type, text = false) => {
     switch (type) {
@@ -36,6 +40,9 @@ export function useMenu() {
   };
 
   const columns: TableColumnList = [
+    {
+      type: "selection"
+    },
     {
       label: "菜单标题",
       prop: "title",
@@ -121,7 +128,7 @@ export function useMenu() {
   ];
 
   function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val);
+    multipleSelection.value = val;
   }
 
   function resetForm(formEl) {
@@ -165,18 +172,18 @@ export function useMenu() {
       props: {
         formInline: {
           higherMenuOptions: formatHigherMenuOptions(cloneDeep(dataList.value)),
-          id: row?.id ?? 0,
+          id: row?.id ?? null,
           pid: row?.pid ?? 0,
           parentId: row?.parentId ?? 0,
           title: row?.title ?? "",
           icon: row?.icon ?? "",
-          menuSort: row?.menuSort ?? "",
+          menuSort: row?.menuSort ?? 0,
           permission: row?.permission ?? "",
           component: row?.component ?? "",
           componentName: row?.componentName ?? "",
           path: row?.path ?? "",
           routeName: row?.routeName ?? "",
-          iframe: row?.iframe ?? false,
+          iframe: row?.iframe ?? 0,
           cache: row?.cache ?? false,
           hidden: row?.hidden ?? false,
           createTime: row?.createTime ?? "",
@@ -208,7 +215,7 @@ export function useMenu() {
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
-              chores();
+              add(curData).finally(() => chores());
             } else {
               edit(curData).finally(() => chores());
             }
@@ -218,6 +225,30 @@ export function useMenu() {
     });
   }
 
+  async function deleteAll() {
+    ElMessageBox.confirm(
+      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个岗位吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        del(multipleSelection.value.map(dept => dept.id)).then(() => {
+          message("已删除所选的岗位", {
+            type: "success"
+          });
+          onSearch();
+        });
+      })
+      .catch(() => {
+        onSearch();
+      });
+  }
   function handleDelete(row) {
     del([row.id]).finally(() => {
       message(`您删除了菜单名称为${transformI18n(row.title)}的这条数据`, {
@@ -226,6 +257,13 @@ export function useMenu() {
       onSearch();
     });
   }
+  const exportClick = async () => {
+    CRUD.download("menus");
+
+    message("导出成功", {
+      type: "success"
+    });
+  };
 
   onMounted(() => {
     onSearch();
@@ -236,6 +274,7 @@ export function useMenu() {
     loading,
     columns,
     dataList,
+    multipleSelection,
     /** 搜索 */
     onSearch,
     /** 重置 */
@@ -244,6 +283,8 @@ export function useMenu() {
     openDialog,
     /** 删除菜单 */
     handleDelete,
-    handleSelectionChange
+    handleSelectionChange,
+    deleteAll,
+    exportClick
   };
 }

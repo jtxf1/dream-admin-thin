@@ -23,7 +23,7 @@ export class Menu {
 
   subCount: number;
 
-  iframe: boolean;
+  iframe: number;
 
   cache: boolean;
 

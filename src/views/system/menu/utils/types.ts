@@ -9,7 +9,7 @@ interface FormItemProps {
   permission: string;
   path: string;
   routeName?: string;
-  iframe: boolean;
+  iframe: number;
   cache: boolean;
   hidden: boolean;
   createTime?: Date;
