@@ -40,14 +40,18 @@ const tabsList = [
   }
 ];
 
-const pageList = computed(() =>
-  copyIconList[currentActiveType.value]
+const pageList = computed(() => {
+  return copyIconList[
+    currentActiveType.value === null || currentActiveType.value === ""
+      ? "ri:"
+      : currentActiveType.value
+  ]
     .filter(i => i.includes(filterValue.value))
     .slice(
       (currentPage.value - 1) * pageSize.value,
       currentPage.value * pageSize.value
-    )
-);
+    );
+});
 
 const iconItemStyle = computed((): ParameterCSSProperties => {
   return item => {
@@ -71,6 +75,9 @@ function setVal() {
 function onBeforeEnter() {
   if (isAllEmpty(icon.value)) return;
   setVal();
+  if (currentActiveType.value === null || currentActiveType.value === "") {
+    currentActiveType.value = "ri:";
+  }
   // 寻找当前图标在第几页
   const curIconIndex = copyIconList[currentActiveType.value].findIndex(
     i => i === icon.value
@@ -104,9 +111,11 @@ function onClear() {
 watch(
   () => pageList.value,
   () =>
-    (totalPage.value = copyIconList[currentActiveType.value].filter(i =>
-      i.includes(filterValue.value)
-    ).length),
+    (totalPage.value = copyIconList[
+      currentActiveType.value === null || currentActiveType.value === ""
+        ? "ri:"
+        : currentActiveType.value
+    ].filter(i => i.includes(filterValue.value)).length),
   { immediate: true }
 );
 watch(

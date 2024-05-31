@@ -8,7 +8,7 @@ interface FormItemProps {
   menuSort: number;
   permission: string;
   path: string;
-  name?: string;
+  routeName?: string;
   iframe: boolean;
   cache: boolean;
   hidden: boolean;

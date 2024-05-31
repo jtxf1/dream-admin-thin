@@ -73,7 +73,7 @@ export function useMenu() {
     },
     {
       label: "路由名称",
-      prop: "mane"
+      prop: "routeName"
     },
     {
       label: "路由路径",
@@ -169,13 +169,13 @@ export function useMenu() {
           pid: row?.pid ?? 0,
           parentId: row?.parentId ?? 0,
           title: row?.title ?? "",
-          icon: "ep:" + row?.icon ?? "",
+          icon: row?.icon ?? "",
           menuSort: row?.menuSort ?? "",
           permission: row?.permission ?? "",
           component: row?.component ?? "",
           componentName: row?.componentName ?? "",
           path: row?.path ?? "",
-          name: row?.name ?? "",
+          routeName: row?.routeName ?? "",
           iframe: row?.iframe ?? false,
           cache: row?.cache ?? false,
           hidden: row?.hidden ?? false,

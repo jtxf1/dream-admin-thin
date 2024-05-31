@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     menuSort: 0,
     permission: "",
     path: "",
-    name: "",
+    routeName: "",
     iframe: false,
     cache: false,
     hidden: false,
@@ -129,9 +129,9 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col v-if="newFormInline.type !== 2" :value="12" :xs="24" :sm="24">
-        <el-form-item label="路由名称" prop="name">
+        <el-form-item label="路由名称" prop="routeName">
           <el-input
-            v-model="newFormInline.name"
+            v-model="newFormInline.routeName"
             clearable
             placeholder="请输入路由名称"
           />
