@@ -1,12 +1,11 @@
 interface FormItemProps {
   id?: number;
-  apiName?: string | any;
   tableName?: string;
   author: string;
   pack: string;
   moduleName: string;
   path: string;
-  apiAlias: string;
+  apiAlias: string | any;
   apiPath: string;
   prefix: string;
   cover: boolean;
