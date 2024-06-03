@@ -38,9 +38,9 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
-      <el-form-item label="表名" prop="tableName">
+      <el-form-item label="表名" prop="name">
         <el-input
-          v-model="form.tableName"
+          v-model="form.name"
           placeholder="请输入表名"
           clearable
           class="!w-[180px]"

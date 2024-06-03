@@ -24,7 +24,7 @@ import {
 export function useRole() {
   const form = reactive({
     username: "",
-    tableName: "",
+    name: "",
     size: 10,
     page: 0
   });
@@ -287,7 +287,7 @@ export function useRole() {
 
   function onAdd(tableName: string | any) {
     getColumns(tableName).then(data => {
-      dataList1.value.push(...data.data.content);
+      dataList1.value = data.data;
     });
   }
 

@@ -47,7 +47,7 @@ function getRef() {
 }
 async function onSearch() {
   await getColumns(getParameter.id).then(data => {
-    dataList1.value.push(...data.data.content);
+    dataList1.value = data.data;
   });
   generateConfig<FormItemProps>(getParameter.id).then(data => {
     Object.assign(props, data.data);
