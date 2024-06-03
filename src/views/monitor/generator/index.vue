@@ -44,6 +44,7 @@ const {
           placeholder="请输入表名"
           clearable
           class="!w-[180px]"
+          @keyup.enter="onSearch"
         />
       </el-form-item>
       <el-form-item>
@@ -132,7 +133,8 @@ const {
                     id: row.tableName,
                     name: 'TabQueryPreview',
                     path: 'preview',
-                    title: '配置'
+                    title: '配置',
+                    apiName: row.remark
                   })
                 "
               >

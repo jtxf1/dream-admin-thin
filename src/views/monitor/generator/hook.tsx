@@ -347,6 +347,7 @@ export function useDetail() {
       path: `/monitor/generator/${parameter.path}`,
       name: parameter.name,
       query: parameter,
+      apiName: parameter.apiName,
       meta: {
         title: {
           zh: `${parameter.id} - ${parameter.title}`,

@@ -1,5 +1,6 @@
 interface FormItemProps {
   id?: number;
+  apiName?: string | any;
   tableName?: string;
   author: string;
   pack: string;

@@ -23,7 +23,11 @@ defineOptions({
   name: "TabQueryPreview"
 });
 
+const tableRef = ref();
+const ruleFormRef = ref();
+const { initToDetail, getParameter } = useDetail();
 const props = reactive<FormItemProps>({
+  apiName: getParameter.apiName,
   author: "",
   pack: "",
   moduleName: "",
@@ -36,9 +40,6 @@ const props = reactive<FormItemProps>({
   webCover: true
 });
 
-const tableRef = ref();
-const ruleFormRef = ref();
-const { initToDetail, getParameter } = useDetail();
 initToDetail();
 const { columns1, dataList1, syncCode, saveCode } = useRole();
 
@@ -163,6 +164,18 @@ defineExpose({ getRef });
             :rules="formRules"
           >
             <el-row :gutter="22">
+              <re-col :value="10" :xs="20" :sm="20">
+                <el-form-item label="功能名称" prop="apiName">
+                  <el-input
+                    v-model="props.apiName"
+                    clearable
+                    placeholder="请输入功能名称"
+                  />
+                </el-form-item>
+              </re-col>
+              <re-col :value="10" :xs="14" :sm="14" class="spenFone">
+                注释和展示的功能名称
+              </re-col>
               <re-col :value="10" :xs="20" :sm="20">
                 <el-form-item label="作者名称" prop="author">
                   <el-input
