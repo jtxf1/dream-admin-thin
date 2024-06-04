@@ -7,7 +7,6 @@ import { usePublicHooks } from "@/utils/theme";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    higherDeptOptions: [],
     jobSort: 0,
     id: 0,
     deptSort: 0,
@@ -30,9 +29,6 @@ const newFormInline = ref(props.formInline);
 function getRef() {
   return ruleFormRef.value;
 }
-onMounted(() => {
-  // 在这里编写页面加载后要执行的代码
-});
 defineExpose({ getRef });
 </script>
 

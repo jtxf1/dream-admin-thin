@@ -1,6 +1,5 @@
 import type { BaseEntity, PageQuery } from "@/utils/http/ApiAbstract";
 interface FormItemProps extends BaseEntity {
-  higherDeptOptions?: Record<string, unknown>[];
   id?: number;
   name: string;
   jobSort: number;

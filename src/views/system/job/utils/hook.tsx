@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import editForm from "../form.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
@@ -82,9 +81,7 @@ export function useDept() {
     {
       label: "创建时间",
       minWidth: 200,
-      prop: "createTime",
-      formatter: ({ createTime }) =>
-        dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
+      prop: "createTime"
     },
     {
       label: "操作",

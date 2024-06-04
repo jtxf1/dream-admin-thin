@@ -96,6 +96,8 @@ export default defineComponent({
     let scaleX = 1;
     let scaleY = 1;
 
+    onMounted(init);
+
     onUnmounted(() => {
       cropper.value?.destroy();
       isReady.value = false;
@@ -139,8 +141,6 @@ export default defineComponent({
     const getWrapperStyle = computed((): CSSProperties => {
       return { height: `${props.height}`.replace(/px/, "") + "px" };
     });
-
-    onMounted(init);
 
     useResizeObserver(tippyElRef, () => handCropper("reset"));
 
