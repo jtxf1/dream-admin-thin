@@ -38,33 +38,6 @@ defineExpose({ getRef });
   >
     <el-row :gutter="30">
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="Spring Bean名称" prop="beanName">
-          <el-input
-            v-model="newFormInline.beanName"
-            clearable
-            placeholder="请输入Spring Bean名称"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="cron 表达式" prop="cronExpression">
-          <el-input
-            v-model="newFormInline.cronExpression"
-            clearable
-            placeholder="请输入cron 表达式"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="状态：1暂停、0启用" prop="isPause">
-          <el-input
-            v-model="newFormInline.isPause"
-            clearable
-            placeholder="请输入状态：1暂停、0启用"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="任务名称" prop="jobName">
           <el-input
             v-model="newFormInline.jobName"
@@ -74,29 +47,47 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="方法名称" prop="methodName">
-          <el-input
-            v-model="newFormInline.methodName"
-            clearable
-            placeholder="请输入方法名称"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="参数" prop="params">
-          <el-input
-            v-model="newFormInline.params"
-            clearable
-            placeholder="请输入参数"
-          />
-        </el-form-item>
-      </re-col>
-      <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="备注" prop="description">
+        <el-form-item label="任务描述" prop="description">
           <el-input
             v-model="newFormInline.description"
             clearable
-            placeholder="请输入备注"
+            placeholder="请输入任务描述"
+          />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="Bean名称" prop="beanName">
+          <el-input
+            v-model="newFormInline.beanName"
+            clearable
+            placeholder="请输入Bean名称"
+          />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="执行方法" prop="methodName">
+          <el-input
+            v-model="newFormInline.methodName"
+            clearable
+            placeholder="请输入执行方法"
+          />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="cron" prop="cronExpression">
+          <el-input
+            v-model="newFormInline.cronExpression"
+            clearable
+            placeholder="请输入cron表达式"
+          />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="子任务ID" prop="subTask">
+          <el-input
+            v-model="newFormInline.subTask"
+            clearable
+            placeholder="请输入子任务ID"
           />
         </el-form-item>
       </re-col>
@@ -119,20 +110,21 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="子任务ID" prop="subTask">
-          <el-input
-            v-model="newFormInline.subTask"
-            clearable
-            placeholder="请输入子任务ID"
-          />
+        <el-form-item label="失败后暂停" prop="pauseAfterFailure">
+          <el-input v-model="newFormInline.pauseAfterFailure" clearable />
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="任务失败后是否暂停" prop="pauseAfterFailure">
+        <el-form-item label="任务状态" prop="isPause">
+          <el-input v-model="newFormInline.isPause" clearable />
+        </el-form-item>
+      </re-col>
+      <re-col :value="12" :xs="24" :sm="24">
+        <el-form-item label="参数内容" prop="params">
           <el-input
-            v-model="newFormInline.pauseAfterFailure"
+            v-model="newFormInline.params"
             clearable
-            placeholder="请输入任务失败后是否暂停"
+            placeholder="请输入参数内容"
           />
         </el-form-item>
       </re-col>
