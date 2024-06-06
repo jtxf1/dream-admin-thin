@@ -66,7 +66,7 @@ const systemManagementRouter = {
       name: "SystemDict",
       meta: {
         icon: "ri:account-circle-fill",
-        title: "menus.hsDict",
+        title: "menus.hsJobs",
         roles: ["admin"]
       }
     },

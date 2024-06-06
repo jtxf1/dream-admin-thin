@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     id: 0,
     beanName: "",
     cronExpression: "",
-    isPause: "",
+    isPause: false,
     jobName: "",
     methodName: "",
     params: "",
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     personInCharge: "",
     email: "",
     subTask: "",
-    pauseAfterFailure: ""
+    pauseAfterFailure: false
   })
 });
 
