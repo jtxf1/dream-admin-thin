@@ -285,6 +285,6 @@ const {
 
 .main {
   width: 100%;
-  height: calc(100vh - 300px);
+  height: calc(110vh - 300px);
 }
 </style>
