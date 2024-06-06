@@ -100,6 +100,7 @@ menus:
   hsDept: 部门管理
   hsJob: 岗位管理
   hsDict: 字典管理
+  hsJobs: 任务管理
   hssysMonitor: 系统监控
   hsOnlineUser: 在线用户
   hsLoginLog: 登录日志

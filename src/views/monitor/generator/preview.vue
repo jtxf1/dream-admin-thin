@@ -50,6 +50,9 @@ async function onSearch() {
     dataList1.value = data.data;
   });
   generateConfig<FormItemProps>(getParameter.id).then(data => {
+    if (data?.data?.id === 0) {
+      data.data.id = null;
+    }
     Object.assign(props, data.data);
   });
 }

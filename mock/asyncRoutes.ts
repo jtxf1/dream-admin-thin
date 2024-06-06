@@ -69,6 +69,15 @@ const systemManagementRouter = {
         title: "menus.hsDict",
         roles: ["admin"]
       }
+    },
+    {
+      path: "/system/jobs/index",
+      name: "SystemJobs",
+      meta: {
+        icon: "ri:account-circle-fill",
+        title: "menus.hsDict",
+        roles: ["admin"]
+      }
     }
   ]
 };

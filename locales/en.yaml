@@ -15,6 +15,7 @@ buttons:
   hsdelete: Delete
   hsreload: Reload
   hsDict: dict config
+  hsJobs: jobs config
   hscloseCurrentTab: Close CurrentTab
   hscloseLeftTabs: Close LeftTabs
   hscloseRightTabs: Close RightTabs
