@@ -14,6 +14,7 @@ buttons:
   hssystemSet: Open ProjectConfig
   hsdelete: Delete
   hsreload: Reload
+  hsDict: dict config
   hscloseCurrentTab: Close CurrentTab
   hscloseLeftTabs: Close LeftTabs
   hscloseRightTabs: Close RightTabs

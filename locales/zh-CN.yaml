@@ -99,6 +99,7 @@ menus:
   hsSystemMenu: 菜单管理
   hsDept: 部门管理
   hsJob: 岗位管理
+  hsDict: 字典管理
   hssysMonitor: 系统监控
   hsOnlineUser: 在线用户
   hsLoginLog: 登录日志

@@ -12,6 +12,7 @@ export class Page<T> {
 
 export class PageQuery {
   page?: number;
+  createTime?: Date[];
   size?: number;
   sort?: string;
   // 构造函数，允许在初始化时改变属性值

@@ -60,6 +60,15 @@ const systemManagementRouter = {
         title: "menus.hsJob",
         roles: ["admin"]
       }
+    },
+    {
+      path: "/system/dict/index",
+      name: "SystemDict",
+      meta: {
+        icon: "ri:account-circle-fill",
+        title: "menus.hsDict",
+        roles: ["admin"]
+      }
     }
   ]
 };
