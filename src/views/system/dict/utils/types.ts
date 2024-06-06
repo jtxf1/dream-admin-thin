@@ -6,10 +6,33 @@ interface FormItemProps extends BaseEntity {
   description?: string; //描述
   blurry?: string;
 }
+interface DictDetailProps extends BaseEntity {
+  id?: number; //ID
+  description?: string; //描述
+  blurry?: string;
+  dict?: FormItemProps;
+  label?: string;
+  value?: string;
+  dictSort?: number;
+}
 interface FormProps {
   formInline: FormItemProps;
+}
+interface FormDictDetail {
+  formInline: DictDetailProps;
 }
 interface FormQuery extends PageQuery {
   blurry?: string;
 }
-export type { FormItemProps, FormProps, FormQuery };
+interface FormDetailQuery extends PageQuery {
+  dictName?: string;
+  id?: number;
+}
+export type {
+  FormItemProps,
+  FormProps,
+  DictDetailProps,
+  FormDictDetail,
+  FormQuery,
+  FormDetailQuery
+};

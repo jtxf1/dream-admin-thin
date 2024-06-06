@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import ReCol from "@/components/ReCol";
 import { formRules } from "./utils/rule";
 import { FormProps } from "./utils/types";
-import { usePublicHooks } from "@/utils/theme";
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     id: 0,
@@ -13,15 +12,11 @@ const props = withDefaults(defineProps<FormProps>(), {
 });
 
 const ruleFormRef = ref();
-const { switchStyle } = usePublicHooks();
 const newFormInline = ref(props.formInline);
 
 function getRef() {
   return ruleFormRef.value;
 }
-onMounted(() => {
-  // 在这里编写页面加载后要执行的代码
-});
 defineExpose({ getRef });
 </script>
 
