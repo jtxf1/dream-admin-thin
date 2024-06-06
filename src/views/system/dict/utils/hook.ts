@@ -183,6 +183,7 @@ export function useDept() {
   }
   const exportClick = async () => {
     CRUD.download(crudURL);
+    // downloadByUrl("/api/dict/download", "test-url.xls");
     message("导出成功", {
       type: "success"
     });

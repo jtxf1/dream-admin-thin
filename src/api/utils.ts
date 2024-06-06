@@ -2,6 +2,7 @@ import { http } from "@/utils/http";
 import type { PureHttpRequestConfig } from "@/utils/http/types";
 import type { AxiosRequestConfig } from "axios";
 import type { ApiAbstract, Page } from "@/utils/http/ApiAbstract";
+import { downloadByData } from "@pureadmin/utils";
 
 export const baseUrlApi = (url: string) => `/api/${url}`;
 export const baseUrlAuth = (url: string) => `/auth/${url}`;
@@ -56,16 +57,17 @@ class crud {
         responseType: "blob"
       })
       .then(res => {
-        const response: Blob = res;
-        const a = document.createElement("a");
-        const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
+        downloadByData(res, url + Date.now() + ".xls");
+        // const response: Blob = res;
+        // const a = document.createElement("a");
+        // const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
 
-        a.href = url;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-        a.parentNode.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        // a.href = url;
+        // a.style.display = "none";
+        // document.body.appendChild(a);
+        // a.click();
+        // a.parentNode.removeChild(a);
+        // window.URL.revokeObjectURL(url);
       });
   }
 }
