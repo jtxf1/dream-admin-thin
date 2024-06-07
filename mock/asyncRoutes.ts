@@ -66,7 +66,7 @@ const systemManagementRouter = {
       name: "SystemDict",
       meta: {
         icon: "ri:account-circle-fill",
-        title: "menus.hsJobs",
+        title: "menus.hsDict",
         roles: ["admin"]
       }
     },
@@ -75,7 +75,7 @@ const systemManagementRouter = {
       name: "SystemJobs",
       meta: {
         icon: "ri:account-circle-fill",
-        title: "menus.hsDict",
+        title: "menus.hsJobs",
         roles: ["admin"]
       }
     }

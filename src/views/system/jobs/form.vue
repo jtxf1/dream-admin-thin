@@ -56,7 +56,7 @@ defineExpose({ getRef });
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="Bean名称" prop="beanName">
+        <el-form-item label="Bean" prop="beanName">
           <el-input
             v-model="newFormInline.beanName"
             clearable
@@ -111,12 +111,18 @@ defineExpose({ getRef });
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="失败后暂停" prop="pauseAfterFailure">
-          <el-input v-model="newFormInline.pauseAfterFailure" clearable />
+          <el-radio-group v-model="newFormInline.pauseAfterFailure">
+            <el-radio-button label="是" :value="true" />
+            <el-radio-button label="否" :value="false" />
+          </el-radio-group>
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
-        <el-form-item label="任务状态" prop="isPause">
-          <el-input v-model="newFormInline.isPause" clearable />
+        <el-form-item label="状态"
+          ><el-radio-group v-model="newFormInline.isPause">
+            <el-radio-button label="是" :value="true" />
+            <el-radio-button label="否" :value="false" />
+          </el-radio-group>
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">

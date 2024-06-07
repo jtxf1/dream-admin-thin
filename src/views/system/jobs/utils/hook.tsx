@@ -52,6 +52,11 @@ export function useDept() {
       minWidth: 40
     },
     {
+      label: "任务名称",
+      prop: "jobName",
+      minWidth: 70
+    },
+    {
       label: "Bean名称",
       prop: "beanName",
       minWidth: 70
@@ -88,11 +93,6 @@ export function useDept() {
       )
     },
     {
-      label: "任务名称",
-      prop: "jobName",
-      minWidth: 70
-    },
-    {
       label: "备注",
       prop: "description",
       minWidth: 70
@@ -115,7 +115,17 @@ export function useDept() {
     {
       label: "失败后暂停",
       prop: "pauseAfterFailure",
-      minWidth: 70
+      minWidth: 70,
+      cellRenderer: scope => (
+        <el-switch
+          v-model={scope.row.pauseAfterFailure}
+          inline-prompt
+          active-value={true}
+          inactive-value={false}
+          active-text="启用"
+          inactive-text="停用"
+        />
+      )
     },
     {
       label: "创建日期",
@@ -168,7 +178,7 @@ export function useDept() {
           id: row?.id,
           beanName: row?.beanName,
           cronExpression: row?.cronExpression,
-          isPause: row?.isPause,
+          isPause: row?.isPause ?? false,
           jobName: row?.jobName,
           methodName: row?.methodName,
           params: row?.params,
@@ -176,7 +186,8 @@ export function useDept() {
           personInCharge: row?.personInCharge,
           email: row?.email,
           subTask: row?.subTask,
-          pauseAfterFailure: row?.pauseAfterFailure
+          pauseAfterFailure: row?.pauseAfterFailure ?? true,
+          version: row?.version
         }
       },
       width: "40%",
@@ -220,7 +231,7 @@ export function useDept() {
     CRUD.delete(crudURL, {
       data: [row.id]
     }).then(() => {
-      message(`您删除了定时任务名称为${row.name}的这条数据`, {
+      message(`您删除了定时任务名称为${row.jobName}的这条数据`, {
         type: "success"
       });
     });
