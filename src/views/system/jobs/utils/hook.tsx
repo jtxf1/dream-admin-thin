@@ -1,4 +1,5 @@
 import editForm from "../form.vue";
+import logsList from "../logs.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
@@ -85,8 +86,8 @@ export function useDept() {
           v-model={scope.row.isPause}
           size={scope.props.size === "small" ? "small" : "default"}
           inline-prompt
-          active-value={true}
-          inactive-value={false}
+          active-value={false}
+          inactive-value={true}
           active-text="启用"
           inactive-text="停用"
         />
@@ -120,8 +121,8 @@ export function useDept() {
         <el-switch
           v-model={scope.row.pauseAfterFailure}
           inline-prompt
-          active-value={true}
-          inactive-value={false}
+          active-value={false}
+          inactive-value={true}
           active-text="启用"
           inactive-text="停用"
         />
@@ -135,7 +136,7 @@ export function useDept() {
     {
       label: "操作",
       fixed: "right",
-      width: 160,
+      width: 200,
       slot: "operation"
     }
   ];
@@ -270,6 +271,18 @@ export function useDept() {
       type: "success"
     });
   };
+  const runTask = async (id: number) => {
+    CRUD.put(crudURL + "/exec/" + id);
+    message("执行成功", {
+      type: "success"
+    });
+  };
+  const recoverTask = async (id: number) => {
+    CRUD.put(crudURL + "/" + id);
+    message("恢复成功", {
+      type: "success"
+    });
+  };
   /**
    * 分页大小
    * @param val pageSize
@@ -296,6 +309,18 @@ export function useDept() {
   const handleSelectionChange = val => {
     multipleSelection.value = val;
   };
+
+  function openLogsDialog() {
+    addDialog({
+      title: `定时任务日志列表`,
+      width: "80%",
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      hideFooter: true,
+      contentRenderer: () => h(logsList, { ref: formRef })
+    });
+  }
   /** 页面初始化完成执行的函数 */
   onMounted(() => {
     onSearch();
@@ -326,6 +351,9 @@ export function useDept() {
     /** 删除 */
     deleteAll,
     /** 导出 */
-    exportClick
+    exportClick,
+    runTask,
+    recoverTask,
+    openLogsDialog
   };
 }

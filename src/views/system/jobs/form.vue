@@ -112,16 +112,16 @@ defineExpose({ getRef });
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="失败后暂停" prop="pauseAfterFailure">
           <el-radio-group v-model="newFormInline.pauseAfterFailure">
-            <el-radio-button label="是" :value="true" />
-            <el-radio-button label="否" :value="false" />
+            <el-radio-button label="是" :value="false" />
+            <el-radio-button label="否" :value="true" />
           </el-radio-group>
         </el-form-item>
       </re-col>
       <re-col :value="12" :xs="24" :sm="24">
         <el-form-item label="状态"
           ><el-radio-group v-model="newFormInline.isPause">
-            <el-radio-button label="是" :value="true" />
-            <el-radio-button label="否" :value="false" />
+            <el-radio-button label="是" :value="false" />
+            <el-radio-button label="否" :value="true" />
           </el-radio-group>
         </el-form-item>
       </re-col>

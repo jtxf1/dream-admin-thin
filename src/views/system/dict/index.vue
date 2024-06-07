@@ -13,7 +13,7 @@ import Search from "@iconify-icons/ep/search";
 
 defineOptions({
   // 定义组件的名称
-  name: "Dept"
+  name: "Dict"
 });
 const formRef = ref();
 const tableRef = ref();

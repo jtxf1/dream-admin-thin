@@ -13,7 +13,7 @@ import Search from "@iconify-icons/ep/search";
 
 defineOptions({
   // 定义组件的名称
-  name: "Dept"
+  name: "Jobs"
 });
 const formRef = ref();
 const tableRef = ref();
@@ -33,7 +33,10 @@ const {
   handleCurrentChange,
   handleSelectionChange,
   deleteAll,
-  exportClick
+  exportClick,
+  runTask,
+  recoverTask,
+  openLogsDialog
 } = useDept();
 </script>
 
@@ -103,6 +106,13 @@ const {
         >
           导出
         </el-button>
+        <el-button
+          type="warning"
+          :icon="useRenderIcon('solar:upload-bold')"
+          @click="openLogsDialog()"
+        >
+          日志
+        </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
@@ -135,10 +145,28 @@ const {
               link
               type="primary"
               :size="size"
-              :icon="useRenderIcon(EditPen)"
               @click="openDialog('编辑', row)"
             >
               编辑
+            </el-button>
+
+            <el-button
+              class="reset-margin"
+              link
+              type="primary"
+              :size="size"
+              @click="runTask(row.id)"
+            >
+              执行
+            </el-button>
+            <el-button
+              class="reset-margin"
+              link
+              type="primary"
+              :size="size"
+              @click="recoverTask(row.id)"
+            >
+              恢复
             </el-button>
             <el-popconfirm
               :title="`是否确认删除定时任务名称为${row.jobName}的这条数据`"
@@ -150,7 +178,6 @@ const {
                   link
                   type="primary"
                   :size="size"
-                  :icon="useRenderIcon(Delete)"
                 >
                   删除
                 </el-button>
