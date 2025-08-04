@@ -106,7 +106,9 @@ class PureHttp {
         return response.data;
       },
       (error: PureHttpError) => {
-        message("服务异常!", { type: "error" });
+        message("服务异常!" + (error as any)?.response?.data?.message, {
+          type: "error"
+        });
         const $error = error;
         $error.isCancelRequest = Axios.isCancel($error);
         // 关闭进度条动画
