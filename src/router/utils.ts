@@ -177,6 +177,8 @@ function handleAsyncRoutes(routeList) {
           const flattenRouters: any = router
             .getRoutes()
             .find(n => n.path === "/");
+          // 保持router.options.routes[0].children与path为"/"的children一致，防止数据不一致导致异常
+          flattenRouters.children = router.options.routes[0].children;
           router.addRoute(flattenRouters);
         }
       }
@@ -360,7 +362,7 @@ function getAuths(): Array<string> {
   return router.currentRoute.value.meta.auths as Array<string>;
 }
 
-/** 是否有按钮级别的权限 */
+/** 是否有按钮级别的权限（根据路由`meta`中的`auths`字段进行判断）*/
 function hasAuth(value: string | Array<string>): boolean {
   if (!value) return false;
   /** 从当前路由的`meta`字段里获取按钮级别的所有自定义`code`值 */

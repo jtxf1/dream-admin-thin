@@ -78,6 +78,8 @@ panel:
   pureTagsStyleSmartTip: Smart tags add fun and brilliance
   pureTagsStyleCard: Card
   pureTagsStyleCardTip: Card tags for efficient browsing
+  pureTagsStyleChrome: Chrome
+  pureTagsStyleChromeTip: Chrome style is classic and elegant
   pureInterfaceDisplay: Interface Display
   pureGreyModel: Grey Model
   pureWeakModel: Weak Model
@@ -94,6 +96,8 @@ menus:
   purePermission: Permission Manage
   purePermissionPage: Page Permission
   purePermissionButton: Button Permission
+  purePermissionButtonRouter: Route return button permission
+  purePermissionButtonLogin: Login interface return button permission
 status:
   pureLoad: Loading...
   pureMessage: Message

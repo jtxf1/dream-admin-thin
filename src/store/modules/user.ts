@@ -12,8 +12,7 @@ import { useMultiTagsStoreHook } from "./multiTags";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 import { encrypt } from "@/utils/rsaEncrypt";
 
-export const useUserStore = defineStore({
-  id: "pure-user",
+export const useUserStore = defineStore("pure-user", {
   state: (): userType => ({
     // 头像
     avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
@@ -23,6 +22,9 @@ export const useUserStore = defineStore({
     nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
     // 页面级别权限
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
+    // 按钮级别权限
+    permissions:
+      storageLocal().getItem<DataInfo<number>>(userKey)?.permissions ?? [],
     // 判断登录页面显示哪个组件（0：登录（默认）、1：手机登录、2：二维码登录、3：注册、4：忘记密码）
     currentPage: 0,
     // 是否勾选了登录页的免登录
@@ -46,6 +48,10 @@ export const useUserStore = defineStore({
     /** 存储角色 */
     SET_ROLES(roles: Array<string>) {
       this.roles = roles;
+    },
+    /** 存储按钮级别权限 */
+    SET_PERMS(permissions: Array<string>) {
+      this.permissions = permissions;
     },
     /** 存储登录页面显示哪个组件 */
     SET_CURRENTPAGE(value: number) {
@@ -90,6 +96,7 @@ export const useUserStore = defineStore({
     logOut() {
       this.username = "";
       this.roles = [];
+      this.permissions = [];
       removeToken();
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();

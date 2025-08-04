@@ -28,10 +28,10 @@ import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 import globalization from "@/assets/svg/globalization.svg?component";
-import Lock from "@iconify-icons/ri/lock-fill";
-import Check from "@iconify-icons/ep/check";
-import User from "@iconify-icons/ri/user-3-fill";
-import Info from "@iconify-icons/ri/information-line";
+import Lock from "~icons/ri/lock-fill";
+import Check from "~icons/ep/check";
+import User from "~icons/ri/user-3-fill";
+import Info from "~icons/ri/file-info-line";
 
 defineOptions({
   name: "Login"
@@ -41,8 +41,8 @@ const imgCode = ref("");
 const loginDay = ref(7);
 const router = useRouter();
 const loading = ref(false);
-const checked = ref(false);
 const disabled = ref(false);
+const checked = ref(false);
 const ruleFormRef = ref<FormInstance>();
 const currentPage = computed(() => {
   return useUserStoreHook().currentPage;
@@ -64,7 +64,7 @@ const ruleForm = reactive({
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate((valid, fields) => {
+  await formEl.validate(valid => {
     if (valid) {
       loading.value = true;
       useUserStoreHook()
@@ -82,7 +82,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
               router
                 .push(getTopMenu(true).path)
                 .then(() => {
-                  message("登录成功", { type: "success" });
+                  message(t("login.pureLoginSuccess"), { type: "success" });
                 })
                 .finally(() => (disabled.value = false));
             });
@@ -91,7 +91,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
         .finally(() => (loading.value = false));
     } else {
       loading.value = false;
-      return fields;
+      //return fields;
     }
   });
 };
@@ -103,7 +103,11 @@ const immediateDebounce: any = debounce(
 );
 
 useEventListener(document, "keypress", ({ code }) => {
-  if (code === "Enter" && !disabled.value && !loading.value)
+  if (
+    ["Enter", "NumpadEnter"].includes(code) &&
+    !disabled.value &&
+    !loading.value
+  )
     immediateDebounce(ruleFormRef.value);
 });
 
@@ -130,13 +134,13 @@ watch(loginDay, value => {
       <!-- 国际化 -->
       <el-dropdown trigger="click">
         <globalization
-          class="hover:text-primary hover:!bg-[transparent] w-[20px] h-[20px] ml-1.5 cursor-pointer outline-none duration-300"
+          class="hover:text-primary hover:bg-[transparent]! w-[20px] h-[20px] ml-1.5 cursor-pointer outline-hidden duration-300"
         />
         <template #dropdown>
           <el-dropdown-menu class="translation">
             <el-dropdown-item
               :style="getDropdownItemStyle(locale, 'zh')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'zh')]"
+              :class="['dark:text-white!', getDropdownItemClass(locale, 'zh')]"
               @click="translationCh"
             >
               <IconifyIconOffline
@@ -148,7 +152,7 @@ watch(loginDay, value => {
             </el-dropdown-item>
             <el-dropdown-item
               :style="getDropdownItemStyle(locale, 'en')"
-              :class="['dark:!text-white', getDropdownItemClass(locale, 'en')]"
+              :class="['dark:text-white!', getDropdownItemClass(locale, 'en')]"
               @click="translationEn"
             >
               <span v-show="locale === 'en'" class="check-en">
@@ -168,7 +172,7 @@ watch(loginDay, value => {
         <div class="login-form">
           <avatar class="avatar" />
           <Motion>
-            <h2 class="outline-none">
+            <h2 class="outline-hidden">
               <TypeIt
                 :options="{ strings: [title], cursor: false, speed: 100 }"
               />
@@ -266,7 +270,7 @@ watch(loginDay, value => {
                   </el-button>
                 </div>
                 <el-button
-                  class="w-full mt-4"
+                  class="w-full mt-4!"
                   size="default"
                   type="primary"
                   :loading="loading"

@@ -32,8 +32,11 @@
   "i18n-ally.sortKeys": true,
   "i18n-ally.namespace": true,
   "i18n-ally.enabledParsers": [
+    
     "yaml",
+   
     "js"
+  
   ],
   "i18n-ally.sourceLanguage": "en",
   "i18n-ally.displayLanguage": "zh-CN",
@@ -43,10 +46,14 @@
   "iconify.excludes": [
     "el"
   ],
-  "Codegeex.Chat.LanguagePreference": "中文",
-  "Codegeex.Comment.LanguagePreference": "中文",
-  "Codegeex.SidebarUI.LanguagePreference": "中文",
-  "Codegeex.CompletionModel": "CodeGeeX Pro[Beta]",
-  "Codegeex.EnableExtension": true,
-  "Codegeex.Privacy": false
+  "vscodeCustomCodeColor.highlightValue": [
+    "v-loading",
+    "v-auth",
+    "v-copy",
+    "v-longpress",
+    "v-optimize",
+    "v-perms",
+    "v-ripple"
+  ],
+  "vscodeCustomCodeColor.highlightValueColor": "#b392f0",
 }

@@ -21,13 +21,13 @@ import {
   hasClass
 } from "@pureadmin/utils";
 
-import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
-import CloseAllTags from "@iconify-icons/ri/subtract-line";
-import CloseOtherTags from "@iconify-icons/ri/text-spacing";
-import CloseRightTags from "@iconify-icons/ri/text-direction-l";
-import CloseLeftTags from "@iconify-icons/ri/text-direction-r";
-import RefreshRight from "@iconify-icons/ep/refresh-right";
-import Close from "@iconify-icons/ep/close";
+import Fullscreen from "~icons/ri/fullscreen-fill";
+import CloseAllTags from "~icons/ri/subtract-line";
+import CloseOtherTags from "~icons/ri/text-spacing";
+import CloseRightTags from "~icons/ri/text-direction-l";
+import CloseLeftTags from "~icons/ri/text-direction-r";
+import RefreshRight from "~icons/ep/refresh-right";
+import Close from "~icons/ep/close";
 
 export function useTags() {
   const route = useRoute();
@@ -125,6 +125,12 @@ export function useTags() {
     }
   }
 
+  const isFixedTag = computed(() => {
+    return item => {
+      return isBoolean(item?.meta?.fixedTag) && item?.meta?.fixedTag === true;
+    };
+  });
+
   const iconIsActive = computed(() => {
     return (item, index) => {
       if (index === 0) return;
@@ -221,6 +227,7 @@ export function useTags() {
     buttonTop,
     buttonLeft,
     translateX,
+    isFixedTag,
     pureSetting,
     activeIndex,
     getTabStyle,

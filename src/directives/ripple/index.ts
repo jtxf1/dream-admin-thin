@@ -2,8 +2,10 @@ import "./index.scss";
 import { isObject } from "@pureadmin/utils";
 import type { Directive, DirectiveBinding } from "vue";
 
-interface RippleOptions {
+export interface RippleOptions {
+  /** 自定义`ripple`颜色，支持`tailwindcss` */
   class?: string;
+  /** 是否从中心扩散 */
   center?: boolean;
   circle?: boolean;
 }
@@ -30,8 +32,8 @@ const calculate = (
   const offset = el.getBoundingClientRect();
 
   // 获取点击位置距离 el 的垂直和水平距离
-  let localX = e.clientX - offset.left;
-  let localY = e.clientY - offset.top;
+  const localX = e.clientX - offset.left;
+  const localY = e.clientY - offset.top;
 
   let radius = 0;
   let scale = 0.3;
@@ -220,13 +222,6 @@ function updated(el: HTMLElement, binding: RippleDirectiveBinding) {
   updateRipple(el, binding, wasEnabled);
 }
 
-/**
- * @description 指令 v-ripple
- * @use 用法如下
- * 1. v-ripple 代表启用基本的 ripple 功能
- * 2. v-ripple="{ class: 'text-red' }" 代表自定义 ripple 颜色，支持 tailwindcss，生效样式是 color
- * 3. v-ripple.center 代表从中心扩散
- */
 export const Ripple: Directive = {
   mounted,
   unmounted,

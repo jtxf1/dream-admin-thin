@@ -1,68 +1,87 @@
 // 这里存放本地图标，在 src/layout/index.vue 文件中加载，避免在首启动加载
+import { getSvgInfo } from "@pureadmin/utils";
 import { addIcon } from "@iconify/vue/dist/offline";
 
+// https://icon-sets.iconify.design/ep/?keyword=ep
+// ~icons/ep
+import Menu from "~icons/ep/menu";
+import Edit from "~icons/ep/edit";
+import SetUp from "~icons/ep/set-up";
+import Guide from "~icons/ep/guide";
+import Monitor from "~icons/ep/monitor";
+import Lollipop from "~icons/ep/lollipop";
+import Histogram from "~icons/ep/histogram";
+import HomeFilled from "~icons/ep/home-filled";
+import EpHomeFilled from "~icons/ep/home-filled?raw";
+
+// https://icon-sets.iconify.design/ri/?keyword=ri
+// ~icons/ri
+import Tag from "~icons/ri/bookmark-2-line";
+import Ppt from "~icons/ri/file-ppt-2-line";
+import Card from "~icons/ri/bank-card-line";
+import Role from "~icons/ri/admin-fill";
+import Info from "~icons/ri/file-info-line";
+import Dept from "~icons/ri/git-branch-line";
+import Table from "~icons/ri/table-line";
+import Links from "~icons/ri/links-fill";
+import Search from "~icons/ri/search-line";
+import FlUser from "~icons/ri/admin-line";
+import Setting from "~icons/ri/settings-3-line";
+import BarChart from "~icons/ri/bar-chart-horizontal-line";
+import LoginLog from "~icons/ri/window-line";
+import Artboard from "~icons/ri/artboard-line";
+import SystemLog from "~icons/ri/file-search-line";
+import ListCheck from "~icons/ri/list-check";
+import UbuntuFill from "~icons/ri/ubuntu-fill";
+import OnlineUser from "~icons/ri/user-voice-line";
+import EditBoxLine from "~icons/ri/edit-box-line";
+import OperationLog from "~icons/ri/history-fill";
+import InformationLine from "~icons/ri/information-line";
+import TerminalWindowLine from "~icons/ri/terminal-window-line";
+import CheckboxCircleLine from "~icons/ri/checkbox-circle-line";
+import RiSearchLine from "~icons/ri/search-line?raw";
+import RiInformationLine from "~icons/ri/information-line?raw";
+
+const icons = [
+  // Element Plus Icon: https://github.com/element-plus/element-plus-icons
+  ["ep/home-filled", EpHomeFilled],
+  // Remix Icon: https://github.com/Remix-Design/RemixIcon
+  ["ri/search-line", RiSearchLine],
+  ["ri/information-line", RiInformationLine],
+  ["ep:menu", Menu],
+  ["ep:edit", Edit],
+  ["ep:set-up", SetUp],
+  ["ep:guide", Guide],
+  ["ep:monitor", Monitor],
+  ["ep:lollipop", Lollipop],
+  ["ep:histogram", Histogram],
+  ["ep:home-filled", HomeFilled],
+  ["ri:bookmark-2-line", Tag],
+  ["ri:file-ppt-2-line", Ppt],
+  ["ri:bank-card-line", Card],
+  ["ri:admin-fill", Role],
+  ["ri:file-info-line", Info],
+  ["ri:git-branch-line", Dept],
+  ["ri:links-fill", Links],
+  ["ri:table-line", Table],
+  ["ri:search-line", Search],
+  ["ri:admin-line", FlUser],
+  ["ri:settings-3-line", Setting],
+  ["ri:bar-chart-horizontal-line", BarChart],
+  ["ri:window-line", LoginLog],
+  ["ri:file-search-line", SystemLog],
+  ["ri:artboard-line", Artboard],
+  ["ri:list-check", ListCheck],
+  ["ri:ubuntu-fill", UbuntuFill],
+  ["ri:user-voice-line", OnlineUser],
+  ["ri:edit-box-line", EditBoxLine],
+  ["ri:history-fill", OperationLog],
+  ["ri:information-line", InformationLine],
+  ["ri:terminal-window-line", TerminalWindowLine],
+  ["ri:checkbox-circle-line", CheckboxCircleLine]
+];
+
 // 本地菜单图标，后端在路由的 icon 中返回对应的图标字符串并且前端在此处使用 addIcon 添加即可渲染菜单图标
-// @iconify-icons/ep
-import Menu from "@iconify-icons/ep/menu";
-import Edit from "@iconify-icons/ep/edit";
-import SetUp from "@iconify-icons/ep/set-up";
-import Guide from "@iconify-icons/ep/guide";
-import Monitor from "@iconify-icons/ep/monitor";
-import Lollipop from "@iconify-icons/ep/lollipop";
-import Histogram from "@iconify-icons/ep/histogram";
-import HomeFilled from "@iconify-icons/ep/home-filled";
-addIcon("ep:menu", Menu);
-addIcon("ep:edit", Edit);
-addIcon("ep:set-up", SetUp);
-addIcon("ep:guide", Guide);
-addIcon("ep:monitor", Monitor);
-addIcon("ep:lollipop", Lollipop);
-addIcon("ep:histogram", Histogram);
-addIcon("ep:home-filled", HomeFilled);
-// @iconify-icons/ri
-import Tag from "@iconify-icons/ri/bookmark-2-line";
-import Ppt from "@iconify-icons/ri/file-ppt-2-line";
-import Card from "@iconify-icons/ri/bank-card-line";
-import Role from "@iconify-icons/ri/admin-fill";
-import Info from "@iconify-icons/ri/file-info-line";
-import Dept from "@iconify-icons/ri/git-branch-line";
-import Table from "@iconify-icons/ri/table-line";
-import Links from "@iconify-icons/ri/links-fill";
-import Search from "@iconify-icons/ri/search-line";
-import FlUser from "@iconify-icons/ri/admin-line";
-import Setting from "@iconify-icons/ri/settings-3-line";
-import BarChart from "@iconify-icons/ri/bar-chart-horizontal-line";
-import LoginLog from "@iconify-icons/ri/window-line";
-import Artboard from "@iconify-icons/ri/artboard-line";
-import SystemLog from "@iconify-icons/ri/file-search-line";
-import ListCheck from "@iconify-icons/ri/list-check";
-import UbuntuFill from "@iconify-icons/ri/ubuntu-fill";
-import OnlineUser from "@iconify-icons/ri/user-voice-line";
-import EditBoxLine from "@iconify-icons/ri/edit-box-line";
-import OperationLog from "@iconify-icons/ri/history-fill";
-import InformationLine from "@iconify-icons/ri/information-line";
-import TerminalWindowLine from "@iconify-icons/ri/terminal-window-line";
-import CheckboxCircleLine from "@iconify-icons/ri/checkbox-circle-line";
-addIcon("ri:bookmark-2-line", Tag);
-addIcon("ri:file-ppt-2-line", Ppt);
-addIcon("ri:bank-card-line", Card);
-addIcon("ri:admin-fill", Role);
-addIcon("ri:file-info-line", Info);
-addIcon("ri:git-branch-line", Dept);
-addIcon("ri:links-fill", Links);
-addIcon("ri:table-line", Table);
-addIcon("ri:search-line", Search);
-addIcon("ri:admin-line", FlUser);
-addIcon("ri:settings-3-line", Setting);
-addIcon("ri:bar-chart-horizontal-line", BarChart);
-addIcon("ri:window-line", LoginLog);
-addIcon("ri:file-search-line", SystemLog);
-addIcon("ri:artboard-line", Artboard);
-addIcon("ri:list-check", ListCheck);
-addIcon("ri:ubuntu-fill", UbuntuFill);
-addIcon("ri:user-voice-line", OnlineUser);
-addIcon("ri:edit-box-line", EditBoxLine);
-addIcon("ri:history-fill", OperationLog);
-addIcon("ri:information-line", InformationLine);
-addIcon("ri:terminal-window-line", TerminalWindowLine);
-addIcon("ri:checkbox-circle-line", CheckboxCircleLine);
+icons.forEach(([name, icon]) => {
+  addIcon(name as string, getSvgInfo(icon as string));
+});
