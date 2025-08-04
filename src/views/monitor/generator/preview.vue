@@ -15,9 +15,9 @@ import { formRules } from "./rule";
 import { message } from "@/utils/message";
 
 import Empty from "../empty.svg?component";
-import Refresh from "@iconify-icons/ep/refresh";
-import Select from "@iconify-icons/ep/select";
-import Finished from "@iconify-icons/ep/finished";
+import Refresh from "~icons/ep/refresh";
+import Select from "~icons/ep/select";
+import Finished from "~icons/ep/finished";
 
 defineOptions({
   name: "TabQueryPreview"

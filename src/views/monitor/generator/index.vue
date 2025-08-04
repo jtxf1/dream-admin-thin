@@ -4,7 +4,7 @@ import { useRole, useDetail } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
-import Refresh from "@iconify-icons/ep/refresh";
+import Refresh from "~icons/ep/refresh";
 
 defineOptions({
   name: "OnlineUser"

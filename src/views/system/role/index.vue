@@ -8,13 +8,13 @@ import * as Role from "@/api/system/role";
 import { message } from "@/utils/message";
 import datePicker from "@/views/components/date-picker.vue";
 
-// import Database from "@iconify-icons/ri/database-2-line";
-// import More from "@iconify-icons/ep/more-filled";
-import Delete from "@iconify-icons/ep/delete";
-import EditPen from "@iconify-icons/ep/edit-pen";
-import Refresh from "@iconify-icons/ep/refresh";
-import AddFill from "@iconify-icons/ri/add-circle-line";
-import Search from "@iconify-icons/ep/search";
+// import Database from "~icons/ri/database-2-line";
+// import More from "~icons/ep/more-filled";
+import Delete from "~icons/ep/delete";
+import EditPen from "~icons/ep/edit-pen";
+import Refresh from "~icons/ep/refresh";
+import AddFill from "~icons/ri/add-circle-line";
+import Search from "~icons/ep/search";
 
 defineOptions({
   name: "Role"

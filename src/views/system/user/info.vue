@@ -5,12 +5,12 @@ import { useUser } from "./utils/info";
 import { isPhone } from "@pureadmin/utils";
 import type { FormInstance } from "element-plus";
 
-import Check from "@iconify-icons/ep/avatar";
-import SignIn from "@iconify-icons/ri/login-box-line";
-import NodeTree from "@iconify-icons/ri/node-tree";
-import Phone from "@iconify-icons/ep/iphone";
-import Mail from "@iconify-icons/ri/mail-fill";
-import Secure from "@iconify-icons/ri/secure-payment-fill";
+import Check from "~icons/ep/avatar";
+import SignIn from "~icons/ri/login-box-line";
+import NodeTree from "~icons/ri/node-tree";
+import Phone from "~icons/ep/iphone";
+import Mail from "~icons/ri/mail-fill";
+import Secure from "~icons/ri/secure-payment-fill";
 
 const activeName = ref("first");
 const handleClick = (tab: TabsPaneContext, event: Event) => {

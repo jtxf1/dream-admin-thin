@@ -5,8 +5,8 @@ import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
 
-import Refresh from "@iconify-icons/ep/refresh";
-import Search from "@iconify-icons/ep/search";
+import Refresh from "~icons/ep/refresh";
+import Search from "~icons/ep/search";
 
 defineOptions({
   // 定义组件的名称

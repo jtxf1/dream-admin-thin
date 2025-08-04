@@ -2,8 +2,8 @@
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { ref, computed, watch, getCurrentInstance } from "vue";
 
-import Reset from "@iconify-icons/ri/restart-line";
-import More2Fill from "@iconify-icons/ri/more-2-fill";
+import Reset from "~icons/ri/restart-line";
+import More2Fill from "~icons/ri/more-2-fill";
 import ExpandIcon from "./svg/expand.svg?component";
 import UnExpandIcon from "./svg/unexpand.svg?component";
 

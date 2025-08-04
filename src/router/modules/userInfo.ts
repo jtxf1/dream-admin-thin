@@ -15,7 +15,7 @@ export default {
   children: [
     {
       path: "/system/user/info",
-      name: "UserInfo",
+      name: "UserInfo1",
       component: () => import("@/views/system/user/info.vue"),
       meta: {
         title: $t("buttons.userInfo"),
