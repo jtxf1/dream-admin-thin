@@ -63,9 +63,9 @@
     "@zxcvbn-ts/core": "^3.0.4",
     "animate.css": "^4.1.1",
     "axios": "^1.6.8",
-    "dayjs": "^1.11.11",
     "codemirror": "^6.0.1",
     "cropperjs": "^1.6.1",
+    "dayjs": "^1.11.11",
     "echarts": "^5.5.0",
     "element-plus": "^2.7.3",
     "js-cookie": "^3.0.5",
@@ -75,14 +75,14 @@
     "nprogress": "^0.2.0",
     "path": "^0.12.7",
     "pinia": "^2.1.7",
-    "qrcode": "^1.5.3",
     "pinyin-pro": "^3.20.4",
+    "qrcode": "^1.5.3",
     "qs": "^6.12.1",
     "responsive-storage": "^2.2.0",
     "sortablejs": "^1.15.2",
     "typeit": "8.8.3",
-    "vue-codemirror": "^6.1.1",
     "vue": "^3.4.27",
+    "vue-codemirror": "^6.1.1",
     "vue-i18n": "^9.13.1",
     "vue-router": "^4.3.2",
     "vue-tippy": "^6.4.1",
@@ -162,6 +162,12 @@
       "allowedVersions": {
         "eslint": "9"
       }
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "es5-ext",
+      "esbuild",
+      "typeit",
+      "vue-demi"
+    ]
   }
 }
