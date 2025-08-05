@@ -28,7 +28,7 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
   const treeData = ref([]);
   const treeLoading = ref(true);
   const currentRow = ref([]);
-  const deptId = ref<Number>();
+  const deptId = ref<number>();
   const nenus = ref<ApiAbstract<Menu.Menu>>();
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -147,7 +147,7 @@ export function useRole(tableRef?: Ref, treeRef?: Ref) {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef }),
+      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;

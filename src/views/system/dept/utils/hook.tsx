@@ -119,10 +119,10 @@ export function useDept(tableRef: Ref, treeRef: Ref) {
     }, 500);
   }
   function extractFields(arr) {
-    let result = [];
+    const result = [];
 
     arr.forEach(item => {
-      let obj = {
+      const obj = {
         value: item.id,
         label: item.name,
         subCount: item.subCount,
@@ -139,7 +139,7 @@ export function useDept(tableRef: Ref, treeRef: Ref) {
   }
 
   function copyFields(arr: any[], id?: number) {
-    let result: any[] = cloneDeep(arr);
+    const result: any[] = cloneDeep(arr);
     result.forEach(item => {
       if (item.value === id) {
         item.disabled = true;
@@ -212,7 +212,7 @@ export function useDept(tableRef: Ref, treeRef: Ref) {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef }),
+      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;

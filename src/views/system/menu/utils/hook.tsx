@@ -136,7 +136,7 @@ export function useMenu() {
   async function onSearch() {
     loading.value = true;
     await get(form).then(data => {
-      let newData = data.data;
+      const newData = data.data;
       dataList.value = handleTree(newData, null, "pid"); // 处理成树结构
     });
 
@@ -185,7 +185,7 @@ export function useMenu() {
       fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef }),
+      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;

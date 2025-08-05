@@ -40,10 +40,10 @@ class crud {
   /** 单独抽离的delete工具函数 */
   public delete(
     url: string,
-    params?: AxiosRequestConfig<Number[]>,
+    params?: AxiosRequestConfig<number[]>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<String>> {
-    return http.delete<Number[], ApiAbstract<String>>(
+  ): Promise<ApiAbstract<string>> {
+    return http.delete<number[], ApiAbstract<string>>(
       baseUrlApi(url),
       params,
       config

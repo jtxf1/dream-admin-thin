@@ -72,7 +72,6 @@ export class UserQueryCriteria extends PageQuery {
   deptId: number;
   deptIds: number[];
   enabled: boolean;
-  createTime: Date[];
   blurry: string;
 }
 

@@ -4,7 +4,6 @@ import editForm from "../form/index.vue";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import croppingUpload from "../upload.vue";
 import { usePublicHooks } from "@/utils/theme";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
@@ -40,7 +39,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const dataList = ref([]);
   const loading = ref(true);
   // 上传头像信息
-  const avatarInfo = ref();
+  //const avatarInfo = ref();
   const switchLoadMap = ref({});
   const { switchStyle } = usePublicHooks();
   const higherDeptOptions = ref();
@@ -362,7 +361,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef }),
+      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
@@ -413,23 +412,25 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   /** 上传头像 */
   function handleUpload(row) {
-    addDialog({
-      title: "裁剪、上传头像",
-      width: "40%",
-      draggable: true,
-      closeOnClickModal: false,
-      contentRenderer: () =>
-        h(croppingUpload, {
-          imgSrc: baseUrlAvatar(row.avatarName),
-          onCropper: info => (avatarInfo.value = info)
-        }),
-      beforeSure: done => {
-        User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
-        // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-        done(); // 关闭弹框
-        onSearch(); // 刷新表格数据
-      }
-    });
+    console.log(row);
+
+    // addDialog({
+    //   title: "裁剪、上传头像",
+    //   width: "40%",
+    //   draggable: true,
+    //   closeOnClickModal: false,
+    //   contentRenderer: () =>
+    //     h(croppingUpload, {
+    //       imgSrc: baseUrlAvatar(row.avatarName),
+    //       onCropper: info => (avatarInfo.value = info)
+    //     }),
+    //   beforeSure: done => {
+    //     User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
+    //     // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
+    //     done(); // 关闭弹框
+    //     onSearch(); // 刷新表格数据
+    //   }
+    // });
   }
 
   watch(

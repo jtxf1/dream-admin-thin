@@ -2,8 +2,14 @@
 import { ref, reactive } from "vue";
 import type { TabsPaneContext } from "element-plus";
 import { useUser } from "./utils/info";
-import { isPhone } from "@pureadmin/utils";
 import type { FormInstance } from "element-plus";
+import { isPhone, deviceDetection } from "@pureadmin/utils";
+import ReCropperPreview from "@/components/ReCropperPreview";
+import { baseUrlAvatar } from "@/api/utils";
+import * as User from "@/api/system/user";
+import { message } from "@/utils/message";
+import { storageLocal } from "@pureadmin/utils";
+import type { DataInfo } from "@/utils/auth";
 
 import Check from "~icons/ep/avatar";
 import SignIn from "~icons/ri/login-box-line";
@@ -13,11 +19,17 @@ import Mail from "~icons/ri/mail-fill";
 import Secure from "~icons/ri/secure-payment-fill";
 
 const activeName = ref("first");
+const cropRef = ref();
+const uploadRef = ref();
+const imgSrc = ref("");
+const isShow = ref(false);
+const cropperBlob = ref();
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   if (tab.paneName === "second") {
     getLogs();
   }
 };
+
 const treeRef = ref();
 const tableRef = ref();
 const ruleFormRef = ref<FormInstance>();
@@ -27,7 +39,6 @@ const {
   columns,
   loading,
   dataList,
-  handleUpload,
   handleReset,
   handleResetEmail,
   submitEditUser,
@@ -40,6 +51,43 @@ const user = reactive(userInfo.value);
 defineOptions({
   name: "UserInfo"
 });
+
+const imgSrcHead = ref(baseUrlAvatar(user.avatarName));
+const onChange = uploadFile => {
+  const reader = new FileReader();
+  reader.onload = e => {
+    imgSrc.value = e.target.result as string;
+    isShow.value = true;
+  };
+  reader.readAsDataURL(uploadFile.raw);
+};
+const onCropper = ({ blob }) => (cropperBlob.value = blob);
+const handleClose = () => {
+  cropRef.value.hidePopover();
+  uploadRef.value.clearFiles();
+  isShow.value = false;
+};
+const handleSubmitImage = () => {
+  User.updateAvatarByid({ id: user.id, avatar: cropperBlob.value })
+    .then(data => {
+      if (data) {
+        message("更新头像成功", { type: "success" });
+        console.log(data);
+        console.log(storageLocal().getItem<DataInfo<Date>>("user-info"));
+        const info = storageLocal().getItem<DataInfo<Date>>("user-info");
+        info.user.avatarName = data?.data?.avatarName;
+        imgSrcHead.value = baseUrlAvatar(data?.data?.avatarName);
+        storageLocal().setItem("user-info", info);
+
+        handleClose();
+      } else {
+        message("更新头像失败");
+      }
+    })
+    .catch(error => {
+      message(`提交异常 ${error}`, { type: "error" });
+    });
+};
 </script>
 
 <template>
@@ -54,13 +102,19 @@ defineOptions({
               </div>
             </template>
             <div class="el-upload">
-              <el-avatar
-                :size="80"
-                src="https://empty"
-                @click="handleUpload(userInfo)"
+              <el-upload
+                ref="uploadRef"
+                accept="image/*"
+                action="#"
+                :limit="1"
+                :auto-upload="false"
+                :show-file-list="false"
+                :on-change="onChange"
               >
-                <img :src="'/avatar/' + userInfo.avatarName" />
-              </el-avatar>
+                <el-avatar :size="80" :src="imgSrcHead">
+                  <img :src="imgSrcHead" />
+                </el-avatar>
+              </el-upload>
             </div>
 
             <ul class="user-info">
@@ -206,6 +260,25 @@ defineOptions({
           </el-tabs></div
       ></el-col>
     </el-row>
+    <el-dialog
+      v-model="isShow"
+      width="40%"
+      title="编辑头像"
+      destroy-on-close
+      :closeOnClickModal="false"
+      :before-close="handleClose"
+      :fullscreen="deviceDetection()"
+    >
+      <ReCropperPreview ref="cropRef" :imgSrc="imgSrc" @cropper="onCropper" />
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button bg text @click="handleClose">取消</el-button>
+          <el-button bg text type="primary" @click="handleSubmitImage">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 

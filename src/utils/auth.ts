@@ -97,16 +97,17 @@ export function setToken(data: DataInfo<Date>) {
     const { username, roles, user } = data;
     setUserKey({
       accessToken,
+      user,
       avatar: data?.avatar ?? "",
       username,
       nickname: data?.nickname ?? "",
       roles,
-      permissions: data?.permissions ?? [],
-      user
+      permissions: data?.permissions ?? []
     });
   } else {
     const avatar =
       storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "";
+    const user = storageLocal().getItem<DataInfo<number>>(userKey)?.user ?? "";
     const username =
       storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "";
     const nickname =
@@ -117,6 +118,7 @@ export function setToken(data: DataInfo<Date>) {
       storageLocal().getItem<DataInfo<number>>(userKey)?.permissions ?? [];
     setUserKey({
       accessToken,
+      user,
       avatar,
       username,
       nickname,

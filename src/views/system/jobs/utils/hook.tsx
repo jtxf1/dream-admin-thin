@@ -195,7 +195,7 @@ export function useDept() {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef }),
+      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
@@ -318,7 +318,7 @@ export function useDept() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       hideFooter: true,
-      contentRenderer: () => h(logsList, { ref: formRef })
+      contentRenderer: () => h(logsList, { ref: formRef, formInline: null })
     });
   }
   /** 页面初始化完成执行的函数 */

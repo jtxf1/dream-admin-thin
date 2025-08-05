@@ -1,6 +1,5 @@
-import { type Ref, h, ref, watch, reactive, computed } from "vue";
-import croppingUpload from "../upload.vue";
-import { baseUrlAvatar } from "@/api/utils";
+import { type Ref, ref, watch, reactive, computed } from "vue";
+//import { baseUrlAvatar } from "@/api/utils";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { isAllEmpty, isNull, isEmail } from "@pureadmin/utils";
 import { addDialog } from "@/components/ReDialog";
@@ -23,8 +22,6 @@ import type { LogProps } from "./types";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   console.log(tableRef, treeRef);
-  // 上传头像信息
-  const avatarInfo = ref();
   const ruleFormRef = ref();
   // 重置的新密码
   const pwdForm = reactive({
@@ -88,25 +85,25 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   };
 
   /** 上传头像 */
-  function handleUpload(row) {
-    addDialog({
-      title: "裁剪、上传头像",
-      width: "50%",
-      draggable: false,
-      closeOnClickModal: false,
-      contentRenderer: () =>
-        h(croppingUpload, {
-          imgSrc: baseUrlAvatar(row.avatarName),
-          onCropper: info => (avatarInfo.value = info)
-        }),
-      beforeSure: done => {
-        console.log("avatarInfo.value", avatarInfo.value);
-        User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
-        // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-        done(); // 关闭弹框
-      }
-    });
-  }
+  // function handleUpload(row) {
+  //   addDialog({
+  //     title: "裁剪、上传头像",
+  //     width: "50%",
+  //     draggable: false,
+  //     closeOnClickModal: false,
+  //     contentRenderer: () =>
+  //       h(croppingUpload, {
+  //         imgSrc: baseUrlAvatar(row.avatarName),
+  //         onCropper: info => (avatarInfo.value = info)
+  //       }),
+  //     beforeSure: done => {
+  //       console.log("avatarInfo.value", avatarInfo.value);
+  //       User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
+  //       // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
+  //       done(); // 关闭弹框
+  //     }
+  //   });
+  // }
 
   watch(
     pwdForm,
@@ -387,7 +384,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     columns,
     dataList,
     loading,
-    handleUpload,
     handleReset,
     handleResetEmail,
     submitEditUser,
