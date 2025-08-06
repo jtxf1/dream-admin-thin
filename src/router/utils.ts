@@ -33,6 +33,7 @@ const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
 import { getAsyncRoutes } from "@/api/routes";
+import * as Menu from "@/api/system/menu";
 
 function handRank(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
@@ -219,6 +220,11 @@ function initRouter() {
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ data }) => {
+        console.log("data:", data);
+        Menu.menusBuild().then(re => {
+          handleAsyncRoutes(cloneDeep(re.data));
+        });
+
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });

@@ -75,8 +75,10 @@ const handleSubmitImage = () => {
         console.log(data);
         console.log(storageLocal().getItem<DataInfo<Date>>("user-info"));
         const info = storageLocal().getItem<DataInfo<Date>>("user-info");
-        info.user.avatarName = data?.data?.avatarName;
-        imgSrcHead.value = baseUrlAvatar(data?.data?.avatarName);
+        // 假设 data 的类型是 { data: { avatarName: string } }
+        const result = data as { data: { avatarName: string } };
+        info.user.avatarName = result?.data?.avatarName;
+        imgSrcHead.value = baseUrlAvatar(result?.data?.avatarName);
         storageLocal().setItem("user-info", info);
 
         handleClose();

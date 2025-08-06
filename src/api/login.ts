@@ -17,7 +17,7 @@ export interface UserUser {
   email?: string;
   enabled?: boolean;
   gender?: string;
-  id?: Number;
+  id?: number;
   isAdmin?: boolean;
   jobs?: any;
   nickName?: string;

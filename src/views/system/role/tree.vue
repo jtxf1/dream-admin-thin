@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, defineModel, getCurrentInstance } from "vue";
+import { ref, computed, watch, getCurrentInstance } from "vue";
 import { ElTree } from "element-plus";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 

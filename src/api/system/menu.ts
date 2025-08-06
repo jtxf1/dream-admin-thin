@@ -36,12 +36,15 @@ export class Menu {
 export class MenuQueryCriteria extends PageQuery {
   blurry: string;
   pid: number;
-  createTime: Date[];
 }
 export const menuTree = (ids: number[]) => {
   return http.request<ApiAbstract<Menu>>("post", baseUrlApi("menus/tree"), {
     data: ids
   });
+};
+
+export const menusBuild = () => {
+  return http.request<ApiAbstract<Menu>>("get", baseUrlApi("menus/build"));
 };
 
 export const get = (params: number | any) => {

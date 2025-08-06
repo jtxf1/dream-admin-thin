@@ -89,22 +89,24 @@ const expandCloseIcon = computed(() => {
 const onlyOneChild: menuType = ref(null);
 
 function hasOneShowingChild(children: menuType[] = [], parent: menuType) {
-  const showingChildren = children.filter((item: any) => {
+  const showingChildren = children?.filter((item: any) => {
     onlyOneChild.value = item;
     return true;
   });
 
-  if (showingChildren[0]?.meta?.showParent) {
-    return false;
-  }
+  if (showingChildren !== undefined) {
+    if (showingChildren[0]?.meta?.showParent) {
+      return false;
+    }
 
-  if (showingChildren.length === 1) {
-    return true;
-  }
+    if (showingChildren.length === 1) {
+      return true;
+    }
 
-  if (showingChildren.length === 0) {
-    onlyOneChild.value = { ...parent, path: "", noShowingChildren: true };
-    return true;
+    if (showingChildren.length === 0) {
+      onlyOneChild.value = { ...parent, path: "", noShowingChildren: true };
+      return true;
+    }
   }
   return false;
 }
