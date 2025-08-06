@@ -7,6 +7,7 @@ import { isPhone, deviceDetection } from "@pureadmin/utils";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import { baseUrlAvatar } from "@/api/utils";
 import * as User from "@/api/system/user";
+import * as Img from "@/api/tools/img";
 import { message } from "@/utils/message";
 import { storageLocal } from "@pureadmin/utils";
 import type { DataInfo } from "@/utils/auth";
@@ -29,7 +30,9 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     getLogs();
   }
 };
-
+Img.imageTokens().then(data => {
+  console.log(data);
+});
 const treeRef = ref();
 const tableRef = ref();
 const ruleFormRef = ref<FormInstance>();

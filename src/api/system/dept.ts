@@ -25,7 +25,6 @@ export class DeptQueryCriteria extends PageQuery {
   enabled: boolean;
   pid: number;
   pidIsNull: boolean;
-  createTime: Array<Date>;
 }
 
 export const getDepts = (params: DeptQueryCriteria | any) => {
@@ -39,7 +38,7 @@ export const getDeptTree = (params?: DeptQueryCriteria | any) => {
   });
 };
 
-export const getDeptSuperior = (ids: Number[]) => {
+export const getDeptSuperior = (ids: number[]) => {
   const data = ids.length || ids.length === 0 ? ids : Array.of(ids);
   return http.request<ApiAbstract<Dept>>("post", baseUrlApi("dept/superior"), {
     data
