@@ -70,7 +70,11 @@ const handleSubmitImage = () => {
   fd.append("file", cropperBlob.value, "test.png");
   Img.uploadPost(fd).then(data => {
     if (data) {
-      User.updateAvatarByid({ id: user.id, avatar: data?.data?.links?.url })
+      User.updateAvatarByid({
+        id: user.id,
+        avatar: data?.data?.links?.url,
+        key: data?.data?.key
+      })
         .then(data => {
           if (data) {
             message("更新头像成功", { type: "success" });

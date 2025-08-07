@@ -108,9 +108,9 @@ export const download = (data: Partial<UserQueryCriteria>) => {
   );
 };
 
-export const updateAvatarByid = ({ id, avatar }) => {
+export const updateAvatarByid = ({ id, avatar, key }) => {
   return http.request("post", baseUrlApi("/users/updateAvatar2/" + id), {
-    data: { avatar }
+    data: { avatar, key }
   });
 };
 
