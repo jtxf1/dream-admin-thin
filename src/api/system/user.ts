@@ -109,16 +109,8 @@ export const download = (data: Partial<UserQueryCriteria>) => {
 };
 
 export const updateAvatarByid = ({ id, avatar }) => {
-  const formData = new FormData();
-  formData.append("avatar", avatar, "avatar.jpg");
-  return http.request("post", baseUrlApi("/users/updateAvatar/" + id), {
-    data: formData,
-    // 请求超时时间
-    timeout: 60000,
-    headers: {
-      "Content-Type": "multipart/form-data",
-      filename: "avatar.png"
-    }
+  return http.request("post", baseUrlApi("/users/updateAvatar2/" + id), {
+    data: { avatar }
   });
 };
 

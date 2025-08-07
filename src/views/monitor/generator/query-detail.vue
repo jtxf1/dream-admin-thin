@@ -15,7 +15,6 @@ const content = ref("");
 const type = ref("java");
 onMounted(() => {
   get(getParameter.id, 1).then(data => {
-    console.log("data", data);
     datas.value = data.data;
     content.value = data.data[0].content;
   });

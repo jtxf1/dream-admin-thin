@@ -3,16 +3,13 @@ import editForm from "../form.vue";
 import { message } from "@/utils/message";
 import * as Dept from "@/api/system/dept";
 import { addDialog } from "@/components/ReDialog";
-import { reactive, ref, onMounted, type Ref, h } from "vue";
+import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps } from "../utils/types";
 import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox, type CascaderProps } from "element-plus";
 
-export function useDept(tableRef: Ref, treeRef: Ref) {
-  console.log(tableRef);
-  console.log(treeRef);
-
+export function useDept() {
   const form = reactive({
     name: "",
     enabled: null,
@@ -144,7 +141,6 @@ export function useDept(tableRef: Ref, treeRef: Ref) {
       if (item.value === id) {
         item.disabled = true;
         //item["disabled"] = true;
-        console.log(item.disabled);
       }
       if (item.children !== null && item.children.length > 0) {
         item.children = copyFields(item.children, id);

@@ -6,8 +6,8 @@ import type { FormInstance } from "element-plus";
 import { isPhone, deviceDetection } from "@pureadmin/utils";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import { baseUrlAvatar } from "@/api/utils";
-import * as User from "@/api/system/user";
 import * as Img from "@/api/tools/img";
+import * as User from "@/api/system/user";
 import { message } from "@/utils/message";
 import { storageLocal } from "@pureadmin/utils";
 import type { DataInfo } from "@/utils/auth";
@@ -30,11 +30,6 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
     getLogs();
   }
 };
-Img.imageTokens().then(data => {
-  console.log(data);
-});
-const treeRef = ref();
-const tableRef = ref();
 const ruleFormRef = ref<FormInstance>();
 const {
   userInfo,
@@ -48,14 +43,14 @@ const {
   handleSizeChange,
   handleCurrentChange,
   getLogs
-} = useUser(tableRef, treeRef);
+} = useUser();
 
 const user = reactive(userInfo.value);
 defineOptions({
   name: "UserInfo"
 });
 
-const imgSrcHead = ref(baseUrlAvatar(user.avatarName));
+const imgSrcHead = ref(user.avatarName);
 const onChange = uploadFile => {
   const reader = new FileReader();
   reader.onload = e => {
@@ -71,27 +66,31 @@ const handleClose = () => {
   isShow.value = false;
 };
 const handleSubmitImage = () => {
-  User.updateAvatarByid({ id: user.id, avatar: cropperBlob.value })
-    .then(data => {
-      if (data) {
-        message("更新头像成功", { type: "success" });
-        console.log(data);
-        console.log(storageLocal().getItem<DataInfo<Date>>("user-info"));
-        const info = storageLocal().getItem<DataInfo<Date>>("user-info");
-        // 假设 data 的类型是 { data: { avatarName: string } }
-        const result = data as { data: { avatarName: string } };
-        info.user.avatarName = result?.data?.avatarName;
-        imgSrcHead.value = baseUrlAvatar(result?.data?.avatarName);
-        storageLocal().setItem("user-info", info);
+  var fd = new FormData();
+  fd.append("file", cropperBlob.value, "test.png");
+  Img.uploadPost(fd).then(data => {
+    if (data) {
+      User.updateAvatarByid({ id: user.id, avatar: data?.data?.links?.url })
+        .then(data => {
+          if (data) {
+            message("更新头像成功", { type: "success" });
+            const info = storageLocal().getItem<DataInfo<Date>>("user-info");
+            // 假设 data 的类型是 { data: { avatarName: string } }
+            const result = data as { data: { avatarName: string } };
+            info.user.avatarName = result?.data?.avatarName;
+            imgSrcHead.value = baseUrlAvatar(result?.data?.avatarName);
+            storageLocal().setItem("user-info", info);
 
-        handleClose();
-      } else {
-        message("更新头像失败");
-      }
-    })
-    .catch(error => {
-      message(`提交异常 ${error}`, { type: "error" });
-    });
+            handleClose();
+          } else {
+            message("更新头像失败");
+          }
+        })
+        .catch(error => {
+          message(`提交异常 ${error}`, { type: "error" });
+        });
+    }
+  });
 };
 </script>
 

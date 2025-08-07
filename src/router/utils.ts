@@ -220,7 +220,6 @@ function initRouter() {
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ data }) => {
-        console.log("data:", data);
         Menu.menusBuild().then(re => {
           handleAsyncRoutes(cloneDeep(re.data));
         });

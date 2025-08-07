@@ -89,7 +89,6 @@ export function useRole() {
   }
 
   function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val.length);
     changeList.value = val.map(person => person.tableName);
   }
 

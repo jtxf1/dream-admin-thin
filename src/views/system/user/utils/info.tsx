@@ -1,4 +1,4 @@
-import { type Ref, ref, watch, reactive, computed } from "vue";
+import { ref, watch, reactive, computed } from "vue";
 //import { baseUrlAvatar } from "@/api/utils";
 import { zxcvbn } from "@zxcvbn-ts/core";
 import { isAllEmpty, isNull, isEmail } from "@pureadmin/utils";
@@ -20,8 +20,7 @@ import { putUserInfo } from "@/utils/auth";
 import type { PaginationProps } from "@pureadmin/table";
 import type { LogProps } from "./types";
 
-export function useUser(tableRef: Ref, treeRef: Ref) {
-  console.log(tableRef, treeRef);
+export function useUser() {
   const ruleFormRef = ref();
   // 重置的新密码
   const pwdForm = reactive({
@@ -69,7 +68,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         type: "error"
       });
     } else {
-      console.log("email", email);
       User.resetEmail(email)
         .then(() => {
           message("更换邮箱成功", {
@@ -97,7 +95,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   //         onCropper: info => (avatarInfo.value = info)
   //       }),
   //     beforeSure: done => {
-  //       console.log("avatarInfo.value", avatarInfo.value);
   //       User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
   //       // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
   //       done(); // 关闭弹框
@@ -262,7 +259,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       beforeSure: done => {
         ruleEmailFormRef.value.validate(valid => {
           if (valid) {
-            console.log("emailForm", emailForm);
             User.updateEmail({
               code: emailForm.code,
               pass: emailForm.pwd,
@@ -280,8 +276,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
                 done(); // 关闭弹框
               })
               .catch(error => {
-                console.log("error", error.response);
-                console.log("error", error.response.data.message);
                 message(`验证码错误：${error.response.data.message}`, {
                   type: "error"
                 });
@@ -294,12 +288,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   //更新用户信息
   const submitEditUser = async (formEl: FormInstance | undefined, userI) => {
     if (!formEl) return;
-    await formEl.validate((valid, fields) => {
+    await formEl.validate(valid => {
       if (valid) {
         User.editUser(userI);
         putUserInfo(userI);
-      } else {
-        console.log("error submit!", fields);
       }
     });
   };

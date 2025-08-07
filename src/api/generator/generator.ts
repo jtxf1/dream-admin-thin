@@ -24,7 +24,7 @@ export const generate = tableName => {
   );
 };
 
-export const download = (name: String) => {
+export const download = (name: string) => {
   return http.request<Blob>(
     "post",
     baseUrlApi("generator/" + name + "/2"),

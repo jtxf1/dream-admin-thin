@@ -106,12 +106,12 @@ export function setToken(data: DataInfo<Date>) {
     });
   } else {
     const avatar =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "";
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.avatarName ?? "";
     const user = storageLocal().getItem<DataInfo<number>>(userKey)?.user ?? "";
     const username =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "";
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.username ?? "";
     const nickname =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "";
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.nickname ?? "";
     const roles =
       storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
     const permissions =

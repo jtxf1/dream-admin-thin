@@ -5,7 +5,7 @@ import * as Role from "@/api/system/role";
 import { addDialog } from "@/components/ReDialog";
 import type { FormItemProps } from "../utils/types";
 import type { PaginationProps } from "@pureadmin/table";
-import { reactive, ref, onMounted, h, toRaw, type Ref } from "vue";
+import { reactive, ref, onMounted, h, toRaw } from "vue";
 import { handleTree } from "@/utils/tree";
 import * as Dept from "@/api/system/dept";
 import * as Menu from "@/api/system/menu";
@@ -13,9 +13,8 @@ import { cloneDeep } from "@pureadmin/utils";
 import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 //import { cloneDeep } from "@pureadmin/utils";
 
-export function useRole(tableRef?: Ref, treeRef?: Ref) {
+export function useRole() {
   const deptList = ref();
-  console.log(tableRef, treeRef);
   const form = reactive({
     blurry: "",
     createTime: "",
