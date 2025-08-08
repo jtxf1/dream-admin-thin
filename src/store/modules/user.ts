@@ -7,7 +7,7 @@ import {
   routerArrays,
   storageLocal
 } from "../utils";
-import { type UserLogResult, login } from "@/api/login";
+import { type UserLogResult, login, logout } from "@/api/login";
 import { useMultiTagsStoreHook } from "./multiTags";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 import { encrypt } from "@/utils/rsaEncrypt";
@@ -97,13 +97,25 @@ export const useUserStore = defineStore("pure-user", {
     },
     /** 前端登出（不调用接口） */
     logOut() {
-      this.username = "";
-      this.roles = [];
-      this.permissions = [];
-      removeToken();
-      useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
-      resetRouter();
-      router.push("/login");
+      logout()
+        .then(() => {
+          this.username = "";
+          this.roles = [];
+          this.permissions = [];
+          removeToken();
+          useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
+          resetRouter();
+          router.push("/login");
+        })
+        .catch(() => {
+          this.username = "";
+          this.roles = [];
+          this.permissions = [];
+          removeToken();
+          useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
+          resetRouter();
+          router.push("/login");
+        });
     }
   }
 });
