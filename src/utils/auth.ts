@@ -94,13 +94,13 @@ export function setToken(data: DataInfo<Date>) {
   }
 
   if (data.username && data.roles) {
-    const { username, roles, user } = data;
+    const { roles, user } = data;
     setUserKey({
       accessToken,
       user,
-      avatar: data?.avatar ?? "",
-      username,
-      nickname: data?.nickname ?? "",
+      avatar: user?.avatarPath ?? "",
+      username: user?.username ?? "",
+      nickname: user?.nickname ?? "",
       roles,
       permissions: data?.permissions ?? []
     });

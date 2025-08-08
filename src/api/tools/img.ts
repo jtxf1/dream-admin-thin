@@ -63,7 +63,6 @@ export const uploadPost = async (data: FormData): Promise<ImgReturn | any> => {
   let token;
   await imageTokens()
     .then(async req => {
-      data.append("token", req?.data?.data?.tokens[0]?.token);
       token = await req?.data?.data?.tokens[0]?.token;
     })
     .catch(error => {
@@ -71,6 +70,7 @@ export const uploadPost = async (data: FormData): Promise<ImgReturn | any> => {
     });
 
   await data.append("token", token);
+  data.append("album_id", "2054");
   const config: {
     method: "post";
     url: string;

@@ -50,7 +50,7 @@ defineOptions({
   name: "UserInfo"
 });
 
-const imgSrcHead = ref(user.avatarName);
+const imgSrcHead = ref(user.avatarPath);
 const onChange = uploadFile => {
   const reader = new FileReader();
   reader.onload = e => {
@@ -75,14 +75,17 @@ const handleSubmitImage = () => {
         avatar: data?.data?.links?.url,
         key: data?.data?.key
       })
-        .then(data => {
-          if (data) {
+        .then(data1 => {
+          if (data1) {
             message("更新头像成功", { type: "success" });
             const info = storageLocal().getItem<DataInfo<Date>>("user-info");
             // 假设 data 的类型是 { data: { avatarName: string } }
-            const result = data as { data: { avatarName: string } };
+            const result = data1 as {
+              data: { avatarName: string; avatar: string };
+            };
             info.user.avatarName = result?.data?.avatarName;
-            imgSrcHead.value = baseUrlAvatar(result?.data?.avatarName);
+            info.user.avatarPath = result?.data?.avatar;
+            imgSrcHead.value = baseUrlAvatar(result?.data?.avatar);
             storageLocal().setItem("user-info", info);
 
             handleClose();

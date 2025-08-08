@@ -1,5 +1,4 @@
 buttons:
-  hsLoginOut: LoginOut
   userInfo: user info
   hsfullscreen: FullScreen
   hsexitfullscreen: ExitFullscreen

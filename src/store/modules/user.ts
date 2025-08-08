@@ -15,11 +15,14 @@ import { encrypt } from "@/utils/rsaEncrypt";
 export const useUserStore = defineStore("pure-user", {
   state: (): userType => ({
     // 头像
-    avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
+    avatar:
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.avatarPath ?? "",
     // 用户名
-    username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
+    username:
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.username ?? "",
     // 昵称
-    nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
+    nickname:
+      storageLocal().getItem<DataInfo<number>>(userKey)?.user?.nickname ?? "",
     // 页面级别权限
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
     // 按钮级别权限

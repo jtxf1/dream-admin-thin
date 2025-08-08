@@ -104,7 +104,7 @@ const { t, locale, translationCh, translationEn } = useTranslationLang();
               "
             >
               <IconifyIconOffline :icon="Avatar" style="margin: 5px" />
-              个人中心
+              {{ t("buttons.userInfo") }}
             </el-dropdown-item>
             <el-dropdown-item @click="logout">
               <IconifyIconOffline
