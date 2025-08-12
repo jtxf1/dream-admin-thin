@@ -14,13 +14,13 @@ import {
   isAllEmpty,
   cloneDeep
 } from "@pureadmin/utils";
-import { baseUrlAvatar } from "@/api/utils";
 import * as User from "@/api/system/user";
 import * as Dept from "@/api/system/dept";
 import { CRUD } from "@/api/utils";
 import * as Role from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
 import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
+import ReCropperPreview from "@/components/ReCropperPreview";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
@@ -35,6 +35,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   });
   //要编辑的user
   const userEdit = reactive({ user: {} });
+  const cropperBlob = ref();
   const formRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
@@ -74,8 +75,8 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         <el-image
           fit="cover"
           preview-teleported={true}
-          src={baseUrlAvatar(row.avatarName)}
-          preview-src-list={Array.of(baseUrlAvatar(row.avatarName))}
+          src={row.avatarPath}
+          preview-src-list={Array.of(row.avatarPath)}
           class="w-[24px] h-[24px] rounded-full align-middle"
         >
           {{
@@ -414,23 +415,23 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   function handleUpload(row) {
     console.log(row);
 
-    // addDialog({
-    //   title: "裁剪、上传头像",
-    //   width: "40%",
-    //   draggable: true,
-    //   closeOnClickModal: false,
-    //   contentRenderer: () =>
-    //     h(croppingUpload, {
-    //       imgSrc: baseUrlAvatar(row.avatarName),
-    //       onCropper: info => (avatarInfo.value = info)
-    //     }),
-    //   beforeSure: done => {
-    //     User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
-    //     // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-    //     done(); // 关闭弹框
-    //     onSearch(); // 刷新表格数据
-    //   }
-    // });
+    addDialog({
+      title: "裁剪、上传头像",
+      width: "40%",
+      draggable: true,
+      closeOnClickModal: false,
+      contentRenderer: () =>
+        h(ReCropperPreview, {
+          imgSrc: row.avatarPath,
+          cropper: ({ blob }) => (cropperBlob.value = blob)
+        }),
+      beforeSure: done => {
+        //User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
+        // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
+        done(); // 关闭弹框
+        onSearch(); // 刷新表格数据
+      }
+    });
   }
 
   watch(

@@ -11,6 +11,7 @@ import * as User from "@/api/system/user";
 import { message } from "@/utils/message";
 import { storageLocal } from "@pureadmin/utils";
 import type { DataInfo } from "@/utils/auth";
+import { baseUrlHello } from "@/api/utils";
 
 import Check from "~icons/ep/avatar";
 import SignIn from "~icons/ri/login-box-line";
@@ -122,8 +123,8 @@ const handleSubmitImage = () => {
                 :show-file-list="false"
                 :on-change="onChange"
               >
-                <el-avatar :size="80" :src="imgSrcHead">
-                  <img :src="imgSrcHead" />
+                <el-avatar :size="80" :src="baseUrlHello(imgSrcHead)">
+                  <img :src="baseUrlHello(imgSrcHead)" />
                 </el-avatar>
               </el-upload>
             </div>
@@ -280,7 +281,11 @@ const handleSubmitImage = () => {
       :before-close="handleClose"
       :fullscreen="deviceDetection()"
     >
-      <ReCropperPreview ref="cropRef" :imgSrc="imgSrc" @cropper="onCropper" />
+      <ReCropperPreview
+        ref="cropRef"
+        :imgSrc="baseUrlHello(imgSrcHead)"
+        @cropper="onCropper"
+      />
       <template #footer>
         <div class="dialog-footer">
           <el-button bg text @click="handleClose">取消</el-button>

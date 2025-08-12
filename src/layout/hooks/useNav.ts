@@ -14,6 +14,8 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { useGlobal, isAllEmpty } from "@pureadmin/utils";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { baseUrlHello } from "@/api/utils";
+
 import ExitFullscreen from "~icons/ri/fullscreen-exit-fill";
 import Fullscreen from "~icons/ri/fullscreen-fill";
 
@@ -42,7 +44,7 @@ export function useNav() {
   const userAvatar = computed(() => {
     return isAllEmpty(useUserStoreHook()?.avatar)
       ? Avatar
-      : useUserStoreHook()?.avatar;
+      : baseUrlHello(useUserStoreHook()?.avatar);
   });
 
   /** 昵称（如果昵称为空则显示用户名） */

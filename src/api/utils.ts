@@ -7,6 +7,21 @@ import { downloadByData } from "@pureadmin/utils";
 export const baseUrlApi = (url: string) => `/api/${url}`;
 export const baseUrlAuth = (url: string) => `/auth/${url}`;
 export const baseUrlAvatar = (url: string) => `/avatar/${url}`;
+export const baseUrlHello = (url: string) =>
+  `/hello/${removeUrlPrefix(url, "https://www.helloimg.com/")}`;
+
+/**
+ * 去除url指定前缀
+ * @param url 原始url
+ * @param prefix 要去除的前缀
+ * @returns 去除前缀后的url
+ */
+export function removeUrlPrefix(url: string, prefix: string): string {
+  if (url.startsWith(prefix)) {
+    return url.slice(prefix.length);
+  }
+  return url;
+}
 
 /** 单独抽离的CRUD工具函数 */
 class crud {
