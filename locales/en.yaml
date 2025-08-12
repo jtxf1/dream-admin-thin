@@ -3,7 +3,6 @@ buttons:
   hsfullscreen: FullScreen
   hsexitfullscreen: ExitFullscreen
   hsrefreshRoute: RefreshRoute
-  hslogin: Login
   hsadd: Add
   hsmark: Mark/Cancel
   hssave: Save
@@ -87,7 +86,6 @@ panel:
   pureMultiTagsCache: MultiTags Cache
 menus:
   pureHome: Home
-  pureLogin: Login
   pureAbnormal: Abnormal Page
   pureFourZeroFour: "404"
   pureFourZeroOne: "403"

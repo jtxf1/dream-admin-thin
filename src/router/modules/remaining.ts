@@ -7,7 +7,7 @@ export default [
     name: "Login",
     component: () => import("@/views/login/index.vue"),
     meta: {
-      title: $t("menus.pureLogin"),
+      title: $t("buttons.pureLogin"),
       showLink: false,
       rank: 101
     }

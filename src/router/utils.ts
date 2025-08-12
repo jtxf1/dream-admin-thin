@@ -211,19 +211,21 @@ function initRouter() {
     } else {
       return new Promise(resolve => {
         getAsyncRoutes().then(({ data }) => {
-          handleAsyncRoutes(cloneDeep(data));
-          storageLocal().setItem(key, data);
-          resolve(router);
+          Menu.menusBuild()
+            .then(re => {
+              data.push(...re.data);
+              handleAsyncRoutes(cloneDeep(data));
+              storageLocal().setItem(key, data);
+            })
+            .finally(() => {
+              resolve(router);
+            });
         });
       });
     }
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ data }) => {
-        Menu.menusBuild().then(re => {
-          handleAsyncRoutes(cloneDeep(re.data));
-        });
-
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });

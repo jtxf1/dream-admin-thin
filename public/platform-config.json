@@ -20,7 +20,7 @@
   "ShowLogo": true,
   "ShowModel": "smart",
   "MenuArrowIconNoTransition": false,
-  "CachingAsyncRoutes": false,
+  "CachingAsyncRoutes": true,
   "TooltipEffect": "light",
   "ResponsiveStorageNameSpace": "responsive-",
   "MenuSearchHistory": 6

@@ -24,6 +24,8 @@ import { ref, toRaw, reactive, watch, computed } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import * as Menu from "@/api/system/menu";
+import { cloneDeep } from "@pureadmin/utils";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -78,6 +80,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           if (res) {
             // 获取后端路由
             return initRouter().then(() => {
+              Menu.menusBuild().then(re => {});
               disabled.value = true;
               router
                 .push(getTopMenu(true).path)
