@@ -22,8 +22,7 @@ import Secure from "~icons/ri/secure-payment-fill";
 
 const activeName = ref("first");
 const cropRef = ref();
-const uploadRef = ref();
-const imgSrc = ref("");
+const isDisabled = ref(false);
 const isShow = ref(false);
 const cropperBlob = ref();
 const handleClick = (tab: TabsPaneContext, event: Event) => {
@@ -67,6 +66,7 @@ const handleClose = () => {
   isShow.value = false;
 };
 const handleSubmitImage = () => {
+  isDisabled.value = true;
   var fd = new FormData();
   fd.append("file", cropperBlob.value, "test.png");
   Img.uploadPost(fd).then(data => {
@@ -93,9 +93,11 @@ const handleSubmitImage = () => {
           } else {
             message("更新头像失败");
           }
+          isDisabled.value = false;
         })
         .catch(error => {
           message(`提交异常 ${error}`, { type: "error" });
+          isDisabled.value = false;
         });
     }
   });
@@ -278,8 +280,16 @@ const handleSubmitImage = () => {
       />
       <template #footer>
         <div class="dialog-footer">
-          <el-button bg text @click="handleClose">取消</el-button>
-          <el-button bg text type="primary" @click="handleSubmitImage">
+          <el-button bg text :disabled="isDisabled" @click="handleClose"
+            >取消</el-button
+          >
+          <el-button
+            bg
+            text
+            type="primary"
+            :disabled="isDisabled"
+            @click="handleSubmitImage"
+          >
             确定
           </el-button>
         </div>

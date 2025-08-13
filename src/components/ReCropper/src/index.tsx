@@ -149,6 +149,12 @@ export default defineComponent({
       if (!imgEl) return;
       http
         .request("get", imgEl.src)
+        .then(res => {
+          if (typeof res === "string" && res.startsWith("<!DOCTYPE html>")) {
+            imgEl.src =
+              "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNNDAwIDMxNy43aDczLjlWNjU2YzAgNC40IDMuNiA4IDggOGg2MGM0LjQgMCA4LTMuNiA4LThWMzE3LjdINjI0YzYuNyAwIDEwLjQtNy43IDYuMy0xMi45TDUxOC4zIDE2M2E4IDggMCAwIDAtMTIuNiAwbC0xMTIgMTQxLjdjLTQuMSA1LjMtLjQgMTMgNi4zIDEzTTg3OCA2MjZoLTYwYy00LjQgMC04IDMuNi04IDh2MTU0SDIxNFY2MzRjMC00LjQtMy42LTgtOC04aC02MGMtNC40IDAtOCAzLjYtOCA4djE5OGMwIDE3LjcgMTQuMyAzMiAzMiAzMmg2ODRjMTcuNyAwIDMyLTE0LjMgMzItMzJWNjM0YzAtNC40LTMuNi04LTgtOCIvPjwvc3ZnPg==";
+          }
+        })
         .catch(() => {
           imgEl.src =
             "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCI+PHBhdGggZmlsbD0iY3VycmVudENvbG9yIiBkPSJNNDAwIDMxNy43aDczLjlWNjU2YzAgNC40IDMuNiA4IDggOGg2MGM0LjQgMCA4LTMuNiA4LThWMzE3LjdINjI0YzYuNyAwIDEwLjQtNy43IDYuMy0xMi45TDUxOC4zIDE2M2E4IDggMCAwIDAtMTIuNiAwbC0xMTIgMTQxLjdjLTQuMSA1LjMtLjQgMTMgNi4zIDEzTTg3OCA2MjZoLTYwYy00LjQgMC04IDMuNi04IDh2MTU0SDIxNFY2MzRjMC00LjQtMy42LTgtOC04aC02MGMtNC40IDAtOCAzLjYtOCA4djE5OGMwIDE3LjcgMTQuMyAzMiAzMiAzMmg2ODRjMTcuNyAwIDMyLTE0LjMgMzItMzJWNjM0YzAtNC40LTMuNi04LTgtOCIvPjwvc3ZnPg==";

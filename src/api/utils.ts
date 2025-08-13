@@ -26,8 +26,11 @@ export const removeUrlPrefix = (url: string): string => {
   if (url.startsWith("https://www.helloimg.com/")) {
     return url.slice("https://www.helloimg.com/".length);
   }
-  if (url.startsWith("D:/eladmin/")) {
-    return url.slice("D:/eladmin/".length);
+  if (url.startsWith("/D:/eladmin/")) {
+    return url.slice("/D:/eladmin/".length);
+  }
+  if (url.startsWith("D:/eladmin")) {
+    return url.slice("D:/eladmin".length);
   }
   return url;
 };
@@ -40,8 +43,6 @@ class crud {
     params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
   ): Promise<ApiAbstract<Page<T>>> {
-    console.log(params);
-    console.log(config);
     return http.get<ApiAbstract<Page<T>>, P>(baseUrlApi(url), params, config);
   }
 

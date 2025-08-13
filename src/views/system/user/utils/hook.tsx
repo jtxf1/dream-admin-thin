@@ -21,6 +21,7 @@ import * as Role from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
 import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
 import ReCropperPreview from "@/components/ReCropperPreview";
+import * as Img from "@/api/tools/img";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
   const form = reactive({
@@ -221,10 +222,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       });
   }
 
-  function handleUpdate(row) {
-    console.log(row);
-  }
-
   function handleDelete(row) {
     User.del([row.id]).then(() => {
       message(`您删除了用户编号为${row.id}的这条数据!`, { type: "success" });
@@ -413,8 +410,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   /** 上传头像 */
   function handleUpload(row) {
-    console.log(row);
-
     addDialog({
       title: "裁剪、上传头像",
       width: "40%",
@@ -422,10 +417,21 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       closeOnClickModal: false,
       contentRenderer: () =>
         h(ReCropperPreview, {
-          imgSrc: row.avatarPath,
-          cropper: ({ blob }) => (cropperBlob.value = blob)
+          imgSrc: baseUrlHello(row.avatarPath),
+          onCropper: ({ blob }) => (cropperBlob.value = blob)
         }),
       beforeSure: done => {
+        const fd = new FormData();
+        fd.append("file", cropperBlob.value, "test.png");
+        Img.uploadPost(fd).then(data => {
+          if (data) {
+            User.updateAvatarByid({
+              id: row.id,
+              avatar: data?.data?.links?.url,
+              key: data?.data?.key
+            });
+          }
+        });
         //User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
         // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
         done(); // 关闭弹框
@@ -532,7 +538,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     onbatchDel,
     openDialog,
     onTreeSelect,
-    handleUpdate,
     handleDelete,
     handleUpload,
     handleReset,
