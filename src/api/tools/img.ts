@@ -78,7 +78,7 @@ export const uploadPost = async (data: FormData): Promise<ImgReturn | any> => {
     data: FormData;
   } = {
     method: "post",
-    url: "https://www.helloimg.com/api/v1/upload",
+    url: "https://picui.cn/api/v1/upload",
     headers: {
       Accept: "application/json",
       "Content-Type": "multipart/form-data"

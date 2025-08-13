@@ -7,8 +7,7 @@ import { downloadByData } from "@pureadmin/utils";
 export const baseUrlApi = (url: string) => `/api/${url}`;
 export const baseUrlAuth = (url: string) => `/auth/${url}`;
 export const baseUrlAvatar = (url: string) => `/avatar/${url}`;
-export const baseUrlHello = (url: string) =>
-  `/hello/${removeUrlPrefix(url, "https://www.helloimg.com/")}`;
+export const baseUrlHello = (url: string) => `/hello/${removeUrlPrefix(url)}`;
 
 /**
  * 去除url指定前缀
@@ -16,12 +15,22 @@ export const baseUrlHello = (url: string) =>
  * @param prefix 要去除的前缀
  * @returns 去除前缀后的url
  */
-export function removeUrlPrefix(url: string, prefix: string): string {
-  if (url.startsWith(prefix)) {
-    return url.slice(prefix.length);
+export const removeUrlPrefix = (url: string): string => {
+  if (!url) return "";
+  if (url.startsWith("https://free.picui.cn/")) {
+    return url.slice("https://free.picui.cn/".length);
+  }
+  if (url.startsWith("/avatar/https://free.picui.cn/")) {
+    return url.slice("/avatar/https://free.picui.cn/".length);
+  }
+  if (url.startsWith("https://www.helloimg.com/")) {
+    return url.slice("https://www.helloimg.com/".length);
+  }
+  if (url.startsWith("D:/eladmin/")) {
+    return url.slice("D:/eladmin/".length);
   }
   return url;
-}
+};
 
 /** 单独抽离的CRUD工具函数 */
 class crud {
@@ -31,6 +40,8 @@ class crud {
     params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
   ): Promise<ApiAbstract<Page<T>>> {
+    console.log(params);
+    console.log(config);
     return http.get<ApiAbstract<Page<T>>, P>(baseUrlApi(url), params, config);
   }
 

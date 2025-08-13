@@ -28,6 +28,7 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       // 端口号
       port: VITE_PORT,
       host: "0.0.0.0",
+      cors: true,
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
         "/api": {
@@ -50,8 +51,9 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         },
         "/hello": {
           // 这里填写后端地址
-          target: "https://www.helloimg.com",
+          target: "https://free.picui.cn",
           changeOrigin: true,
+          secure: false,
           rewrite: path => path.replace(/^\/hello/, "")
         }
       },

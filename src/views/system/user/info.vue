@@ -52,18 +52,18 @@ defineOptions({
 });
 
 const imgSrcHead = ref(user.avatarPath);
-const onChange = uploadFile => {
-  const reader = new FileReader();
+const onChange = () => {
+  isShow.value = true;
+  /* const reader = new FileReader();
   reader.onload = e => {
     imgSrc.value = e.target.result as string;
     isShow.value = true;
   };
-  reader.readAsDataURL(uploadFile.raw);
+  reader.readAsDataURL(uploadFile.raw); */
 };
 const onCropper = ({ blob }) => (cropperBlob.value = blob);
 const handleClose = () => {
   cropRef.value.hidePopover();
-  uploadRef.value.clearFiles();
   isShow.value = false;
 };
 const handleSubmitImage = () => {
@@ -113,20 +113,10 @@ const handleSubmitImage = () => {
                 <span>个人信息</span>
               </div>
             </template>
-            <div class="el-upload">
-              <el-upload
-                ref="uploadRef"
-                accept="image/*"
-                action="#"
-                :limit="1"
-                :auto-upload="false"
-                :show-file-list="false"
-                :on-change="onChange"
-              >
-                <el-avatar :size="80" :src="baseUrlHello(imgSrcHead)">
-                  <img :src="baseUrlHello(imgSrcHead)" />
-                </el-avatar>
-              </el-upload>
+            <div class="el-upload" @click="onChange">
+              <el-avatar :size="80" :src="baseUrlHello(imgSrcHead)">
+                <img :src="baseUrlHello(imgSrcHead)" />
+              </el-avatar>
             </div>
 
             <ul class="user-info">

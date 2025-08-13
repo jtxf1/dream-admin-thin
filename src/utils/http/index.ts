@@ -14,10 +14,12 @@ import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { message } from "@/utils/message";
 
+Axios.defaults.withCredentials = false;
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
   // 请求超时时间
   timeout: 10000,
+  withCredentials: false,
   headers: {
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json",
@@ -50,6 +52,10 @@ class PureHttp {
       async (config: PureHttpRequestConfig): Promise<any> => {
         // 开启进度条动画
         NProgress.start();
+        // 删除请求头中的 cookie 属性
+        if (config.headers && "cookie" in config.headers) {
+          delete config.headers["cookie"];
+        }
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof config.beforeRequestCallback === "function") {
           config.beforeRequestCallback(config);
@@ -60,7 +66,13 @@ class PureHttp {
           return config;
         }
         /** 请求白名单，放置一些不需要`token`的接口（通过设置请求白名单，防止`token`过期后再请求造成的死循环问题） */
-        const whiteList = ["/refresh-token", "/login", "/auth", "/auth/*"];
+        const whiteList = [
+          "/refresh-token",
+          "/login",
+          "/auth",
+          "/auth/*",
+          "/i/*"
+        ];
         return whiteList.some(
           url =>
             url === config.url ||

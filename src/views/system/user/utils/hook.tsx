@@ -16,7 +16,7 @@ import {
 } from "@pureadmin/utils";
 import * as User from "@/api/system/user";
 import * as Dept from "@/api/system/dept";
-import { CRUD } from "@/api/utils";
+import { CRUD, baseUrlHello } from "@/api/utils";
 import * as Role from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
 import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
@@ -70,18 +70,18 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     },
     {
       label: "用户头像",
-      prop: "avatarName",
+      prop: "avatarPath",
       cellRenderer: ({ row }) => (
         <el-image
           fit="cover"
           preview-teleported={true}
-          src={row.avatarPath}
-          preview-src-list={Array.of(row.avatarPath)}
+          src={baseUrlHello(row.avatarPath)}
+          preview-src-list={Array.of(baseUrlHello(row.avatarPath))}
           class="w-[24px] h-[24px] rounded-full align-middle"
         >
           {{
             error: () => (
-              <el-image src="https://element-plus.org/images/element-plus-logo.svg" />
+              <el-image src={new URL("/logo.svg", import.meta.url).href} />
             )
           }}
         </el-image>
