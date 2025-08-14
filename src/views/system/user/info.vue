@@ -62,7 +62,6 @@ const onChange = () => {
 };
 const onCropper = ({ blob }) => (cropperBlob.value = blob);
 const handleClose = () => {
-  cropRef.value.hidePopover();
   isShow.value = false;
 };
 const handleSubmitImage = () => {

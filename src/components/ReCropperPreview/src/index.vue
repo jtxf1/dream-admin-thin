@@ -8,11 +8,16 @@ defineOptions({
 });
 
 const props = defineProps<{ imgSrc: string }>();
+const imgSrc1 = ref<string>("");
 
 const emit = defineEmits(["cropper"]);
+
+function onCropper({ dataURL, blob, file }) {
+  emit("cropper", { dataURL, blob, file });
+}
 interface Info {
-  width?: string;
-  height?: string;
+  width?: number | string;
+  height?: number | string;
   size?: number;
 }
 const infos = ref<Info>({
@@ -20,13 +25,9 @@ const infos = ref<Info>({
   height: "0",
   size: 0
 });
-const popoverRef = ref();
 const showPopover = ref(false);
 const childComponentRef = ref(null);
 
-function hidePopover() {
-  popoverRef.value.hide();
-}
 function forIe9() {
   childComponentRef.value?.handleOpen({
     name: "1.png",
@@ -38,20 +39,35 @@ function imageLoadComplete(ref) {
   infos.value.height = ref?.height;
 }
 function cutDown(data) {
-  console.log(data);
-
-  emit("cropper", data);
-  hidePopover();
+  onCropper(data);
 }
 function handlePrintImg(data) {
-  infos.value.size = data?.file?.size;
-  console.log("打印图片", data);
+  onCropper(data);
+  infos.value.size = data?.blob?.size;
+  imgSrc1.value = data?.dataURL;
+  const file = data?.file;
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const dataUrl = e.target.result;
+    // --- 关键代码：new Image() ---
+    const img = new Image();
+    img.onload = function () {
+      infos.value.width = img.naturalWidth;
+      infos.value.height = img.naturalHeight;
+    };
+    if (typeof dataUrl === "string") {
+      img.src = dataUrl;
+    }
+    // --- 关键代码结束 ---
+  };
+  reader.readAsDataURL(file);
 }
 onMounted(() => {
   // 组件加载完成后执行
   forIe9(); // 例如自动打开裁剪远程图片
 });
-defineExpose({ hidePopover });
 </script>
 
 <template>
@@ -60,6 +76,7 @@ defineExpose({ hidePopover });
       <div class="w-[18vw]">
         <ImgCutter
           ref="childComponentRef"
+          rate="1:1"
           :isModal="false"
           :boxWidth="373"
           @onImageLoadComplete="imageLoadComplete"
@@ -73,12 +90,7 @@ defineExpose({ hidePopover });
     </el-col>
     <el-col :span="12">
       <div class="w-[18vw] justify-center items-center text-center">
-        <el-image
-          :src="props.imgSrc"
-          toolBgc="#fff"
-          :preview-src-list="Array.of(props.imgSrc)"
-          fit="cover"
-        />
+        <el-image :src="imgSrc1" toolBgc="#fff" fit="cover" />
         <div class="mt-1">
           <p>
             图像大小：{{ parseInt(infos.width) }} ×
@@ -92,3 +104,13 @@ defineExpose({ hidePopover });
     </el-col>
   </el-row>
 </template>
+<style lang="scss" scoped>
+/*
+  覆盖并隐藏子组件中的 .i-dialog-footer
+  使用 :deep() 选择器穿透 scoped 样式
+  .child-component-wrapper 是为了更精确地定位到子组件内的元素
+*/
+:deep(.i-dialog-footer) {
+  display: none !important; /* 使用 !important 确保覆盖 */
+}
+</style>
