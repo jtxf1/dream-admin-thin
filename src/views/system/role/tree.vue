@@ -98,14 +98,11 @@ const currentRowList = tree => {
 
   return ids;
 };
-function handleNodeClick(data: Tree) {
-  if (data.children) {
-    data.children.forEach(item => {
-      item.highlight = false;
-    });
+function handleNodeClick(data, node) {
+  if (!node) {
+    console.log(node);
   }
-  data.highlight = !data.highlight;
-  highlightMap.value = { ...highlightMap.value, [data.id]: data.highlight };
+  return data?.title;
 }
 
 function testClick() {
@@ -125,7 +122,7 @@ defineExpose({ onTreeReset });
     class="h-full bg-bg_color overflow-auto"
     :style="{ minHeight: `calc(100vh - 133px)` }"
   >
-    <el-row :gutter="20" style="margin: 2">
+    <el-row :gutter="20">
       <el-col :span="17"> 菜单分配</el-col>
       <el-col :span="3">
         <el-button
@@ -242,7 +239,7 @@ defineExpose({ onTreeReset });
                   : Dept
             "
           />
-          {{ node.label }}
+          {{ handleNodeClick(data, node) }}
         </span>
       </template>
     </el-tree>

@@ -59,7 +59,7 @@ const {
   handleSizeChange,
   handleCurrentChange,
   handleCurrentChange1
-} = useRole(tableRef, treeRef);
+} = useRole();
 </script>
 
 <template>
