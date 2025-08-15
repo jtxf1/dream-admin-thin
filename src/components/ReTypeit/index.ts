@@ -1,8 +1,8 @@
 import typeIt from "./src/index";
-import type { TypeItOptions } from "typeit";
+import type Options from "typeit";
 
 const TypeIt = typeIt;
 
-export { TypeIt, TypeItOptions };
+export { TypeIt, Options };
 
 export default TypeIt;

@@ -1,5 +1,5 @@
 dream-admin-thin
-├── .husky #在提交或推送时自动检查你的提交消息、代码并运行测试。
+├── .husky  #在提交或推送时自动检查你的提交消息、代码并运行测试。
 ├── .vscode #vscode编辑器插件、代码生成、设置
 ├── build   #打包配置
 ├── locales #国际化
@@ -24,8 +24,8 @@ dream-admin-thin
 │   │   ├── ReSplitPane       #切割面板
 │   │   ├── ReText            #提示的文本
 │   │   └── ReTypeit          #打字机
-│   ├── config
-│   ├── directives
+│   ├── config                #动态加载配置
+│   ├── directives            #自定义指令
 │   │   ├── auth
 │   │   ├── copy
 │   │   ├── longpress

@@ -1,6 +1,5 @@
 import type { El } from "typeit/dist/types";
-import TypeIt from "typeit";
-import type TypeItOptions from "typeit";
+import TypeIt, { type Options } from "typeit";
 import { ref, defineComponent, onMounted, type PropType } from "vue";
 
 // 打字机效果组件（配置项详情请查阅 https://www.typeitjs.com/docs/vanilla/usage#options）
@@ -8,8 +7,8 @@ export default defineComponent({
   name: "TypeIt",
   props: {
     options: {
-      type: Object as PropType<TypeItOptions>,
-      default: () => ({}) as TypeItOptions
+      type: Object as PropType<Options>,
+      default: () => ({}) as Options
     }
   },
   setup(props, { slots, expose }) {
@@ -40,7 +39,7 @@ export default defineComponent({
             : "Please make sure that there is only one element with a Class attribute with 'type-it'";
         throwError(errorMsg);
       }
-      const typeIt = new TypeIt($typed, {}).type(props.options.type + "").go();
+      const typeIt = new TypeIt($typed, props.options).go();
 
       expose({
         typeIt

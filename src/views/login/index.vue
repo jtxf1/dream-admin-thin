@@ -202,6 +202,7 @@ watch(loginDay, value => {
               >
                 <el-input
                   v-model="ruleForm.username"
+                  v-copy="ruleForm.username"
                   clearable
                   :placeholder="t('login.username')"
                   :prefix-icon="useRenderIcon(User)"
