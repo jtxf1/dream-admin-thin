@@ -1,0 +1,103 @@
+dream-admin-thin
+├── .husky #在提交或推送时自动检查你的提交消息、代码并运行测试。
+├── .vscode #vscode编辑器插件、代码生成、设置
+├── build   #打包配置
+├── locales #国际化
+├── mock    #模拟请求
+├── public  #静态资源和静态变量
+├── src
+│   ├── api #后端请求
+│   ├── components #全局组件
+│   │   ├── ReAnimateSelector #动画
+│   │   ├── ReAuth            #认证
+│   │   ├── ReCol             #表格列
+│   │   ├── ReCountTo         #数字动画
+│   │   ├── ReCropperPreview  #图片裁剪预览
+│   │   ├── ReDialog          #弹框
+│   │   ├── ReFlicker         #圆点、方形闪烁动画
+│   │   ├── ReIcon            #图标
+│   │   ├── ReImageVerify     #图形验证码
+│   │   ├── RePerms           #标签
+│   │   ├── RePureTableBar    #表格
+│   │   ├── ReQrcode          #二维码
+│   │   ├── ReSegmented       #分段控制器
+│   │   ├── ReSplitPane       #切割面板
+│   │   ├── ReText            #提示的文本
+│   │   └── ReTypeit          #打字机
+│   ├── config
+│   ├── directives
+│   │   ├── auth
+│   │   ├── copy
+│   │   ├── longpress
+│   │   ├── optimize
+│   │   ├── perms
+│   │   └── ripple
+│   ├── layout
+│   │   ├── components
+│   │   │   ├── lay-content
+│   │   │   ├── lay-footer
+│   │   │   ├── lay-frame
+│   │   │   ├── lay-navbar
+│   │   │   ├── lay-notice
+│   │   │   │   └── components
+│   │   │   ├── lay-panel
+│   │   │   ├── lay-search
+│   │   │   │   └── components
+│   │   │   ├── lay-setting
+│   │   │   ├── lay-sidebar
+│   │   │   │   └── components
+│   │   │   └── lay-tag
+│   │   │       └── components
+│   │   └── hooks
+│   ├── plugins
+│   ├── router
+│   │   └── modules
+│   ├── store
+│   │   └── modules
+│   ├── style
+│   ├── utils
+│   │   ├── http
+│   │   ├── localforage
+│   │   └── progress
+│   └── views
+│       ├── about
+│       ├── components
+│       │   └── upload
+│       ├── editor
+│       │   └── components
+│       ├── error
+│       ├── login
+│       │   ├── components
+│       │   └── utils
+│       ├── monitor
+│       │   ├── generator
+│       │   ├── logs
+│       │   │   ├── login
+│       │   │   ├── operation
+│       │   │   └── system
+│       │   └── online
+│       ├── permission
+│       │   ├── button
+│       │   └── page
+│       ├── system
+│       │   ├── dept
+│       │   │   └── utils
+│       │   ├── dict
+│       │   │   └── utils
+│       │   ├── job
+│       │   │   └── utils
+│       │   ├── jobs
+│       │   │   └── utils
+│       │   ├── menu
+│       │   │   └── utils
+│       │   ├── role
+│       │   │   └── utils
+│       │   └── user
+│       │       ├── form
+│       │       ├── svg
+│       │       └── utils
+│       └── welcome
+│           └── components
+│               ├── chart
+│               └── table
+└── types
