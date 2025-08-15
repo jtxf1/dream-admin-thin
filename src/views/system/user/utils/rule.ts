@@ -78,28 +78,33 @@ export const formRulesPwd = reactive(<FormRules>{
   ]
 });
 /** 自定义修改邮箱规则校验 */
-export const formRulesEmail = reactive(<FormRules>{
-  email: [
-    {
-      required: true,
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error("邮箱为必填项"));
-        } else if (!isEmail(value)) {
-          callback(new Error("请输入正确的邮箱格式"));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ],
-  code: [
-    { required: true, message: "验证码为必填项", trigger: "blur" },
-    { min: 4, max: 8, message: "Length should be 4 to 8", trigger: "blur" }
-  ],
-  pwd: [
-    { required: true, message: "密码为必填项", trigger: "blur" },
-    { min: 6, max: 18, message: "Length should be 4 to 8", trigger: "blur" }
-  ]
-});
+export function formRulesEmail(emailButton) {
+  return {
+    email: [
+      {
+        required: true,
+        validator: (rule, value, callback) => {
+          if (value === "") {
+            emailButton.value = true;
+            callback(new Error("邮箱为必填项"));
+          } else if (!isEmail(value)) {
+            emailButton.value = true;
+            callback(new Error("请输入正确的邮箱格式"));
+          } else {
+            emailButton.value = false; // 格式正确，启用按钮
+            callback();
+          }
+        },
+        trigger: "blur"
+      }
+    ],
+    code: [
+      { required: true, message: "验证码为必填项", trigger: "blur" },
+      { min: 6, max: 6, message: "Length should be 4 to 8", trigger: "blur" }
+    ],
+    pwd: [
+      { required: true, message: "密码为必填项", trigger: "blur" },
+      { min: 6, max: 18, message: "Length should be 4 to 8", trigger: "blur" }
+    ]
+  };
+}

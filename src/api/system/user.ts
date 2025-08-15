@@ -109,7 +109,7 @@ export const download = (data: Partial<UserQueryCriteria>) => {
 };
 
 export const updateAvatarByid = ({ id, avatar, key }) => {
-  return http.request("post", baseUrlApi("/users/updateAvatar2/" + id), {
+  return http.request("post", baseUrlApi("users/updateAvatar2/" + id), {
     data: { avatar, key }
   });
 };
@@ -125,7 +125,7 @@ export function updatePass({ oldPass, newPass }) {
 }
 
 export function resetEmail(data) {
-  return http.request("post", baseUrlApi("/code/resetEmail?email=" + data));
+  return http.request("post", baseUrlApi("code/resetEmail?email=" + data));
 }
 
 export function updateEmail(form) {

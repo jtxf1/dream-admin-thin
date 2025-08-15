@@ -22,6 +22,8 @@ import type { LogProps } from "./types";
 
 export function useUser() {
   const ruleFormRef = ref();
+  const emailButton = ref(false);
+  const emailButtonLoading = ref(false);
   // 重置的新密码
   const pwdForm = reactive({
     newPwd: "",
@@ -59,6 +61,10 @@ export function useUser() {
   });
   /** 获取邮箱验证码 */
   const getEmailCode = email => {
+    emailButtonLoading.value = true;
+    setTimeout(() => {
+      emailButtonLoading.value = false; // 60秒后恢复
+    }, 60000);
     if (isNull(email)) {
       message("email必填", {
         type: "error"
@@ -70,7 +76,7 @@ export function useUser() {
     } else {
       User.resetEmail(email)
         .then(() => {
-          message("更换邮箱成功", {
+          message("验证码发送成功", {
             type: "success"
           });
         })
@@ -81,27 +87,6 @@ export function useUser() {
         });
     }
   };
-
-  /** 上传头像 */
-  // function handleUpload(row) {
-  //   addDialog({
-  //     title: "裁剪、上传头像",
-  //     width: "50%",
-  //     draggable: false,
-  //     closeOnClickModal: false,
-  //     contentRenderer: () =>
-  //       h(croppingUpload, {
-  //         imgSrc: baseUrlAvatar(row.avatarName),
-  //         onCropper: info => (avatarInfo.value = info)
-  //       }),
-  //     beforeSure: done => {
-  //       User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
-  //       // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-  //       done(); // 关闭弹框
-  //     }
-  //   });
-  // }
-
   watch(
     pwdForm,
     ({ newPwd }) =>
@@ -110,7 +95,7 @@ export function useUser() {
   /** 重置密码 */
   function handleReset() {
     addDialog({
-      title: `重置 ${userInfo.value.user.nickName} 用户的密码`,
+      title: `重置 ${userInfo.value.nickName} 用户的密码`,
       width: "30%",
       draggable: true,
       closeOnClickModal: false,
@@ -190,7 +175,7 @@ export function useUser() {
               });
             } else {
               // 表单规则校验通过
-              message(`已成功重置 ${userInfo.value.user.nickName} 用户的密码`, {
+              message(`已成功修改 ${userInfo.value.nickName} 用户的密码`, {
                 type: "success"
               });
               // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
@@ -204,8 +189,8 @@ export function useUser() {
   /** 更换邮箱 */
   function handleResetEmail() {
     addDialog({
-      title: `更换 ${userInfo.value.user.nickName} 用户的邮箱`,
-      width: "30%",
+      title: `更换 ${userInfo.value.nickName} 用户的邮箱`,
+      width: "20%",
       draggable: true,
       closeOnClickModal: false,
       contentRenderer: () => (
@@ -213,7 +198,7 @@ export function useUser() {
           <ElForm
             ref={ruleEmailFormRef}
             model={emailForm}
-            {...{ rules: formRulesEmail }}
+            {...{ rules: formRulesEmail(emailButton) }}
           >
             <ElFormItem prop="email" label="新邮箱：">
               <ElInput
@@ -226,12 +211,19 @@ export function useUser() {
             <ElFormItem prop="code" label="验证码：">
               <ElInput
                 clearable
-                type="text"
+                type="number"
+                min={100000}
+                max={999999}
+                controls={false}
                 v-model={emailForm.code}
                 placeholder="请输入验证码"
                 v-slots={{
                   append: () => (
-                    <ElButton onClick={() => getEmailCode(emailForm.email)}>
+                    <ElButton
+                      onClick={() => getEmailCode(emailForm.email)}
+                      loading={emailButtonLoading.value}
+                      disabled={emailButton.value}
+                    >
                       获取验证码
                     </ElButton>
                   )
@@ -265,18 +257,19 @@ export function useUser() {
               email: emailForm.email
             })
               .then(() => {
+                const info =
+                  storageLocal().getItem<DataInfo<Date>>("user-info");
+                info.user.email = emailForm.email;
+                storageLocal().setItem("user-info", info);
                 // 表单规则校验通过
-                message(
-                  `已成功更换 ${userInfo.value.user.nickName} 用户的邮箱`,
-                  {
-                    type: "success"
-                  }
-                );
+                message(`已成功更换 ${userInfo.value?.nickName} 用户的邮箱`, {
+                  type: "success"
+                });
                 // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
                 done(); // 关闭弹框
               })
               .catch(error => {
-                message(`验证码错误：${error.response.data.message}`, {
+                message(`验证码错误：${error}`, {
                   type: "error"
                 });
               });
