@@ -80,7 +80,6 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           if (res) {
             // 获取后端路由
             return initRouter().then(() => {
-              Menu.menusBuild().then(re => {});
               disabled.value = true;
               router
                 .push(getTopMenu(true).path)

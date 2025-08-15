@@ -14,6 +14,7 @@ import removeConsole from "vite-plugin-remove-console";
 import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import { codeInspectorPlugin } from "code-inspector-plugin";
 import { vitePluginFakeServer } from "vite-plugin-fake-server";
+import vueDevTools from "vite-plugin-vue-devtools";
 
 export function getPluginsList(
   VITE_CDN: boolean,
@@ -66,6 +67,7 @@ export function getPluginsList(
     // 打包分析
     lifecycle === "report"
       ? visualizer({ open: true, brotliSize: true, filename: "report.html" })
-      : (null as any)
+      : (null as any),
+    vueDevTools()
   ];
 }
