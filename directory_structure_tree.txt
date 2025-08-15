@@ -26,78 +26,50 @@ dream-admin-thin
 │   │   └── ReTypeit          #打字机
 │   ├── config                #动态加载配置
 │   ├── directives            #自定义指令
-│   │   ├── auth
-│   │   ├── copy
-│   │   ├── longpress
-│   │   ├── optimize
-│   │   ├── perms
-│   │   └── ripple
-│   ├── layout
-│   │   ├── components
-│   │   │   ├── lay-content
-│   │   │   ├── lay-footer
-│   │   │   ├── lay-frame
-│   │   │   ├── lay-navbar
-│   │   │   ├── lay-notice
-│   │   │   │   └── components
-│   │   │   ├── lay-panel
-│   │   │   ├── lay-search
-│   │   │   │   └── components
-│   │   │   ├── lay-setting
-│   │   │   ├── lay-sidebar
-│   │   │   │   └── components
-│   │   │   └── lay-tag
-│   │   │       └── components
-│   │   └── hooks
-│   ├── plugins
-│   ├── router
-│   │   └── modules
-│   ├── store
-│   │   └── modules
-│   ├── style
-│   ├── utils
-│   │   ├── http
-│   │   ├── localforage
-│   │   └── progress
-│   └── views
-│       ├── about
-│       ├── components
-│       │   └── upload
-│       ├── editor
-│       │   └── components
-│       ├── error
-│       ├── login
-│       │   ├── components
-│       │   └── utils
-│       ├── monitor
-│       │   ├── generator
-│       │   ├── logs
-│       │   │   ├── login
-│       │   │   ├── operation
-│       │   │   └── system
-│       │   └── online
-│       ├── permission
-│       │   ├── button
-│       │   └── page
-│       ├── system
-│       │   ├── dept
-│       │   │   └── utils
-│       │   ├── dict
-│       │   │   └── utils
-│       │   ├── job
-│       │   │   └── utils
-│       │   ├── jobs
-│       │   │   └── utils
-│       │   ├── menu
-│       │   │   └── utils
-│       │   ├── role
-│       │   │   └── utils
-│       │   └── user
-│       │       ├── form
-│       │       ├── svg
-│       │       └── utils
-│       └── welcome
-│           └── components
-│               ├── chart
-│               └── table
-└── types
+│   │   ├── auth              #认证
+│   │   ├── copy              #拷贝
+│   │   ├── longpress         #长按
+│   │   ├── optimize          #防抖
+│   │   ├── perms             #权限
+│   │   └── ripple            #点击动画
+│   ├── layout        #排版
+│   │   ├── components        #组件
+│   │   │   ├── lay-content   #目录
+│   │   │   ├── lay-footer    #页脚
+│   │   │   ├── lay-frame     #框架
+│   │   │   ├── lay-navbar    #导航栏
+│   │   │   ├── lay-notice    #通知
+│   │   │   ├── lay-panel     #控制面板
+│   │   │   ├── lay-search    #搜索
+│   │   │   ├── lay-setting   #设置
+│   │   │   ├── lay-sidebar   #侧边栏
+│   │   │   └── lay-tag       #标签页
+│   │   └── hooks  #钩子函数
+│   ├── plugins  #钩子函数
+│   ├── router   #路由
+│   ├── store    #储存
+│   ├── style    #css样式
+│   ├── utils    #工具
+│   │   ├── http        #Axios
+│   │   ├── localforage #IndexedDB
+│   │   └── progress    #动画
+│   └── views   #视图
+│       ├── about       #关于
+│       ├── components  #组件
+│       ├── editor      #编辑器
+│       ├── error       #错误页面
+│       ├── login       #登录
+│       ├── monitor  #系统监控
+│       │   ├── generator   #代码生成
+│       │   ├── logs        #日志
+│       │   └── online      #在线用户管理
+│       ├── system   #系统管理
+│       │   ├── dept    #部门
+│       │   ├── dict    #字典
+│       │   ├── job     #岗位
+│       │   ├── jobs    #定时任务
+│       │   ├── menu    #菜单
+│       │   ├── role    #角色权限
+│       │   └── user    #用户
+│       └── welcome     #首页
+└── types   #全局类型
