@@ -19,6 +19,8 @@ import { TreeKey } from "element-plus/es/components/tree/src/tree.type.mjs";
 interface Tree {
   id: number;
   label: string;
+  name?: string;
+  title?: string;
   highlight?: boolean;
   children?: Tree[];
 }
@@ -55,7 +57,7 @@ const buttonClass = computed(() => {
 
 const filterNode = (value: string, data: Tree) => {
   if (!value) return true;
-  return data.label.includes(value);
+  return data?.title.includes(value);
 };
 
 function toggleRowExpansionAll(status) {
@@ -217,7 +219,7 @@ defineExpose({ onTreeReset });
             'select-none',
             'hover:text-primary',
             searchValue.trim().length > 0 &&
-              node.label.includes(searchValue) &&
+              node.title?.includes(searchValue) &&
               'text-red-500',
             highlightMap[node.id]?.highlight ? 'dark:text-primary' : ''
           ]"

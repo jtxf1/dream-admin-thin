@@ -24,6 +24,8 @@ import ReCropperPreview from "@/components/ReCropperPreview";
 import * as Img from "@/api/tools/img";
 
 export function useUser(tableRef: Ref, treeRef: Ref) {
+  console.log("treeRef:", treeRef);
+
   const form = reactive({
     // 左侧部门树的id
     deptId: "",
@@ -160,6 +162,23 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       slot: "operation"
     }
   ];
+
+  onMounted(async () => {
+    treeLoading.value = true;
+    onSearch();
+
+    // 归属部门
+    // const { data } = await getDeptList();
+    const { data } = await Dept.getDeptTree({ enabled: true });
+    higherDeptOptions.value = handleTree(data, "id", "pid");
+    treeData.value = handleTree(data, "id", "pid");
+    treeLoading.value = false;
+
+    // 角色列表
+    roleOptions.value = (await Role.get()).data.content;
+    jobOptions.value = (await CRUD.get("job")).data.content;
+  });
+
   const buttonClass = computed(() => {
     return [
       "!h-[20px]",
@@ -308,10 +327,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   const resetForm = formEl => {
+    console.log("treeRef:", treeRef);
     if (!formEl) return;
     formEl.resetFields();
     form.deptId = "";
-    treeRef.value.onTreeReset();
+    //treeRef.value.onTreeReset();
     onSearch();
   };
 
@@ -340,7 +360,7 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
           title,
           higherDeptOptions: formatHigherDeptOptions(higherDeptOptions.value),
           id: row?.id,
-          parentId: row?.dept.id ?? 0,
+          parentId: row?.dept?.id ?? 0,
           nickName: row?.nickName ?? "",
           username: row?.username ?? "",
           password: row?.password ?? "",
@@ -498,22 +518,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       }
     });
   }
-
-  onMounted(async () => {
-    treeLoading.value = true;
-    onSearch();
-
-    // 归属部门
-    // const { data } = await getDeptList();
-    const { data } = await Dept.getDeptTree({ enabled: true });
-    higherDeptOptions.value = handleTree(data, "id", "pid");
-    treeData.value = handleTree(data, "id", "pid");
-    treeLoading.value = false;
-
-    // 角色列表
-    roleOptions.value = (await Role.get()).data.content;
-    jobOptions.value = (await CRUD.get("job")).data.content;
-  });
 
   const exportClick = async () => {
     CRUD.download("users");

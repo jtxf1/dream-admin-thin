@@ -149,6 +149,7 @@ const {
             ref="tableRef"
             row-key="id"
             adaptive
+            stripe
             align-whole="center"
             table-layout="auto"
             :loading="loading"
