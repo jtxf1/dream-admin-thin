@@ -27,9 +27,11 @@ export function useMenu() {
   const getMenuType = (type, text = false) => {
     switch (type) {
       case 0:
-        return text ? "目录" : "primary";
+        return text ? "菜单" : "primary";
+      case 0:
+        return text ? "iframe" : "primary";
       case 1:
-        return text ? "菜单" : "warning";
+        return text ? "外链" : "warning";
       case 2:
         return text ? "按钮" : "danger";
     }

@@ -2,12 +2,16 @@ import type { OptionsType } from "@/components/ReSegmented";
 
 const menuTypeOptions: Array<OptionsType> = [
   {
-    label: "目录",
+    label: "菜单",
     value: 0
   },
   {
-    label: "菜单",
+    label: "iframe",
     value: 1
+  },
+  {
+    label: "外链",
+    value: 2
   },
   {
     label: "按钮",
@@ -97,9 +101,22 @@ const frameLoadingOptions: Array<OptionsType> = [
   }
 ];
 
+const fixedTagOptions: Array<OptionsType> = [
+  {
+    label: "固定",
+    tip: "当前菜单名称固定显示在标签页且不可关闭",
+    value: true
+  },
+  {
+    label: "不固定",
+    tip: "当前菜单名称不固定显示在标签页且可关闭",
+    value: false
+  }
+];
 export {
   menuTypeOptions,
   iframeOptions,
+  fixedTagOptions,
   showLinkOptions,
   keepAliveOptions,
   hiddenTagOptions,
