@@ -34,8 +34,9 @@ export class Menu {
   icon: string;
 }
 export class MenuQueryCriteria extends PageQuery {
-  blurry: string;
-  pid: number;
+  blurry?: string;
+  pid?: number;
+  title?: string;
 }
 export const menuTree = (ids: number[]) => {
   return http.request<ApiAbstract<Menu>>("post", baseUrlApi("menus/tree"), {
@@ -69,7 +70,7 @@ export const edit = (data: Partial<Menu>) => {
     data
   });
 };
-export const download = (data: Partial<MenuQueryCriteria>) => {
+export const download = (data: Partial<MenuQueryCriteria | any>) => {
   return http.request<Blob>(
     "get",
     baseUrlApi("menus/download"),

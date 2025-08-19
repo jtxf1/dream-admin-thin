@@ -1,7 +1,14 @@
 import editForm from "../form.vue";
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
-import { get, add, edit, del } from "@/api/system/menu";
+import {
+  get,
+  add,
+  edit,
+  del,
+  download,
+  type MenuQueryCriteria
+} from "@/api/system/menu";
 import { transformI18n } from "@/plugins/i18n";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -10,7 +17,7 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 
 export function useMenu() {
-  const form = reactive({
+  const form = reactive<MenuQueryCriteria>({
     title: ""
   });
 
@@ -106,7 +113,7 @@ export function useMenu() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await get(null); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
+    const { data } = await get(form); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
     let newData = data;
     if (!isAllEmpty(form.title)) {
       // 前端搜索菜单名称
@@ -206,6 +213,22 @@ export function useMenu() {
       onSearch();
     });
   }
+  const exportClick = async () => {
+    const response: Blob = await download(form);
+    const a = document.createElement("a");
+    const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
+
+    a.href = url;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    a.parentNode.removeChild(a);
+    window.URL.revokeObjectURL(url); // 删除创建的媒体流 url 对象
+
+    message(`您导出了菜单的数据`, {
+      type: "success"
+    });
+  };
 
   onMounted(() => {
     onSearch();
@@ -224,6 +247,7 @@ export function useMenu() {
     openDialog,
     /** 删除菜单 */
     handleDelete,
-    handleSelectionChange
+    handleSelectionChange,
+    exportClick
   };
 }

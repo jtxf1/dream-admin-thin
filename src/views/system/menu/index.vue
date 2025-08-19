@@ -24,6 +24,7 @@ const {
   onSearch,
   resetForm,
   openDialog,
+  exportClick,
   handleDelete,
   handleSelectionChange
 } = useMenu();
@@ -80,6 +81,13 @@ function onFullscreen() {
           @click="openDialog()"
         >
           新增菜单
+        </el-button>
+        <el-button
+          type="info"
+          :icon="useRenderIcon('solar:upload-bold')"
+          @click="exportClick()"
+        >
+          导出数据
         </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">

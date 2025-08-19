@@ -36,7 +36,7 @@ export class Role {
 }
 export class RoleQueryCriteria extends PageQuery {
   blurry: string;
-  createTime: Date[];
+  declare createTime: Date[];
 }
 export const getAll = (data: Partial<RoleQueryCriteria>) => {
   return http.request<Role[]>("get", baseUrlApi("roles/all"), {
