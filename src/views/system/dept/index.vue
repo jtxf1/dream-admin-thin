@@ -78,7 +78,7 @@ const {
   resetForm,
   openDialog,
   handleDelete
-} = useDept(formRef, tableRef);
+} = useDept();
 
 const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
   setTimeout(() => {

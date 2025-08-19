@@ -94,6 +94,10 @@ export function useMenu() {
       width: 100
     },
     {
+      label: "创建时间.",
+      prop: "createTime"
+    },
+    {
       label: "操作",
       fixed: "right",
       width: 210,

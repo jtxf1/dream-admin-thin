@@ -4,6 +4,7 @@ import { useMenu } from "./utils/hook";
 import { transformI18n } from "@/plugins/i18n";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import datePicker from "@/views/components/date-picker.vue";
 
 import Delete from "~icons/ep/delete";
 import EditPen from "~icons/ep/edit-pen";
@@ -51,6 +52,9 @@ function onFullscreen() {
           class="w-[180px]!"
         />
       </el-form-item>
+      <el-form-item label="" prop="createTime">
+        <datePicker v-model="form.createTime" />
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
@@ -67,7 +71,7 @@ function onFullscreen() {
     </el-form>
 
     <PureTableBar
-      title="菜单管理（仅演示，操作后不生效）"
+      title="菜单管理"
       :columns="columns"
       :isExpandAll="false"
       :tableRef="tableRef?.getTableRef()"
