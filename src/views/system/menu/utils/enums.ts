@@ -15,7 +15,7 @@ const menuTypeOptions: Array<OptionsType> = [
   },
   {
     label: "按钮",
-    value: 2
+    value: 3
   }
 ];
 
@@ -23,12 +23,25 @@ const showLinkOptions: Array<OptionsType> = [
   {
     label: "显示",
     tip: "会在菜单中显示",
-    value: false
+    value: true
   },
   {
     label: "隐藏",
     tip: "不会在菜单中显示",
+    value: false
+  }
+];
+
+const fixedTagOptions: Array<OptionsType> = [
+  {
+    label: "固定",
+    tip: "当前菜单名称固定显示在标签页且不可关闭",
     value: true
+  },
+  {
+    label: "不固定",
+    tip: "当前菜单名称不固定显示在标签页且可关闭",
+    value: false
   }
 ];
 
@@ -42,23 +55,6 @@ const keepAliveOptions: Array<OptionsType> = [
     label: "不缓存",
     tip: "不会保存该页面的整体状态",
     value: false
-  }
-];
-const iframeOptions: Array<OptionsType> = [
-  {
-    label: "正常",
-    tip: "在当前页面打开",
-    value: 0
-  },
-  {
-    label: "ifrom",
-    tip: "在当前页面打开",
-    value: 1
-  },
-  {
-    label: "外链",
-    tip: "跳转到其它页面",
-    value: 2
   }
 ];
 
@@ -101,23 +97,10 @@ const frameLoadingOptions: Array<OptionsType> = [
   }
 ];
 
-const fixedTagOptions: Array<OptionsType> = [
-  {
-    label: "固定",
-    tip: "当前菜单名称固定显示在标签页且不可关闭",
-    value: true
-  },
-  {
-    label: "不固定",
-    tip: "当前菜单名称不固定显示在标签页且可关闭",
-    value: false
-  }
-];
 export {
   menuTypeOptions,
-  iframeOptions,
-  fixedTagOptions,
   showLinkOptions,
+  fixedTagOptions,
   keepAliveOptions,
   hiddenTagOptions,
   showParentOptions,

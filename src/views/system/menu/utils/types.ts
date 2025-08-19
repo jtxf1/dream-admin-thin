@@ -1,28 +1,27 @@
 interface FormItemProps {
-  type?: number;
+  /** 菜单类型（0代表菜单、1代表iframe、2代表外链、3代表按钮）*/
+  menuType: number;
   higherMenuOptions: Record<string, unknown>[];
-  id?: number;
-  pid?: number;
   parentId: number;
   title: string;
-  menuSort: number;
-  permission: string;
+  name: string;
   path: string;
-  routeName?: string;
-  iframe: number;
-  cache: boolean;
-  hidden: boolean;
-  showLink: boolean;
-  createTime?: Date;
-  componentName: string;
   component: string;
-  icon: string;
+  rank: number;
   redirect: string;
+  icon: string;
   extraIcon: string;
+  enterTransition: string;
+  leaveTransition: string;
   activePath: string;
-  showParent: number;
+  auths: string;
+  frameSrc: string;
+  frameLoading: boolean;
+  keepAlive: boolean;
   hiddenTag: boolean;
-  fixedTag: number;
+  fixedTag: boolean;
+  showLink: boolean;
+  showParent: boolean;
 }
 interface FormProps {
   formInline: FormItemProps;
