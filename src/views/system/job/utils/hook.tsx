@@ -163,11 +163,11 @@ export function useDept() {
                   enabled: curData.enabled,
                   jobSort: curData.jobSort
                 }
-              }).finally(() => chores());
+              }).then(() => chores());
             } else if (title === "编辑") {
               CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).finally(() => chores());
+              }).then(() => chores());
             }
           }
         });
