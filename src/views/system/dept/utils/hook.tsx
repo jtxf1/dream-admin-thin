@@ -5,7 +5,7 @@ import * as Dept from "@/api/system/dept";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps } from "../utils/types";
-import { cloneDeep, isAllEmpty } from "@pureadmin/utils";
+import { cloneDeep, isAllEmpty, deviceDetection } from "@pureadmin/utils";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox, type CascaderProps } from "element-plus";
 
@@ -75,11 +75,6 @@ export function useDept() {
         dayjs(createTime).format("YYYY-MM-DD HH:mm:ss")
     },
     {
-      label: "备注",
-      prop: "remark",
-      minWidth: 320
-    },
-    {
       label: "操作",
       fixed: "right",
       width: 160,
@@ -126,9 +121,6 @@ export function useDept() {
         leaf: item.subCount === 0,
         children: []
       };
-      if (item.children !== null && item.children.length > 0) {
-        obj.children = extractFields(item.children);
-      }
       result.push(obj);
     });
 
@@ -149,17 +141,6 @@ export function useDept() {
     return result;
   }
 
-  function formatHigherDeptOptions(treeList) {
-    // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
-    if (!treeList || !treeList.length) return;
-    const newTreeList = [];
-    for (let i = 0; i < treeList.length; i++) {
-      treeList[i].disabled = treeList[i].enabled;
-      formatHigherDeptOptions(treeList[i].children);
-      newTreeList.push(treeList[i]);
-    }
-    return newTreeList;
-  }
   const higherDeptOptions2: CascaderProps = {
     lazy: true,
     checkStrictly: true,
@@ -188,7 +169,6 @@ export function useDept() {
       title: `${title}部门`,
       props: {
         formInline: {
-          higherDeptOptions: formatHigherDeptOptions(cloneDeep(dataList)),
           higherDeptOptions2: higherDeptOptions2,
           deptCascader: copyFields(deptCascader.value, row?.id),
           parentId: row?.parentId ?? 0,
@@ -206,6 +186,7 @@ export function useDept() {
       },
       width: "40%",
       draggable: true,
+      fullscreen: deviceDetection(),
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),

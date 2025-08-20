@@ -167,8 +167,7 @@ const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
           table-layout="auto"
           :loading="loading"
           :size="size"
-          lazy
-          :load="load"
+          default-expand-all
           :columns="columns"
           :data="dataList"
           :header-cell-style="{
