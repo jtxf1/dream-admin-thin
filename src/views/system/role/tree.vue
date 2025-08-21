@@ -43,7 +43,7 @@ const highlightMap = ref({});
 const { proxy } = getCurrentInstance();
 const defaultProps = {
   children: "children",
-  label: "label"
+  label: "name"
 };
 const buttonClass = computed(() => {
   return [
@@ -104,7 +104,7 @@ function handleNodeClick(data, node) {
   if (!node) {
     console.log(node);
   }
-  return data?.name;
+  return data?.title;
 }
 
 function testClick() {

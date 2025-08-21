@@ -49,18 +49,7 @@ const {
           class="!w-[150px]"
         />
       </el-form-item>
-      <el-form-item label="登录状态" prop="status">
-        <el-select
-          v-model="form.status"
-          placeholder="请选择"
-          clearable
-          class="!w-[150px]"
-        >
-          <el-option label="成功" value="1" />
-          <el-option label="失败" value="0" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="登录时间" prop="loginTime">
+      <el-form-item label="操作时间" prop="loginTime">
         <el-date-picker
           v-model="form.loginTime"
           :shortcuts="getPickerShortcuts()"
@@ -85,11 +74,7 @@ const {
       </el-form-item>
     </el-form>
 
-    <PureTableBar
-      title="登录日志（仅演示，操作后不生效）"
-      :columns="columns"
-      @refresh="onSearch"
-    >
+    <PureTableBar title="操作日志" :columns="columns" @refresh="onSearch">
       <template #buttons>
         <el-popconfirm title="确定要删除所有日志数据吗？" @confirm="clearAll">
           <template #reference>

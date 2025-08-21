@@ -1,8 +1,7 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
 import { getKeyList } from "@pureadmin/utils";
-import { getLoginLogsList } from "@/api/system";
-import { usePublicHooks } from "@/utils/theme";
+import { get } from "@/api/monitor/log";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 
@@ -15,7 +14,6 @@ export function useRole(tableRef: Ref) {
   const dataList = ref([]);
   const loading = ref(true);
   const selectedNum = ref(0);
-  const { tagStyle } = usePublicHooks();
 
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -31,18 +29,13 @@ export function useRole(tableRef: Ref) {
       reserveSelection: true // 数据刷新后保留选项
     },
     {
-      label: "序号",
-      prop: "id",
-      minWidth: 90
-    },
-    {
       label: "用户名",
       prop: "username",
       minWidth: 100
     },
     {
       label: "登录 IP",
-      prop: "ip",
+      prop: "requestIp",
       minWidth: 140
     },
     {
@@ -51,8 +44,8 @@ export function useRole(tableRef: Ref) {
       minWidth: 140
     },
     {
-      label: "操作系统",
-      prop: "system",
+      label: "描述",
+      prop: "description",
       minWidth: 100
     },
     {
@@ -61,23 +54,18 @@ export function useRole(tableRef: Ref) {
       minWidth: 100
     },
     {
-      label: "登录状态",
-      prop: "status",
+      label: "请求耗时",
+      prop: "time",
       minWidth: 100,
       cellRenderer: ({ row, props }) => (
-        <el-tag size={props.size} style={tagStyle.value(row.status)}>
-          {row.status === 1 ? "成功" : "失败"}
+        <el-tag size={props.size} style={true}>
+          {row.time}
         </el-tag>
       )
     },
     {
-      label: "登录行为",
-      prop: "behavior",
-      minWidth: 100
-    },
-    {
-      label: "登录时间",
-      prop: "loginTime",
+      label: "创建时间",
+      prop: "createTime",
       minWidth: 180,
       formatter: ({ loginTime }) =>
         dayjs(loginTime).format("YYYY-MM-DD HH:mm:ss")
@@ -129,11 +117,10 @@ export function useRole(tableRef: Ref) {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getLoginLogsList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
+    const { data } = await get(toRaw(form));
+
+    dataList.value = data?.content;
+    pagination.total = data?.totalElements;
 
     setTimeout(() => {
       loading.value = false;
