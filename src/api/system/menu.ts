@@ -39,7 +39,7 @@ export class MenuQueryCriteria extends PageQuery {
   title?: string;
 }
 export const menuTree = (ids: number[]) => {
-  return http.request<ApiAbstract<Menu>>("post", baseUrlApi("menus/tree"), {
+  return http.request<ApiAbstract<Menu>>("get", baseUrlApi("menus/tree"), {
     data: ids
   });
 };

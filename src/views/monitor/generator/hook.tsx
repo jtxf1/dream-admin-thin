@@ -343,14 +343,13 @@ export function useDetail() {
     });
     // 保存信息到标签页
     useMultiTagsStoreHook().handleTags("push", {
-      path: `/monitor/generator/${parameter.path}`,
       name: parameter.name,
       query: parameter,
       apiName: parameter.apiName,
       meta: {
         title: {
           zh: `${parameter.id} - ${parameter.title}`,
-          en: `No.${parameter.id} - DetailInfo`
+          en: `${parameter.id} - ${parameter.title}`
         },
         // 如果使用的是非国际化精简版title可以像下面这么写
         // title: `No.${index} - 详情信息`,
@@ -358,6 +357,7 @@ export function useDetail() {
         dynamicLevel: 3
       }
     });
+    console.log(parameter);
     // 路由跳转
     router.push({ name: parameter.name, query: parameter });
   }

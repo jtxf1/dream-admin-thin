@@ -104,7 +104,7 @@ function handleNodeClick(data, node) {
   if (!node) {
     console.log(node);
   }
-  return data?.title;
+  return data?.name;
 }
 
 function testClick() {

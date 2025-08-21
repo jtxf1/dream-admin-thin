@@ -35,7 +35,6 @@ const exportClick = async () => {
     type: "success"
   });
 };
-const treeRef = ref();
 const formRef = ref();
 const tableRef = ref();
 const {
@@ -47,7 +46,7 @@ const {
   treeData,
   treeLoading,
   currentRow,
-  deptId,
+  parentId,
   // buttonClass,
   onTreeSelect,
   // buttonClass,
@@ -171,7 +170,7 @@ const {
     </div>
     <tree
       v-model:currentRow="currentRow"
-      v-model:deptId="deptId"
+      v-model:parentId="parentId"
       class="w-[calc(25%-180px)]"
       :treeData="treeData"
       :treeLoading="treeLoading"

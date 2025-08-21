@@ -7,7 +7,6 @@ import type { FormItemProps } from "../utils/types";
 import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h, toRaw } from "vue";
 import { handleTree } from "@/utils/tree";
-import * as Dept from "@/api/system/dept";
 import * as Menu from "@/api/system/menu";
 import { cloneDeep } from "@pureadmin/utils";
 import type { ApiAbstract } from "@/utils/http/ApiAbstract";
@@ -27,7 +26,7 @@ export function useRole() {
   const treeData = ref([]);
   const treeLoading = ref(true);
   const currentRow = ref([]);
-  const deptId = ref<number>();
+  const parentId = ref<number>();
   const nenus = ref<ApiAbstract<Menu.Menu>>();
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -95,15 +94,14 @@ export function useRole() {
     form.page = val - 1;
     onSearch();
   }
-  function handleCurrentChange1(value: Dept.Dept) {
-    deptId.value = value?.id;
+  function handleCurrentChange1(value: any) {
+    parentId.value = value?.id;
     const { data } = nenus.value;
     treeData.value = cloneDeep(handleTree(data, "id", "pid"));
     currentRow.value = value?.menus?.map(item => item.id) ?? [-1];
   }
 
   async function onSearch() {
-    getDeptTree();
     loading.value = true;
     const { data } = await Role.get(
       Object.entries(toRaw(form))
@@ -185,18 +183,11 @@ export function useRole() {
       }
     });
   }
-  function getDeptTree() {
-    Dept.getDeptTree([]).then(data => {
-      if (data.status) {
-        deptList.value = handleTree(data.data, "id", "pid");
-      }
-    });
-  }
   function onTreeSelect({ id, menuIds }) {
     if (
       id.value !== null &&
       id.value !== undefined &&
-      id.value === deptId.value
+      id.value === parentId.value
     ) {
       Role.menus({
         id: id.value,
@@ -212,7 +203,7 @@ export function useRole() {
     // 归属部门
     nenus.value = await Menu.menuTree([]);
     const { data } = nenus.value;
-    treeData.value = cloneDeep(handleTree(data, "id", "pid"));
+    treeData.value = cloneDeep(handleTree(data, "id", "parentId"));
     treeLoading.value = false;
     onSearch();
   });
@@ -227,7 +218,7 @@ export function useRole() {
     treeData,
     treeLoading,
     currentRow,
-    deptId,
+    parentId,
     // buttonClass,
     onTreeSelect,
     onSearch,

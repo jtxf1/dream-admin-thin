@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRole, useDetail } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+const { router } = useDetail();
 
 import Refresh from "~icons/ep/refresh";
 
@@ -107,8 +108,9 @@ const {
                   toDetail({
                     id: row.tableName,
                     name: 'TabQueryDetail',
-                    path: 'query-detail',
-                    title: '预览'
+                    path: 'queryDetail',
+                    title: '预览',
+                    apiName: row.remark
                   })
                 "
               >
