@@ -1,13 +1,21 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import { get, delInfo, type LogQueryCriteria } from "@/api/monitor/log";
+import {
+  get,
+  delInfo,
+  queryErrorLogDetail,
+  type LogQueryCriteria
+} from "@/api/monitor/log";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
+import { addDialog } from "@/components/ReDialog";
+import { Code } from "@/views/editor/components";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
     blurry: "",
-    loginTime: ""
+    createTime: [],
+    logType: ""
   });
   const dataList = ref([]);
   const loading = ref(true);
@@ -55,8 +63,26 @@ export function useRole(tableRef: Ref) {
       prop: "time",
       minWidth: 100,
       cellRenderer: ({ row, props }) => (
-        <el-tag size={props.size} style={true}>
-          {row.time}
+        <el-tag
+          size={props.size}
+          style={true}
+          type={row.time <= 100 ? "success" : "warning"}
+        >
+          {row.time + "ms"}
+        </el-tag>
+      )
+    },
+    {
+      label: "请求类型",
+      prop: "logType",
+      minWidth: 100,
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          size={props.size}
+          style={true}
+          type={row.logType === "INFO" ? "success" : "danger"}
+        >
+          {row.logType}
         </el-tag>
       )
     },
@@ -66,6 +92,22 @@ export function useRole(tableRef: Ref) {
       minWidth: 180,
       formatter: ({ loginTime }) =>
         dayjs(loginTime).format("YYYY-MM-DD HH:mm:ss")
+    },
+    {
+      label: "异常详情",
+      prop: "exceptionDetail",
+      minWidth: 180,
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          v-show={row.logType === "ERROR"}
+          size={props.size}
+          type="danger"
+          effect="dark"
+          onClick={() => onHideFooterClick(row)}
+        >
+          查看异常详情
+        </el-tag>
+      )
     }
   ];
 
@@ -114,13 +156,9 @@ export function useRole(tableRef: Ref) {
   async function onSearch() {
     loading.value = true;
     const forms: LogQueryCriteria = toRaw(form);
-    forms.page = pagination.pageSize;
-    forms.size = pagination.pageCount;
-    const { data } = await get({
-      ...toRaw(form),
-      page: pagination.currentPage - 1,
-      size: pagination.pageSize
-    });
+    forms.page = pagination.currentPage - 1;
+    forms.size = pagination.pageSize;
+    const { data } = await get(forms);
 
     dataList.value = data?.content;
     pagination.total = data?.totalElements;
@@ -130,6 +168,20 @@ export function useRole(tableRef: Ref) {
     }, 500);
   }
 
+  function onHideFooterClick(row) {
+    queryErrorLogDetail(row.id).then(res => {
+      addDialog({
+        title: row.description,
+        hideFooter: true,
+        fullscreen: true,
+        contentRenderer: () => (
+          <p>
+            <Code code={res?.data?.exception} type="type" />
+          </p>
+        )
+      });
+    });
+  }
   const resetForm = formEl => {
     if (!formEl) return;
     formEl.resetFields();

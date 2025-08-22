@@ -63,12 +63,16 @@ export class Log {
 }
 export class LogQueryCriteria extends PageQuery {
   blurry: string;
+  logType: string;
 }
 
 export const get = (params: LogQueryCriteria | any) => {
   return http.request<ApiAbstract<Log>>("get", baseUrlApi("logs"), {
     params
   });
+};
+export const queryErrorLogDetail = (id: number | any) => {
+  return http.request<ApiAbstract<Log>>("get", baseUrlApi("logs/error/" + id));
 };
 export const add = (data: Partial<Log>) => {
   return http.request<ApiAbstract<Log>>("post", baseUrlApi("logs"), {

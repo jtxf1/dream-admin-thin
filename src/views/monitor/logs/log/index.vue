@@ -65,9 +65,20 @@ const {
           class="!w-[150px]"
         />
       </el-form-item>
-      <el-form-item label="操作时间" prop="loginTime">
+      <el-form-item label="日志类型" prop="logType">
+        <el-select
+          v-model="form.logType"
+          placeholder="请选择"
+          clearable
+          class="!w-[150px]"
+        >
+          <el-option label="成功" value="INFO" />
+          <el-option label="失败" value="ERROR" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="操作时间" prop="createTime">
         <el-date-picker
-          v-model="form.loginTime"
+          v-model="form.createTime"
           :shortcuts="getPickerShortcuts()"
           type="datetimerange"
           range-separator="至"
