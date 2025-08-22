@@ -2,8 +2,10 @@
 import { ref } from "vue";
 import { useRole } from "./hook";
 import { getPickerShortcuts } from "../../utils";
+import { message } from "@/utils/message";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { download } from "@/api/monitor/log";
 
 import Delete from "~icons/ep/delete";
 import Refresh from "~icons/ep/refresh";
@@ -11,6 +13,22 @@ import Refresh from "~icons/ep/refresh";
 defineOptions({
   name: "LoginLog"
 });
+
+const exportClick = async () => {
+  const response: Blob = await download(null);
+  const a = document.createElement("a");
+  const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
+
+  a.href = url;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.parentNode.removeChild(a);
+  window.URL.revokeObjectURL(url); // 删除创建的媒体流 url 对象
+  message("导出成功", {
+    type: "success"
+  });
+};
 
 const formRef = ref();
 const tableRef = ref();
@@ -25,9 +43,7 @@ const {
   onSearch,
   clearAll,
   resetForm,
-  onbatchDel,
   handleSizeChange,
-  onSelectionCancel,
   handleCurrentChange,
   handleSelectionChange
 } = useRole(tableRef);
@@ -41,9 +57,9 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
-      <el-form-item label="用户名" prop="username">
+      <el-form-item label="用户名" prop="blurry">
         <el-input
-          v-model="form.username"
+          v-model="form.blurry"
           placeholder="请输入用户名"
           clearable
           class="!w-[150px]"
@@ -83,30 +99,15 @@ const {
             </el-button>
           </template>
         </el-popconfirm>
+        <el-button
+          type="success"
+          :icon="useRenderIcon('solar:upload-bold')"
+          @click="exportClick()"
+        >
+          导出数据
+        </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">
-        <div
-          v-if="selectedNum > 0"
-          v-motion-fade
-          class="bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center"
-        >
-          <div class="flex-auto">
-            <span
-              style="font-size: var(--el-font-size-base)"
-              class="text-[rgba(42,46,54,0.5)] dark:text-[rgba(220,220,242,0.5)]"
-            >
-              已选 {{ selectedNum }} 项
-            </span>
-            <el-button type="primary" text @click="onSelectionCancel">
-              取消选择
-            </el-button>
-          </div>
-          <el-popconfirm title="是否确认删除?" @confirm="onbatchDel">
-            <template #reference>
-              <el-button type="danger" text class="mr-1"> 批量删除 </el-button>
-            </template>
-          </el-popconfirm>
-        </div>
         <pure-table
           ref="tableRef"
           row-key="id"
@@ -127,7 +128,14 @@ const {
           @selection-change="handleSelectionChange"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
-        />
+        >
+          <template #expand="{ row }">
+            <div class="m-4">
+              <p class="mb-2">请求方法: {{ row.method }}</p>
+              <p class="mb-4">请求参数: {{ row.params }}</p>
+            </div>
+          </template>
+        </pure-table>
       </template>
     </PureTableBar>
   </div>

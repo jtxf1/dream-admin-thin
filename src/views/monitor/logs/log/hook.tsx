@@ -1,14 +1,12 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import { getKeyList } from "@pureadmin/utils";
-import { get } from "@/api/monitor/log";
+import { get, delInfo, type LogQueryCriteria } from "@/api/monitor/log";
 import type { PaginationProps } from "@pureadmin/table";
 import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 
 export function useRole(tableRef: Ref) {
   const form = reactive({
-    username: "",
-    status: "",
+    blurry: "",
     loginTime: ""
   });
   const dataList = ref([]);
@@ -18,15 +16,14 @@ export function useRole(tableRef: Ref) {
   const pagination = reactive<PaginationProps>({
     total: 0,
     pageSize: 10,
+    pageSizes: [10, 20, 50],
     currentPage: 1,
     background: true
   });
   const columns: TableColumnList = [
     {
-      label: "勾选列", // 如果需要表格多选，此处label必须设置
-      type: "selection",
-      fixed: "left",
-      reserveSelection: true // 数据刷新后保留选项
+      type: "expand",
+      slot: "expand"
     },
     {
       label: "用户名",
@@ -73,11 +70,13 @@ export function useRole(tableRef: Ref) {
   ];
 
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    pagination.pageSize = val;
+    onSearch();
   }
 
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
+    pagination.currentPage = val;
+    onSearch();
   }
 
   /** 当CheckBox选择项发生变化时会触发该事件 */
@@ -94,30 +93,34 @@ export function useRole(tableRef: Ref) {
     tableRef.value.getTableRef().clearSelection();
   }
 
-  /** 批量删除 */
-  function onbatchDel() {
-    // 返回当前选中的行
-    const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    // 接下来根据实际业务，通过选中行的某项数据，比如下面的id，调用接口进行批量删除
-    message(`已删除序号为 ${getKeyList(curSelected, "id")} 的数据`, {
-      type: "success"
-    });
-    tableRef.value.getTableRef().clearSelection();
-    onSearch();
-  }
-
   /** 清空日志 */
   function clearAll() {
-    // 根据实际业务，调用接口删除所有日志数据
-    message("已删除所有日志数据", {
-      type: "success"
-    });
-    onSearch();
+    delInfo()
+      .then(() => {
+        // 根据实际业务，调用接口删除所有日志数据
+        message("已删除所有日志数据", {
+          type: "success"
+        });
+        onSearch();
+      })
+      .catch(err => {
+        // 根据实际业务，调用接口删除所有日志数据
+        message(err.message, {
+          type: "error"
+        });
+      });
   }
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await get(toRaw(form));
+    const forms: LogQueryCriteria = toRaw(form);
+    forms.page = pagination.pageSize;
+    forms.size = pagination.pageCount;
+    const { data } = await get({
+      ...toRaw(form),
+      page: pagination.currentPage - 1,
+      size: pagination.pageSize
+    });
 
     dataList.value = data?.content;
     pagination.total = data?.totalElements;
@@ -147,7 +150,6 @@ export function useRole(tableRef: Ref) {
     onSearch,
     clearAll,
     resetForm,
-    onbatchDel,
     handleSizeChange,
     onSelectionCancel,
     handleCurrentChange,

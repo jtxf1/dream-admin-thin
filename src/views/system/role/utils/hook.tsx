@@ -97,7 +97,7 @@ export function useRole() {
   function handleCurrentChange1(value: any) {
     parentId.value = value?.id;
     const { data } = nenus.value;
-    treeData.value = cloneDeep(handleTree(data, "id", "pid"));
+    treeData.value = cloneDeep(handleTree(data, "id", "parentId"));
     currentRow.value = value?.menus?.map(item => item.id) ?? [-1];
   }
 

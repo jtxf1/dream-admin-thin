@@ -62,7 +62,7 @@ export class Log {
   exceptionDetail?: Uint8Array;
 }
 export class LogQueryCriteria extends PageQuery {
-  name: string;
+  blurry: string;
 }
 
 export const get = (params: LogQueryCriteria | any) => {
@@ -77,9 +77,13 @@ export const add = (data: Partial<Log>) => {
 };
 
 export const del = (ids: number[] | any) => {
-  return http.request("delete", baseUrlApi("dept"), {
+  return http.request("delete", baseUrlApi("logs"), {
     data: ids
   });
+};
+
+export const delInfo = () => {
+  return http.request("delete", baseUrlApi("logs/del/info"));
 };
 export const edit = (data: Partial<Log>) => {
   return http.request<ApiAbstract<Log>>("put", baseUrlApi("logs"), {
