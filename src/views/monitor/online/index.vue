@@ -23,7 +23,9 @@ const {
   handleOffline,
   handleSizeChange,
   handleCurrentChange,
-  handleSelectionChange
+  handleSelectionChange,
+  handleOfflineAll,
+  exportClick
 } = useRole();
 </script>
 
@@ -58,11 +60,23 @@ const {
       </el-form-item>
     </el-form>
 
-    <PureTableBar
-      title="在线用户（仅演示，操作后不生效）"
-      :columns="columns"
-      @refresh="onSearch"
-    >
+    <PureTableBar title="在线用户" :columns="columns" @refresh="onSearch">
+      <template #buttons>
+        <el-button
+          type="success"
+          :icon="useRenderIcon(Plane)"
+          @click="handleOfflineAll"
+        >
+          强退
+        </el-button>
+        <el-button
+          type="warning"
+          :icon="useRenderIcon('solar:upload-bold')"
+          @click="exportClick()"
+        >
+          导出
+        </el-button>
+      </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
           align-whole="center"
@@ -86,7 +100,7 @@ const {
         >
           <template #operation="{ row }">
             <el-popconfirm
-              :title="`是否强制下线${row.username}`"
+              :title="`是否强制下线${row.nickName}`"
               @confirm="handleOffline(row)"
             >
               <template #reference>
@@ -96,6 +110,7 @@ const {
                   type="primary"
                   :size="size"
                   :icon="useRenderIcon(Plane)"
+                  @click="handleSelectionChange(row)"
                 >
                   强退
                 </el-button>

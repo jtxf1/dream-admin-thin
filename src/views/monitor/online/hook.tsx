@@ -1,14 +1,16 @@
 import dayjs from "dayjs";
 import { message } from "@/utils/message";
-import { getOnlineLogsList } from "@/api/system";
+import { get, del } from "@/api/monitor/online";
 import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
+import { CRUD } from "@/api/utils";
 
 export function useRole() {
   const form = reactive({
     username: ""
   });
   const dataList = ref([]);
+  const changeList = ref([]);
   const loading = ref(true);
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -18,14 +20,23 @@ export function useRole() {
   });
   const columns: TableColumnList = [
     {
-      label: "序号",
-      prop: "id",
-      minWidth: 60
+      type: "selection",
+      align: "left"
     },
     {
       label: "用户名",
-      prop: "username",
+      prop: "userName",
       minWidth: 100
+    },
+    {
+      label: "用户昵称",
+      prop: "nickName",
+      minWidth: 100
+    },
+    {
+      label: "部门",
+      prop: "dept",
+      minWidth: 140
     },
     {
       label: "登录 IP",
@@ -36,11 +47,6 @@ export function useRole() {
       label: "登录地点",
       prop: "address",
       minWidth: 140
-    },
-    {
-      label: "操作系统",
-      prop: "system",
-      minWidth: 100
     },
     {
       label: "浏览器类型",
@@ -61,30 +67,52 @@ export function useRole() {
     }
   ];
 
+  /**
+   * 分页大小
+   * @param val pageSize
+   */
   function handleSizeChange(val: number) {
-    console.log(`${val} items per page`);
+    pagination.pageSize = val;
+    onSearch();
   }
-
+  /**
+   * 第几页
+   * @param val 第几页
+   */
   function handleCurrentChange(val: number) {
-    console.log(`current page: ${val}`);
+    pagination.currentPage = val;
+    onSearch();
   }
-
   function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val);
+    changeList.value = val.map(person => person.key);
   }
 
   function handleOffline(row) {
-    message(`${row.username}已被强制下线`, { type: "success" });
-    onSearch();
+    del([row?.key])
+      .then(() => {
+        message(`${row.nickName}已被强制下线`, { type: "success" });
+        onSearch();
+      })
+      .catch(() => {
+        message(`${row.nickName}强制下线失败`, { type: "error" });
+      });
+  }
+  function handleOfflineAll() {
+    del(changeList.value)
+      .then(() => {
+        message(`已被强制下线`, { type: "success" });
+        onSearch();
+      })
+      .catch(() => {
+        message(`强制下线失败`, { type: "error" });
+      });
   }
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getOnlineLogsList(toRaw(form));
-    dataList.value = data.list;
-    pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
+    const { data } = await get(toRaw(form));
+    dataList.value = data.content;
+    pagination.total = data.totalElements;
 
     setTimeout(() => {
       loading.value = false;
@@ -97,6 +125,12 @@ export function useRole() {
     onSearch();
   };
 
+  const exportClick = async () => {
+    CRUD.download("auth/online");
+    message("导出成功", {
+      type: "success"
+    });
+  };
   onMounted(() => {
     onSearch();
   });
@@ -112,6 +146,8 @@ export function useRole() {
     handleOffline,
     handleSizeChange,
     handleCurrentChange,
-    handleSelectionChange
+    handleSelectionChange,
+    handleOfflineAll,
+    exportClick
   };
 }
