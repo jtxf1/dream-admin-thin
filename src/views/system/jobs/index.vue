@@ -24,7 +24,6 @@ const {
   dataList,
   multipleSelection,
   pagination,
-  dictsDetails,
   onSearch,
   resetForm,
   openDialog,
@@ -108,7 +107,7 @@ const {
         </el-button>
         <el-button
           type="warning"
-          :icon="useRenderIcon('solar:upload-bold')"
+          :icon="useRenderIcon('ep:document')"
           @click="openLogsDialog()"
         >
           日志

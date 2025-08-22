@@ -237,7 +237,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         });
       })
       .catch(() => {
-        row.status === 0 ? (row.status = 1) : (row.status = 0);
+        if (row.status === 1) {
+          row.enabled = 0;
+        } else {
+          row.enabled = 1;
+        }
       });
   }
 

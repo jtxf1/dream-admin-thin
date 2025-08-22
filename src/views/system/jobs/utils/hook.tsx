@@ -90,6 +90,7 @@ export function useDept() {
           inactive-value={true}
           active-text="启用"
           inactive-text="停用"
+          onChange={() => onChange(scope as any)}
         />
       )
     },
@@ -320,6 +321,32 @@ export function useDept() {
       hideFooter: true,
       contentRenderer: () => h(logsList, { ref: formRef, formInline: null })
     });
+  }
+
+  function onChange({ row }) {
+    ElMessageBox.confirm(
+      `确认要<strong>${
+        row.isPause ? "启用" : "停用"
+      }</strong><strong style='color:var(--el-color-primary)'>${
+        row.jobName
+      }</strong>任务吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "启用",
+        cancelButtonText: "停用",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {})
+      .catch(() => {
+        if (row.status === 1) {
+          row.enabled = 0;
+        } else {
+          row.enabled = 1;
+        }
+      });
   }
   /** 页面初始化完成执行的函数 */
   onMounted(() => {
