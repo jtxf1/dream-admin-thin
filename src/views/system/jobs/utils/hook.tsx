@@ -126,6 +126,7 @@ export function useDept() {
           inactive-value={true}
           active-text="启用"
           inactive-text="停用"
+          onChange={() => onChange(scope as any)}
         />
       )
     },
@@ -279,10 +280,18 @@ export function useDept() {
     });
   };
   const recoverTask = async (id: number) => {
-    CRUD.put(crudURL + "/" + id);
-    message("恢复成功", {
-      type: "success"
-    });
+    CRUD.put(crudURL + "/" + id)
+      .then(() => {
+        message("恢复成功", {
+          type: "success"
+        });
+        onSearch();
+      })
+      .catch(() => {
+        message("恢复失败", {
+          type: "error"
+        });
+      });
   };
   /**
    * 分页大小
@@ -332,14 +341,18 @@ export function useDept() {
       }</strong>任务吗?`,
       "系统提示",
       {
-        confirmButtonText: "启用",
-        cancelButtonText: "停用",
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
         type: "warning",
         dangerouslyUseHTMLString: true,
         draggable: true
       }
     )
-      .then(() => {})
+      .then(() => {
+        CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+          data: row
+        }).finally(() => onSearch());
+      })
       .catch(() => {
         if (row.status === 1) {
           row.enabled = 0;

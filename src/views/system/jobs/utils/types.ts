@@ -31,5 +31,6 @@ interface FormProps {
 interface FormQuery extends PageQuery {
   //配置了搜索的数组
   jobName?: string;
+  isSuccess?: boolean;
 }
 export type { FormItemProps, FormProps, FormQuery, LogsProps };

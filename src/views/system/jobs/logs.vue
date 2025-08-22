@@ -50,6 +50,17 @@ const {
       <el-form-item label="创建日期：" prop="createTime">
         <datePicker v-model="formQuery.createTime" />
       </el-form-item>
+      <el-form-item label="日志类型" prop="isSuccess">
+        <el-select
+          v-model="formQuery.isSuccess"
+          placeholder="请选择"
+          clearable
+          class="!w-[150px]"
+        >
+          <el-option label="成功" value="true" />
+          <el-option label="失败" value="false" />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"

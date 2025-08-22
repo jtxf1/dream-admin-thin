@@ -3,6 +3,8 @@ import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted } from "vue";
 import type { LogsProps, FormQuery } from "./types";
 import { CRUD } from "@/api/utils";
+import { Code } from "@/views/editor/components";
+import { addDialog } from "@/components/ReDialog";
 
 export function useDept() {
   //查询条件
@@ -62,17 +64,46 @@ export function useDept() {
     {
       label: "异常详情",
       prop: "exceptionDetail",
-      minWidth: 70
+      minWidth: 70,
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          v-show={!row.isSuccess}
+          size={props.size}
+          type="danger"
+          effect="dark"
+          onClick={() => onHideFooterClick(row)}
+        >
+          查看异常详情
+        </el-tag>
+      )
     },
     {
       label: "耗时",
       prop: "time",
-      minWidth: 70
+      minWidth: 70,
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          size={props.size}
+          style={true}
+          type={row.time <= 100 ? "success" : "warning"}
+        >
+          {row.time + "ms"}
+        </el-tag>
+      )
     },
     {
       label: "状态",
       prop: "isSuccess",
-      minWidth: 70
+      minWidth: 70,
+      cellRenderer: ({ row, props }) => (
+        <el-tag
+          size={props.size}
+          style={true}
+          type={row.isSuccess ? "success" : "danger"}
+        >
+          {row.isSuccess ? "成功" : "失败"}
+        </el-tag>
+      )
     },
     {
       label: "创建日期",
@@ -121,6 +152,18 @@ export function useDept() {
     onSearch();
   }
 
+  function onHideFooterClick(row) {
+    addDialog({
+      title: row.jobName,
+      hideFooter: true,
+      fullscreen: true,
+      contentRenderer: () => (
+        <p>
+          <Code code={row?.exceptionDetail} type="type" />
+        </p>
+      )
+    });
+  }
   /** 页面初始化完成执行的函数 */
   onMounted(() => {
     onSearch();
