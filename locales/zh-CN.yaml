@@ -117,6 +117,8 @@ menus:
   purePermissionButton: 按钮权限
   purePermissionButtonRouter: 路由返回按钮权限
   purePermissionButtonLogin: 登录接口返回按钮权限
+  webUtools: 前端工具
+  editor: 编辑器
 status:
   pureLoad: 加载中...
   pureMessage: 消息

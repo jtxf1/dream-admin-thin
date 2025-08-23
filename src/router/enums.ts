@@ -13,14 +13,14 @@ const home = 0, // 平台规定只有 home 路由的 rank 才能为 0 ，所以�
   system = 10,
   monitor = 11,
   tabs = 12,
-  about = 999,
   editor = 14,
   flowchart = 15,
   formdesign = 16,
   board = 17,
   ppt = 18,
   guide = 19,
-  menuoverflow = 20;
+  menuoverflow = 20,
+  about = 999;
 
 export {
   home,

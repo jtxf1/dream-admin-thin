@@ -1,16 +1,24 @@
 import { $t } from "@/plugins/i18n";
-import { error } from "@/router/enums";
+import { menuoverflow } from "@/router/enums";
 
 export default {
-  path: "/error",
-  redirect: "/error/403",
+  path: "/utools",
+  redirect: "/utools/403",
   meta: {
-    icon: "ri/information-line",
-    showLink: false,
-    title: $t("menus.pureAbnormal"),
-    rank: error
+    icon: "ep:tools",
+    showLink: true,
+    title: $t("menus.webUtools"),
+    rank: menuoverflow
   },
   children: [
+    {
+      path: "/editor/index",
+      name: "editor",
+      component: () => import("@/views/editor/index.vue"),
+      meta: {
+        title: $t("menus.editor")
+      }
+    },
     {
       path: "/error/403",
       name: "403",
