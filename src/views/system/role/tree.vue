@@ -30,7 +30,7 @@ const props = defineProps({
   treeData: Array
 });
 const currentRow = defineModel<TreeKey[]>("currentRow");
-const deptId = defineModel<Number>("deptId");
+const deptId = defineModel<number>("deptId");
 
 const emit = defineEmits(["tree-select"]);
 

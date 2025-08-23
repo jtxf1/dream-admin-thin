@@ -170,7 +170,7 @@ const {
     </div>
     <tree
       v-model:currentRow="currentRow"
-      v-model:parentId="parentId"
+      v-model:deptId="parentId"
       class="w-[calc(25%-180px)]"
       :treeData="treeData"
       :treeLoading="treeLoading"
