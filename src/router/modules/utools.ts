@@ -20,6 +20,14 @@ export default {
       }
     },
     {
+      path: "/components/echarts/gauge",
+      name: "gauge",
+      component: () => import("@/views/components/echarts/gauge.vue"),
+      meta: {
+        title: $t("menus.gauge")
+      }
+    },
+    {
       path: "/error/403",
       name: "403",
       component: () => import("@/views/error/403.vue"),

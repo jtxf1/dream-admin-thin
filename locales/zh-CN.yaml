@@ -119,6 +119,7 @@ menus:
   purePermissionButtonLogin: 登录接口返回按钮权限
   webUtools: 前端工具
   editor: 编辑器
+  gauge: 仪表盘
 status:
   pureLoad: 加载中...
   pureMessage: 消息
