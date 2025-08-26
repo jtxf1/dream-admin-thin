@@ -2,18 +2,22 @@
 import { ref, markRaw } from "vue";
 import ReCol from "@/components/ReCol";
 import { useDark, randomGradient } from "./utils";
-import PureTable from "./components/table/index.vue";
 import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRenderFlicker } from "@/components/ReFlicker";
 import { barChart, lineChart, roundChart } from "./components/chart";
 import Segmented, { type OptionsType } from "@/components/ReSegmented";
 import { chartData, barChartData, progressData, latestNewsData } from "./data";
+import Gauge from "../components/echarts/gauge.vue";
 
 defineOptions({
   name: "Welcome"
 });
 
 const { isDark } = useDark();
+
+const cpuValue = ref(0);
+const romValue = ref(0);
+const swapValue = ref(0);
 
 let curWeek = ref(1); // 0上周、1本周
 const optionsBasis: Array<OptionsType> = [
@@ -109,14 +113,12 @@ const optionsBasis: Array<OptionsType> = [
         <el-card class="bar-card" shadow="never">
           <div class="flex justify-between">
             <span class="text-md font-medium">分析概览</span>
-            <Segmented v-model="curWeek" :options="optionsBasis" />
           </div>
-          <div class="flex justify-between items-start mt-3">
-            <barChart
-              :requireData="barChartData[curWeek].requireData"
-              :questionData="barChartData[curWeek].questionData"
-            />
-          </div>
+          <Gauge
+            :cpu-value="cpuValue"
+            :rom-value="romValue"
+            :swap-value="swapValue"
+          />
         </el-card>
       </re-col>
 
@@ -184,11 +186,17 @@ const optionsBasis: Array<OptionsType> = [
           }
         }"
       >
-        <el-card shadow="never" class="h-[580px]">
+        <el-card shadow="never" class="h-[480px]">
           <div class="flex justify-between">
             <span class="text-md font-medium">数据统计</span>
+            <Segmented v-model="curWeek" :options="optionsBasis" />
           </div>
-          <PureTable class="mt-3" />
+          <div class="flex justify-between items-start mt-3">
+            <barChart
+              :requireData="barChartData[curWeek].requireData"
+              :questionData="barChartData[curWeek].questionData"
+            />
+          </div>
         </el-card>
       </re-col>
 

@@ -12,6 +12,7 @@ export class Online {
   key: string;
   loginTime: Date;
 }
+
 export class OnlineQueryCriteria extends PageQuery {
   blurry: string;
   logType: string;

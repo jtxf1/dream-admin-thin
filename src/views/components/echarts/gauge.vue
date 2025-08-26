@@ -1,7 +1,22 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onBeforeUnmount } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
+import { getMonitor } from "@/api/monitor/monitor";
 
+// --- 定义从父组件接收的 props ---
+interface Props {
+  cpuValue?: number; // 使用 ? 表示可选 prop
+  romValue?: number; // 使用 ? 表示可选 prop
+  swapValue?: number; // 使用 ? 表示可选 prop
+}
+
+// 使用 withDefaults 为可选 prop 设置默认值
+const props = withDefaults(defineProps<Props>(), {
+  cpuValue: 0,
+  romValue: 50,
+  swapValue: 90
+});
+// --- End of props definition ---
 // 兼容dark主题
 const { isDark } = useDark();
 let theme = computed(() => {
@@ -13,7 +28,7 @@ const chartRef = ref();
 const { setOptions } = useECharts(chartRef, { theme });
 const gaugeData = ref([
   {
-    value: 20,
+    value: props.cpuValue,
     name: "CPU",
     title: {
       offsetCenter: ["-40%", "80%"]
@@ -23,7 +38,7 @@ const gaugeData = ref([
     }
   },
   {
-    value: 40,
+    value: props.romValue,
     name: "ROM",
     title: {
       offsetCenter: ["0%", "80%"]
@@ -33,8 +48,8 @@ const gaugeData = ref([
     }
   },
   {
-    value: 60,
-    name: "GPU",
+    value: props.swapValue,
+    name: "swap",
     title: {
       offsetCenter: ["40%", "80%"]
     },
@@ -97,7 +112,6 @@ let intervalId: number | null = null;
 watch(
   gaugeData,
   newGaugeData => {
-    console.log("gaugeData changed, updating chart...");
     // 当 gaugeData 内部任何值改变时，调用 setOptions 更新图表
     setOptions({
       clear: false,
@@ -116,15 +130,23 @@ watch(
 
 // 组件挂载后启动定时器
 onMounted(() => {
+  console.log("组件已挂载");
   intervalId = window.setInterval(() => {
-    gaugeData.value[0].value = +(Math.random() * 100).toFixed(2);
-    gaugeData.value[1].value = +(Math.random() * 100).toFixed(2);
-    gaugeData.value[2].value = +(Math.random() * 100).toFixed(2);
+    // 替换为你的实际 API 端点
+    getMonitor().then(response => {
+      gaugeData.value[0].value = response?.data?.cpu?.used;
+      gaugeData.value[1].value = response?.data?.memory?.used.replace(
+        /\s*GiB\s*$/,
+        ""
+      );
+      gaugeData.value[2].value = response?.data?.swap?.usageRate;
+    });
   }, 10000);
 });
 
 // 组件卸载前清理定时器
 onBeforeUnmount(() => {
+  console.log("组件即将卸载");
   if (intervalId !== null) {
     clearInterval(intervalId);
   }
@@ -132,5 +154,5 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="chartRef" style="width: 100%; height: 70vh" />
+  <div ref="chartRef" style="height: 55vh" />
 </template>
