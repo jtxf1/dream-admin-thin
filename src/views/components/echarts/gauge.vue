@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onBeforeUnmount } from "vue";
+import { ref, watch, computed } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
-import { type Monitor } from "@/api/monitor/monitor";
-import { getToken, formatToken } from "@/utils/auth";
 
 // --- 定义从父组件接收的 props ---
 interface Props {
@@ -11,7 +9,6 @@ interface Props {
   swapValue?: number; // 使用 ? 表示可选 prop
 }
 
-let eventSource: EventSource | null = null;
 // 使用 withDefaults 为可选 prop 设置默认值
 const props = withDefaults(defineProps<Props>(), {
   cpuValue: 0,
@@ -111,14 +108,17 @@ setOptions({
 });
 // --- 监听 gaugeData 变化 ---
 watch(
-  gaugeData,
+  props,
   newGaugeData => {
+    gaugeData.value[0].value = parseFloat(newGaugeData.cpuValue) || 0;
+    gaugeData.value[1].value = parseFloat(newGaugeData.romValue) || 0;
+    gaugeData.value[2].value = parseFloat(newGaugeData.swapValue) || 0;
     // 当 gaugeData 内部任何值改变时，调用 setOptions 更新图表
     setOptions({
       clear: false,
       series: [
         {
-          data: newGaugeData
+          data: gaugeData
         }
       ]
     });
@@ -128,47 +128,6 @@ watch(
     // immediate: true // 如果需要初始化时也更新一次图表（虽然初始时数据可能还没变）
   }
 );
-
-// 组件挂载后启动定时器
-onMounted(() => {
-  console.log("组件已挂载");
-
-  const data = getToken();
-  // 连接 SSE 服务端
-  eventSource = new EventSource(
-    "http://localhost:8888/auth/sse/objects?token=" +
-      formatToken(data.accessToken)
-  );
-
-  // 默认的 message 事件
-  eventSource.onmessage = (e: MessageEvent) => {
-    try {
-      const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
-      gaugeData.value[0].value = parseFloat(data?.cpu?.used) || 0;
-      gaugeData.value[1].value =
-        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0;
-      gaugeData.value[2].value = parseFloat(data?.swap?.usageRate) || 0;
-    } catch {
-      console.log(`[raw] ${e.data}`);
-    }
-  };
-
-  // 如果服务端定义了 event: error
-  eventSource.addEventListener("error", e => {
-    eventSource.close();
-    eventSource = null;
-    console.log("[error] 连接或消息错误", e.type);
-  });
-});
-
-// 组件卸载前清理定时器
-onBeforeUnmount(() => {
-  console.log("组件即将卸载");
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-});
 </script>
 
 <template>

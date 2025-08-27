@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
-import { ref, reactive, computed, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
 
 // 兼容dark主题
@@ -13,12 +13,24 @@ let theme = computed(() => {
 const chartRef = ref();
 const { setOptions } = useECharts(chartRef, { theme });
 
-const allData = reactive({
-  cpuData: [0],
-  romData: [0],
-  xData: [dayjs().format("HH:mm:ss")]
+// 定义props接收父组件传递的数据
+const allData = defineProps({
+  cpuData: {
+    type: Array,
+    required: false,
+    default: () => [10]
+  },
+  romData: {
+    type: Array,
+    required: false,
+    default: () => [10]
+  },
+  xData: {
+    type: Array as () => string[],
+    required: false,
+    default: () => [dayjs().format("HH:mm:ss")]
+  }
 });
-
 // 根据配置项渲染ECharts
 setOptions({
   title: {
@@ -59,6 +71,7 @@ setOptions({
       name: "CPU",
       data: allData.cpuData,
       type: "line",
+      stack: "Total",
       symbol: "triangle",
       symbolSize: 20,
       lineStyle: {
@@ -99,28 +112,6 @@ watch(
     // immediate: true // 如果需要初始化时也更新一次图表（虽然初始时数据可能还没变）
   }
 );
-// 记录定时器ID
-let timerId: number | null = null;
-// 组件挂载完成后创建定时器（每3秒执行一次）
-onMounted(() => {
-  timerId = window.setInterval(() => {
-    allData.xData.push(dayjs().format("HH:mm:ss"));
-    allData.romData.push(Math.floor(Math.random() * 100));
-    allData.cpuData.push(Math.floor(Math.random() * 100));
-    if (allData.xData.length > 10) {
-      allData.xData.shift();
-      allData.romData.shift();
-      allData.cpuData.shift();
-    }
-  }, 3000);
-});
-// 组件销毁时清除定时器
-onUnmounted(() => {
-  if (timerId) {
-    clearInterval(timerId);
-    timerId = null;
-  }
-});
 </script>
 
 <template>
