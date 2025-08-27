@@ -39,7 +39,7 @@ class SysInfo {
   ip: string;
 }
 
-class Monitor {
+export class Monitor {
   cpu: CpuInfo;
   disk: DiskInfo;
   memory: MemoryInfo;

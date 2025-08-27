@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed, onMounted, onBeforeUnmount } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
-import { getMonitor } from "@/api/monitor/monitor";
+import { type Monitor } from "@/api/monitor/monitor";
+import { getToken, formatToken } from "@/utils/auth";
 
 // --- 定义从父组件接收的 props ---
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   swapValue?: number; // 使用 ? 表示可选 prop
 }
 
+let eventSource: EventSource | null = null;
 // 使用 withDefaults 为可选 prop 设置默认值
 const props = withDefaults(defineProps<Props>(), {
   cpuValue: 0,
@@ -107,7 +109,6 @@ setOptions({
     }
   ]
 });
-let intervalId: number | null = null;
 // --- 监听 gaugeData 变化 ---
 watch(
   gaugeData,
@@ -131,24 +132,41 @@ watch(
 // 组件挂载后启动定时器
 onMounted(() => {
   console.log("组件已挂载");
-  intervalId = window.setInterval(() => {
-    // 替换为你的实际 API 端点
-    getMonitor().then(response => {
-      gaugeData.value[0].value = response?.data?.cpu?.used;
-      gaugeData.value[1].value = response?.data?.memory?.used.replace(
-        /\s*GiB\s*$/,
-        ""
-      );
-      gaugeData.value[2].value = response?.data?.swap?.usageRate;
-    });
-  }, 10000);
+
+  const data = getToken();
+  // 连接 SSE 服务端
+  eventSource = new EventSource(
+    "http://localhost:8888/auth/sse/objects?token=" +
+      formatToken(data.accessToken)
+  );
+
+  // 默认的 message 事件
+  eventSource.onmessage = (e: MessageEvent) => {
+    try {
+      const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
+      gaugeData.value[0].value = parseFloat(data?.cpu?.used) || 0;
+      gaugeData.value[1].value =
+        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0;
+      gaugeData.value[2].value = parseFloat(data?.swap?.usageRate) || 0;
+    } catch {
+      console.log(`[raw] ${e.data}`);
+    }
+  };
+
+  // 如果服务端定义了 event: error
+  eventSource.addEventListener("error", e => {
+    eventSource.close();
+    eventSource = null;
+    console.log("[error] 连接或消息错误", e.type);
+  });
 });
 
 // 组件卸载前清理定时器
 onBeforeUnmount(() => {
   console.log("组件即将卸载");
-  if (intervalId !== null) {
-    clearInterval(intervalId);
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
   }
 });
 </script>

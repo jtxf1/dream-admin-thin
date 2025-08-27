@@ -12,6 +12,14 @@ export default {
   },
   children: [
     {
+      path: "/sse",
+      name: "SseViewer",
+      component: () => import("@/views/components/sse"),
+      meta: {
+        title: $t("menus.editor")
+      }
+    },
+    {
       path: "/editor/index",
       name: "editor",
       component: () => import("@/views/editor/index.vue"),
