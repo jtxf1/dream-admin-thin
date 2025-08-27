@@ -12,11 +12,19 @@ export default {
   },
   children: [
     {
+      path: "/line",
+      name: "LineViewer",
+      component: () => import("@/views/components/echarts/line.vue"),
+      meta: {
+        title: $t("menus.line")
+      }
+    },
+    {
       path: "/sse",
       name: "SseViewer",
       component: () => import("@/views/components/sse"),
       meta: {
-        title: $t("menus.editor")
+        title: $t("menus.sse")
       }
     },
     {

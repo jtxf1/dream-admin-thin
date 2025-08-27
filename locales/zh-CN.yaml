@@ -120,6 +120,8 @@ menus:
   webUtools: 前端工具
   editor: 编辑器
   gauge: 仪表盘
+  sse: sse
+  line: 折线图
 status:
   pureLoad: 加载中...
   pureMessage: 消息

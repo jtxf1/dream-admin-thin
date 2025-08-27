@@ -50,18 +50,6 @@ const chartData = [
   }
 ];
 
-/** 分析概览 */
-const barChartData = [
-  {
-    requireData: [2101, 5288, 4239, 4962, 6752, 5208, 7450],
-    questionData: [2216, 1148, 1255, 1788, 4821, 1973, 4379]
-  },
-  {
-    requireData: [2101, 3280, 4400, 4962, 5752, 6889, 7600],
-    questionData: [2116, 3148, 3255, 3788, 4821, 4970, 5390]
-  }
-];
-
 /** 解决概率 */
 const progressData = [
   {
@@ -131,4 +119,4 @@ const latestNewsData = cloneDeep(tableData)
     });
   });
 
-export { chartData, barChartData, progressData, tableData, latestNewsData };
+export { chartData, progressData, tableData, latestNewsData };

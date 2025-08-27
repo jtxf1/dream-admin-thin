@@ -4,10 +4,11 @@ import ReCol from "@/components/ReCol";
 import { useDark, randomGradient } from "./utils";
 import { ReNormalCountTo } from "@/components/ReCountTo";
 import { useRenderFlicker } from "@/components/ReFlicker";
-import { barChart, lineChart, roundChart } from "./components/chart";
-import Segmented, { type OptionsType } from "@/components/ReSegmented";
-import { chartData, barChartData, progressData, latestNewsData } from "./data";
+import { lineChart, roundChart } from "./components/chart";
+import { type OptionsType } from "@/components/ReSegmented";
+import { chartData, progressData, latestNewsData } from "./data";
 import Gauge from "../components/echarts/gauge.vue";
+import Line from "../components/echarts/line.vue";
 
 defineOptions({
   name: "Welcome"
@@ -112,7 +113,7 @@ const optionsBasis: Array<OptionsType> = [
       >
         <el-card class="bar-card" shadow="never">
           <div class="flex justify-between">
-            <span class="text-md font-medium">分析概览</span>
+            <span class="text-md font-medium">系统监控</span>
           </div>
           <Gauge
             :cpu-value="cpuValue"
@@ -189,13 +190,9 @@ const optionsBasis: Array<OptionsType> = [
         <el-card shadow="never" class="h-[480px]">
           <div class="flex justify-between">
             <span class="text-md font-medium">数据统计</span>
-            <Segmented v-model="curWeek" :options="optionsBasis" />
           </div>
           <div class="flex justify-between items-start mt-3">
-            <barChart
-              :requireData="barChartData[curWeek].requireData"
-              :questionData="barChartData[curWeek].questionData"
-            />
+            <Line />
           </div>
         </el-card>
       </re-col>

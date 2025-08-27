@@ -98,6 +98,8 @@ menus:
   webUtools: web utools
   editor: editor
   gauge: gauge
+  sse: sse
+  line: line
 status:
   pureLoad: Loading...
   pureMessage: Message
