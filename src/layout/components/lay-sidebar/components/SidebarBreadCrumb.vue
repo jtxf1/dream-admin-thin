@@ -109,7 +109,7 @@ watch(
     <transition-group name="breadcrumb">
       <el-breadcrumb-item
         v-for="item in levelList"
-        :key="item.path"
+        :key="item.name"
         class="inline! items-stretch!"
       >
         <a @click.prevent="handleLink(item)">

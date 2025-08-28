@@ -70,7 +70,7 @@ export function useDept() {
           size={scope.props.size === "small" ? "small" : "default"}
           style={switchStyle.value}
           inline-prompt
-          active-value={dictsDetails.value[0].value === "true"}
+          active-value={dictsDetails?.value[0]?.value === "true"}
           inactive-value={dictsDetails.value[1].value === "true"}
           active-text={dictsDetails.value[0].label}
           inactive-text={dictsDetails.value[1].label}

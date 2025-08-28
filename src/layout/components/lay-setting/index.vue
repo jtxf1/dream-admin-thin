@@ -25,7 +25,7 @@ import RightArrow from "~icons/ri/arrow-right-s-line?width=20&height=20";
 import DayIcon from "@/assets/svg/day.svg?component";
 import DarkIcon from "@/assets/svg/dark.svg?component";
 import SystemIcon from "@/assets/svg/system.svg?component";
-onUnmounted(() => removeMatchMedia);
+onUnmounted(() => removeMatchMedia());
 
 const { t } = useI18n();
 const { device } = useNav();
