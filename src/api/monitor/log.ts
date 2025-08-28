@@ -104,3 +104,27 @@ export const download = (data: Partial<LogQueryCriteria>) => {
     { responseType: "blob" }
   );
 };
+
+interface ShowSql {
+  userHost?: string; //2
+  queryTime?: Date; //3
+  lockTime?: Date; //4
+  rowsSent?: number; //5
+  rowsExamined?: number; //6
+  db?: string; //7
+  lastInsertId?: number; //8
+  insertId?: number; //9
+  serverId?: number; //0
+  sqlText?: number[]; //11
+  threadId?: number; //12
+}
+
+export const getShowSql = (params: PageQuery | any) => {
+  return http.request<ApiAbstract<ShowSql>>(
+    "get",
+    baseUrlApi("generator/slowLog"),
+    {
+      params
+    }
+  );
+};

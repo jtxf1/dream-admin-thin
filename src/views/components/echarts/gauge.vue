@@ -131,5 +131,5 @@ watch(
 </script>
 
 <template>
-  <div ref="chartRef" style="height: 55vh" />
+  <div ref="chartRef" style="height: 53vh" />
 </template>

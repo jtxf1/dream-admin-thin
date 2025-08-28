@@ -31,8 +31,6 @@ const xData = ref([dayjs().format("HH:mm:ss")]);
  * @returns 如果 vRam 存在且不为空，则返回以 GB 为单位的整数；否则返回空字符串。
  */
 function convertVramBitToGB(vRam: number | null | any): string {
-  console.log(vRam);
-
   if (vRam != null) {
     // 假设 0 也被视为空或无效
     // 1 GB = 8 * 1024 * 1024 * 1024 bits

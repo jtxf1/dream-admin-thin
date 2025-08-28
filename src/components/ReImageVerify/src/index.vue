@@ -31,7 +31,7 @@ defineExpose({ getImgCode });
 
 <template>
   <el-image
-    style="width: 12px; height: 40px"
+    style="width: 120px; height: 40px"
     :src="imgSrc"
     fit="contain"
     @click="getImgCode"

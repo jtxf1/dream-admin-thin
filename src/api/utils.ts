@@ -3,7 +3,15 @@ import type { PureHttpRequestConfig } from "@/utils/http/types";
 import type { AxiosRequestConfig } from "axios";
 import type { ApiAbstract, Page } from "@/utils/http/ApiAbstract";
 import { downloadByData } from "@pureadmin/utils";
+import type { PaginationProps } from "@pureadmin/table";
 
+export const pagination: PaginationProps = {
+  total: 0,
+  pageSize: 10,
+  pageSizes: [10, 20, 50],
+  currentPage: 1,
+  background: true
+};
 export const baseUrlApi = (url: string) => `/api/${url}`;
 export const baseUrlAuth = (url: string) => `/auth/${url}`;
 export const baseUrlAvatar = (url: string) => `/avatar/${url}`;
