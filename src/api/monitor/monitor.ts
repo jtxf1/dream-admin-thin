@@ -38,14 +38,19 @@ class SysInfo {
   day: string;
   ip: string;
 }
+class GpuInfo {
+  name: string;
+  vRam: string;
+}
 
 export class Monitor {
-  cpu: CpuInfo;
-  disk: DiskInfo;
-  memory: MemoryInfo;
-  swap: SwapInfo;
-  sys: SysInfo;
-  time: string;
+  cpu?: CpuInfo;
+  disk?: DiskInfo;
+  memory?: MemoryInfo;
+  swap?: SwapInfo;
+  sys?: SysInfo;
+  time?: string;
+  gpu?: GpuInfo;
 }
 export const getMonitor = () => {
   return http.request<ApiAbstract<Monitor>>("get", baseUrlApi("monitor"));

@@ -1,34 +1,83 @@
 <script setup lang="ts">
-import { ref, markRaw } from "vue";
+import dayjs from "dayjs";
+import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import ReCol from "@/components/ReCol";
-import { useDark, randomGradient } from "./utils";
+import { useDark } from "./utils";
 import { ReNormalCountTo } from "@/components/ReCountTo";
-import { useRenderFlicker } from "@/components/ReFlicker";
 import { lineChart, roundChart } from "./components/chart";
-import { type OptionsType } from "@/components/ReSegmented";
-import { chartData, progressData, latestNewsData } from "./data";
+import { chartData } from "./data";
 import Gauge from "../components/echarts/gauge.vue";
 import Line from "../components/echarts/line.vue";
+import { getToken, formatToken } from "@/utils/auth";
+import { type Monitor } from "@/api/monitor/monitor";
 
 defineOptions({
   name: "Welcome"
 });
 
 const { isDark } = useDark();
+const monitorCPU = reactive<Monitor>({});
 
 const cpuValue = ref(0);
 const romValue = ref(0);
 const swapValue = ref(0);
 
-let curWeek = ref(1); // 0上周、1本周
-const optionsBasis: Array<OptionsType> = [
-  {
-    label: "上周"
-  },
-  {
-    label: "本周"
+const cpuData = ref([0]);
+const romData = ref([0]);
+const xData = ref([dayjs().format("HH:mm:ss")]);
+
+let eventSource: EventSource | null = null;
+
+// 组件挂载后启动定时器
+onMounted(() => {
+  const data = getToken();
+  // 连接 SSE 服务端
+  eventSource = new EventSource(
+    "http://localhost:8888/auth/sse/objects?token=" +
+      formatToken(data.accessToken)
+  );
+
+  // 默认的 message 事件
+  eventSource.onmessage = (e: MessageEvent) => {
+    try {
+      const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
+      monitorCPU.cpu = data.cpu;
+      monitorCPU.sys = data.sys;
+      cpuValue.value = parseFloat(data?.cpu?.used) || 0;
+      romValue.value =
+        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0;
+      swapValue.value = parseFloat(data?.swap?.usageRate) || 0;
+
+      xData.value.push(dayjs().format("HH:mm:ss"));
+      romData.value.push(
+        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0
+      );
+      cpuData.value.push(parseFloat(data?.cpu?.used) || 0);
+      if (xData.value.length > 10) {
+        xData.value.shift();
+        romData.value.shift();
+        cpuData.value.shift();
+      }
+    } catch {
+      console.log(`[raw] ${e.data}`);
+    }
+  };
+
+  // 如果服务端定义了 event: error
+  eventSource.addEventListener("error", e => {
+    eventSource.close();
+    eventSource = null;
+    console.log("[error] 连接或消息错误", e.type);
+  });
+});
+
+// 组件卸载前清理定时器
+onBeforeUnmount(() => {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
   }
-];
+});
 </script>
 
 <template>
@@ -97,7 +146,7 @@ const optionsBasis: Array<OptionsType> = [
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="18"
+        :value="12"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -126,7 +175,7 @@ const optionsBasis: Array<OptionsType> = [
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="6"
+        :value="12"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -142,38 +191,111 @@ const optionsBasis: Array<OptionsType> = [
       >
         <el-card shadow="never">
           <div class="flex justify-between">
-            <span class="text-md font-medium">解决概率</span>
+            <span class="text-md font-medium">系统配置</span>
           </div>
-          <div
-            v-for="(item, index) in progressData"
-            :key="index"
-            :class="[
-              'flex',
-              'justify-between',
-              'items-start',
-              index === 0 ? 'mt-8' : 'mt-[2.15rem]'
-            ]"
+
+          <table
+            class="demo-typo-size"
+            style="width: 100%; table-layout: fixed; border-collapse: collapse"
           >
-            <el-progress
-              :text-inside="true"
-              :percentage="item.percentage"
-              :stroke-width="21"
-              :color="item.color"
-              striped
-              striped-flow
-              :duration="item.duration"
-            />
-            <span class="text-nowrap ml-2 text-text_color_regular text-sm">
-              {{ item.week }}
-            </span>
-          </div>
+            <tbody>
+              <tr>
+                <!-- 第一个单元格：宽度50% -->
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  os
+                </td>
+                <!-- 第二个单元格：宽度50% -->
+                <td
+                  class="color-dark-light"
+                  style="width: 50%; padding: 8px; border: 1px solid #eee"
+                >
+                  {{ monitorCPU?.sys?.os }}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  运行时间
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  {{ monitorCPU?.sys?.day }}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  ip
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  {{ monitorCPU?.sys?.ip }}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  cpu
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  <pre>
+                    {{ monitorCPU?.cpu?.name }}
+                    {{ monitorCPU?.cpu?.core }}
+                    {{ monitorCPU?.cpu?.logic }}
+                    {{ monitorCPU?.cpu?.used }}
+                    {{ monitorCPU?.cpu?.idle }}
+                  </pre>
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  内存
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  总：{{ monitorCPU?.memory?.total }} 已用：{{
+                    monitorCPU?.memory?.used
+                  }}
+                  剩余：{{ monitorCPU?.memory?.available }}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  硬盘
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  总：{{ monitorCPU?.disk?.total }} 已用：{{
+                    monitorCPU?.disk?.used
+                  }}
+                  剩余：{{ monitorCPU?.disk?.available }}
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  显卡
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  <pre>
+                    {{ monitorCPU?.gpu?.name }}
+                    {{ monitorCPU?.gpu?.vRam }}bit
+                  </pre>
+                </td>
+              </tr>
+              <tr>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  交换区
+                </td>
+                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                  <pre>
+                    总：{{ monitorCPU?.swap?.total }}
+                    已用：{{ monitorCPU?.swap?.used }}
+                    剩余{{ monitorCPU?.swap?.available }}
+                  </pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </el-card>
       </re-col>
 
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="18"
+        :value="24"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -192,58 +314,8 @@ const optionsBasis: Array<OptionsType> = [
             <span class="text-md font-medium">数据统计</span>
           </div>
           <div class="flex justify-between items-start mt-3">
-            <Line />
+            <Line :cpu-data="cpuData" :rom-data="romData" :x-data="xData" />
           </div>
-        </el-card>
-      </re-col>
-
-      <re-col
-        v-motion
-        class="mb-[18px]"
-        :value="6"
-        :xs="24"
-        :initial="{
-          opacity: 0,
-          y: 100
-        }"
-        :enter="{
-          opacity: 1,
-          y: 0,
-          transition: {
-            delay: 640
-          }
-        }"
-      >
-        <el-card shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">最新动态</span>
-          </div>
-          <el-scrollbar max-height="504" class="mt-3">
-            <el-timeline>
-              <el-timeline-item
-                v-for="(item, index) in latestNewsData"
-                :key="index"
-                center
-                placement="top"
-                :icon="
-                  markRaw(
-                    useRenderFlicker({
-                      background: randomGradient({
-                        randomizeHue: true
-                      })
-                    })
-                  )
-                "
-                :timestamp="item.date"
-              >
-                <p class="text-text_color_regular text-sm">
-                  {{
-                    `新增 ${item.requiredNumber} 条问题，${item.resolveNumber} 条已解决`
-                  }}
-                </p>
-              </el-timeline-item>
-            </el-timeline>
-          </el-scrollbar>
         </el-card>
       </re-col>
     </el-row>
