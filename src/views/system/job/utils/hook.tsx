@@ -1,17 +1,17 @@
 import editForm from "../form.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
-import type { PaginationProps } from "@pureadmin/table";
 import { reactive, ref, onMounted, h } from "vue";
 import type { FormItemProps, FormQuery } from "./types";
 import { usePublicHooks } from "@/utils/theme";
 import { ElMessageBox } from "element-plus";
-import { CRUD } from "@/api/utils";
+import { CRUD, pagination } from "@/api/utils";
 import { getDictDetail } from "@/api/system/dict";
+import { PageQuery } from "@/utils/http/ApiAbstract";
 
 export function useDept() {
   //查询条件
-  const formQuery = reactive<FormQuery>({ sort: "id,asc" });
+  const formQuery = reactive<FormQuery>(new PageQuery());
   /** 请求URL */
   const crudURL = "job";
   /** 新增编辑内容渲染 */
@@ -26,14 +26,6 @@ export function useDept() {
   /** 字典列表 */
   const dictsDetails = ref([]);
 
-  /** 分页配置 */
-  const pagination = reactive<PaginationProps>({
-    total: 10,
-    pageSize: 10,
-    pageSizes: [10, 20, 50],
-    currentPage: 1,
-    align: "left"
-  });
   /** 表格索引 */
   const indexMethod = (index: number) => {
     return index + 1 + (pagination.currentPage - 1) * pagination.pageSize;
@@ -110,14 +102,12 @@ export function useDept() {
     dataList.splice(0, dataList.length);
     await CRUD.get<FormQuery, FormItemProps>(crudURL, {
       params: formQuery
-    }).then(res => {
-      pagination.total = res.data.totalElements;
-      dataList.push(...res.data.content);
-    });
-    /** 表格加载完成 */
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    })
+      .then(res => {
+        pagination.total = res.data.totalElements;
+        dataList.push(...res.data.content);
+      })
+      .finally(() => (loading.value = false));
   }
   /**
    * 新增修改函数
@@ -125,23 +115,24 @@ export function useDept() {
    * @param row 数据
    */
   function openDialog(title = "新增", row?: FormItemProps) {
+    const formInline = {
+      id: row?.id,
+      name: row?.name ?? "",
+      jobSort: row?.jobSort ?? 0,
+      enabled: row?.enabled ?? false,
+      dictsDetails: dictsDetails.value ?? []
+    };
     addDialog({
       title: `${title}岗位`,
       props: {
-        formInline: {
-          id: row?.id,
-          name: row?.name ?? "",
-          jobSort: row?.jobSort ?? 0,
-          version: row?.version ?? 0,
-          enabled: row?.enabled ?? false,
-          dictsDetails: dictsDetails.value ?? []
-        }
+        formInline: formInline
       },
       width: "40%",
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
+      contentRenderer: () =>
+        h(editForm, { ref: formRef, formInline: formInline }),
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
@@ -183,8 +174,8 @@ export function useDept() {
       data: [row.id]
     }).then(() => {
       message(`您删除了岗位名称为${row.name}的这条数据`, { type: "success" });
+      onSearch();
     });
-    onSearch();
   }
   /**
    * 状态: 停用 启用
@@ -234,24 +225,22 @@ export function useDept() {
         dangerouslyUseHTMLString: true,
         draggable: true
       }
-    )
-      .then(() => {
-        CRUD.delete(crudURL, {
-          data: multipleSelection.value.map(dept => dept.id)
-        }).then(() => {
-          message("已删除所选的岗位", {
-            type: "success"
-          });
-          onSearch();
+    ).then(() => {
+      CRUD.delete(crudURL, {
+        data: multipleSelection.value.map(dept => dept.id)
+      }).then(() => {
+        message("已删除所选的岗位", {
+          type: "success"
         });
-      })
-      .catch(() => {
         onSearch();
       });
+    });
   }
+  /**
+   * 下载表格数据
+   */
   const exportClick = async () => {
-    CRUD.download("job");
-
+    CRUD.download(crudURL);
     message("导出成功", {
       type: "success"
     });
@@ -262,6 +251,7 @@ export function useDept() {
    */
   function handleSizeChange(val: number) {
     pagination.pageSize = val;
+    formQuery.size = pagination.pageSize;
     onSearch();
   }
   /**
@@ -270,6 +260,7 @@ export function useDept() {
    */
   function handleCurrentChange(val: number) {
     pagination.currentPage = val;
+    formQuery.page = pagination.currentPage - 1;
     onSearch();
   }
 

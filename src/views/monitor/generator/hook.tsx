@@ -243,23 +243,6 @@ export function useRole() {
       )
     },
     {
-      label: "日期注解",
-      prop: "dateAnnotation",
-      cellRenderer: ({ row }) => (
-        <el-select
-          v-model={row.dateAnnotation}
-          filterable
-          clearable
-          size="small"
-          placeholder="请选择"
-        >
-          <el-option label="自动创建时间" value="CreationTimestamp" />
-          <el-option label="自动更新时间" value="UpdateTimestamp" />
-        </el-select>
-      ),
-      minWidth: 110
-    },
-    {
       label: "关联字典",
       prop: "dictName",
       cellRenderer: ({ row }) => (
