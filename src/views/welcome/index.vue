@@ -25,7 +25,24 @@ const swapValue = ref(0);
 const cpuData = ref([0]);
 const romData = ref([0]);
 const xData = ref([dayjs().format("HH:mm:ss")]);
+/**
+ * 将 GPU VRAM 从 bit 转换为 GB (不保留小数)。
+ * @param monitorData - 包含 GPU 信息的对象，可能为 null 或 undefined。
+ * @returns 如果 vRam 存在且不为空，则返回以 GB 为单位的整数；否则返回空字符串。
+ */
+function convertVramBitToGB(vRam: number | null | any): string {
+  console.log(vRam);
 
+  if (vRam != null) {
+    // 假设 0 也被视为空或无效
+    // 1 GB = 8 * 1024 * 1024 * 1024 bits
+    const bitsPerGB = 1024 * 1024 * 1024;
+    // 转换为 GB 并去除小数部分
+    const vRamInGB = Math.floor(vRam / bitsPerGB);
+    return `${vRamInGB}`;
+  }
+  return "";
+}
 let eventSource: EventSource | null = null;
 
 // 组件挂载后启动定时器
@@ -43,6 +60,10 @@ onMounted(() => {
       const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
       monitorCPU.cpu = data.cpu;
       monitorCPU.sys = data.sys;
+      monitorCPU.memory = data.memory;
+      monitorCPU.swap = data.swap;
+      monitorCPU.disk = data.disk;
+      monitorCPU.gpu = data.gpu;
       cpuValue.value = parseFloat(data?.cpu?.used) || 0;
       romValue.value =
         parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0;
@@ -146,7 +167,7 @@ onBeforeUnmount(() => {
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="12"
+        :value="14"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -175,7 +196,7 @@ onBeforeUnmount(() => {
       <re-col
         v-motion
         class="mb-[18px]"
-        :value="12"
+        :value="8"
         :xs="24"
         :initial="{
           opacity: 0,
@@ -201,7 +222,7 @@ onBeforeUnmount(() => {
             <tbody>
               <tr>
                 <!-- 第一个单元格：宽度50% -->
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
+                <td style="width: 10%; padding: 8px; border: 1px solid #eee">
                   os
                 </td>
                 <!-- 第二个单元格：宽度50% -->
@@ -209,82 +230,41 @@ onBeforeUnmount(() => {
                   class="color-dark-light"
                   style="width: 50%; padding: 8px; border: 1px solid #eee"
                 >
-                  {{ monitorCPU?.sys?.os }}
+                  <pre>{{ monitorCPU?.sys?.os }}<br/>运行:{{ monitorCPU?.sys?.day }}<br/>ip:{{ monitorCPU?.sys?.ip }}</pre>
                 </td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  运行时间
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  {{ monitorCPU?.sys?.day }}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  ip
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  {{ monitorCPU?.sys?.ip }}
-                </td>
-              </tr>
-              <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  cpu
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  <pre>
-                    {{ monitorCPU?.cpu?.name }}
-                    {{ monitorCPU?.cpu?.core }}
-                    {{ monitorCPU?.cpu?.logic }}
-                    {{ monitorCPU?.cpu?.used }}
-                    {{ monitorCPU?.cpu?.idle }}
+                <td style="padding: 8px; border: 1px solid #eee">cpu</td>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  <pre>{{ monitorCPU?.cpu?.name }}<br/>{{ monitorCPU?.cpu?.core }}<br/>{{ monitorCPU?.cpu?.logic }}<br/>{{ monitorCPU?.cpu?.used }}/{{ monitorCPU?.cpu?.idle }}
                   </pre>
                 </td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  内存
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  总：{{ monitorCPU?.memory?.total }} 已用：{{
-                    monitorCPU?.memory?.used
-                  }}
-                  剩余：{{ monitorCPU?.memory?.available }}
+                <td style="padding: 8px; border: 1px solid #eee">内存</td>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  {{ monitorCPU?.memory?.used }}/{{ monitorCPU?.memory?.total
+                  }}<br />剩余：{{ monitorCPU?.memory?.available }}
                 </td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  硬盘
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  总：{{ monitorCPU?.disk?.total }} 已用：{{
-                    monitorCPU?.disk?.used
-                  }}
-                  剩余：{{ monitorCPU?.disk?.available }}
+                <td style="padding: 8px; border: 1px solid #eee">硬盘</td>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  {{ monitorCPU?.disk?.used }}/{{ monitorCPU?.disk?.total
+                  }}<br />剩余：{{ monitorCPU?.disk?.available }}
                 </td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  显卡
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  <pre>
-                    {{ monitorCPU?.gpu?.name }}
-                    {{ monitorCPU?.gpu?.vRam }}bit
+                <td style="padding: 8px; border: 1px solid #eee">显卡</td>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  <pre>{{ monitorCPU?.gpu?.name }} <br/>{{ convertVramBitToGB(monitorCPU?.gpu?.vRam) }}GB
                   </pre>
                 </td>
               </tr>
               <tr>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  交换区
-                </td>
-                <td style="width: 50%; padding: 8px; border: 1px solid #eee">
-                  <pre>
-                    总：{{ monitorCPU?.swap?.total }}
-                    已用：{{ monitorCPU?.swap?.used }}
-                    剩余{{ monitorCPU?.swap?.available }}
-                  </pre>
+                <td style="padding: 8px; border: 1px solid #eee">交换区</td>
+                <td style="padding: 8px; border: 1px solid #eee">
+                  <pre>{{ monitorCPU?.swap?.used }}/{{ monitorCPU?.swap?.total }}<br/>剩余{{ monitorCPU?.swap?.available }}</pre>
                 </td>
               </tr>
             </tbody>
