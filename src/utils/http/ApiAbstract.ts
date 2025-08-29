@@ -17,8 +17,8 @@ export class PageQuery {
   sort?: string;
   // 构造函数，允许在初始化时改变属性值
   constructor(page?: number, size?: number, sort?: string) {
-    this.page = page ?? 10;
-    this.size = size ?? 1;
+    this.page = page ?? 0;
+    this.size = size ?? 10;
     this.sort = sort ?? "id,asc";
   }
 }

@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useRole, useDetail } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-const { router } = useDetail();
 
 import Refresh from "~icons/ep/refresh";
 

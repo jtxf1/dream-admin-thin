@@ -340,7 +340,6 @@ export function useDetail() {
         dynamicLevel: 3
       }
     });
-    console.log(parameter);
     // 路由跳转
     router.push({ name: parameter.name, query: parameter });
   }
