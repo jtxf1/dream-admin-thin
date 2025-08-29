@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useRole, useDetail } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-const { router } = useDetail();
 
 import Refresh from "~icons/ep/refresh";
 
@@ -38,6 +37,7 @@ const {
       :inline="true"
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
+      @submit.prevent
     >
       <el-form-item label="表名" prop="name">
         <el-input

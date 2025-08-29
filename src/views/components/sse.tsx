@@ -17,8 +17,6 @@ export default defineComponent({
 
       // 默认的 message 事件
       eventSource.onmessage = (e: MessageEvent) => {
-        console.log("message:", e);
-
         try {
           const data = JSON.parse(e.data); // 如果后端传 JSON，就解析
           messages.value.push(`[message] ${data} (${data})`);

@@ -156,7 +156,6 @@ export function useDept() {
     }).then(res => {
       paginationDictDetail.total = res.data.totalElements;
       dataListDictDetail.push(...res.data.content);
-      console.log(res.data.content);
     });
     /** 表格加载完成 */
     setTimeout(() => {

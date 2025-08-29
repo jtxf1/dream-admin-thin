@@ -194,7 +194,6 @@ export function useMenu() {
         }
         FormRef.validate(valid => {
           if (valid) {
-            console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作

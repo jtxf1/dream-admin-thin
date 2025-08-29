@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted, onBeforeUnmount } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
+import { getMonitor, type Monitor } from "@/api/monitor/monitor";
+import { getToken, formatToken } from "@/utils/auth";
 
 // --- 定义从父组件接收的 props ---
 interface Props {
@@ -9,6 +11,7 @@ interface Props {
   swapValue?: number; // 使用 ? 表示可选 prop
 }
 
+let eventSource: EventSource | null = null;
 // 使用 withDefaults 为可选 prop 设置默认值
 const props = withDefaults(defineProps<Props>(), {
   cpuValue: 0,
@@ -106,19 +109,17 @@ setOptions({
     }
   ]
 });
+let intervalId: number | null = null;
 // --- 监听 gaugeData 变化 ---
 watch(
-  props,
+  gaugeData,
   newGaugeData => {
-    gaugeData.value[0].value = parseFloat(newGaugeData.cpuValue) || 0;
-    gaugeData.value[1].value = parseFloat(newGaugeData.romValue) || 0;
-    gaugeData.value[2].value = parseFloat(newGaugeData.swapValue) || 0;
     // 当 gaugeData 内部任何值改变时，调用 setOptions 更新图表
     setOptions({
       clear: false,
       series: [
         {
-          data: gaugeData
+          data: newGaugeData
         }
       ]
     });
@@ -128,8 +129,64 @@ watch(
     // immediate: true // 如果需要初始化时也更新一次图表（虽然初始时数据可能还没变）
   }
 );
+
+// 组件挂载后启动定时器
+onMounted(() => {
+  console.log("组件已挂载");
+
+  const data = getToken();
+  // 连接 SSE 服务端
+  eventSource = new EventSource(
+    "http://localhost:8888/auth/sse/objects?token=" +
+      formatToken(data.accessToken)
+  );
+
+  // 默认的 message 事件
+  eventSource.onmessage = (e: MessageEvent) => {
+    console.log("message:", e);
+
+    try {
+      const data: Monitor = JSON.parse(e.data); // 如果后端传 JSON，就解析
+      gaugeData.value[0].value = data?.cpu?.used;
+      gaugeData.value[1].value = data?.memory?.used.replace(/\s*GiB\s*$/, "");
+      gaugeData.value[2].value = data?.swap?.usageRate;
+      console.log(`[message] ${data} (${data})`);
+    } catch {
+      console.log(`[raw] ${e.data}`);
+    }
+  };
+
+  // 如果服务端定义了 event: error
+  eventSource.addEventListener("error", e => {
+    eventSource.close();
+    eventSource = null;
+    console.log("[error] 连接或消息错误", e.type);
+  });
+  intervalId = window.setInterval(() => {
+    /* getMonitor().then(response => {
+      gaugeData.value[0].value = response?.data?.cpu?.used;
+      gaugeData.value[1].value = response?.data?.memory?.used.replace(
+        /\s*GiB\s*$/,
+        ""
+      );
+      gaugeData.value[2].value = response?.data?.swap?.usageRate;
+    }); */
+  }, 10000);
+});
+
+// 组件卸载前清理定时器
+onBeforeUnmount(() => {
+  console.log("组件即将卸载");
+  if (intervalId !== null) {
+    clearInterval(intervalId);
+  }
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+});
 </script>
 
 <template>
-  <div ref="chartRef" style="height: 53vh" />
+  <div ref="chartRef" style="height: 55vh" />
 </template>

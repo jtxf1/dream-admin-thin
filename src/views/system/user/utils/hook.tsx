@@ -331,7 +331,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   }
 
   const resetForm = formEl => {
-    console.log("treeRef:", treeRef);
     if (!formEl) return;
     formEl.resetFields();
     form.deptId = "";
