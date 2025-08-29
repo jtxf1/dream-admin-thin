@@ -214,10 +214,12 @@ export function useRole() {
           placeholder="请选择"
         >
           <el-option label="文本框" value="Input" />
+          <el-option label="数字框" value="Number" />
           <el-option label="文本域" value="Textarea" />
           <el-option label="单选框" value="Radio" />
           <el-option label="下拉框" value="Select" />
           <el-option label="日期框" value="Date" />
+          <el-option label="密码框" value="Password " />
         </el-select>
       )
     },

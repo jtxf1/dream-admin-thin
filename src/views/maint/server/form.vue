@@ -3,10 +3,6 @@ import { ref } from "vue";
 import ReCol from "@/components/ReCol";
 import { formRules } from "./utils/rule";
 import { FormProps } from "./utils/types";
-import { CRUD } from "@/api/utils";
-
-/** 请求URL */
-const crudURL = "serverDeploy";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -21,12 +17,6 @@ const props = withDefaults(defineProps<FormProps>(), {
 
 const ruleFormRef = ref();
 const newFormInline = ref(props.formInline);
-/**
- * 加载数据
- */
-async function testConnect() {
-  await CRUD.get(crudURL, null).then(res => {});
-}
 
 function getRef() {
   return ruleFormRef.value;
