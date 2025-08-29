@@ -100,6 +100,7 @@ menus:
   gauge: gauge
   sse: sse
   line: line
+  formUpload: form upload
 status:
   pureLoad: Loading...
   pureMessage: Message

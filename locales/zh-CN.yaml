@@ -122,6 +122,7 @@ menus:
   gauge: 仪表盘
   sse: sse
   line: 折线图
+  formUpload: 文件上传
 status:
   pureLoad: 加载中...
   pureMessage: 消息

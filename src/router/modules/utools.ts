@@ -12,6 +12,14 @@ export default {
   },
   children: [
     {
+      path: "/formUpload",
+      name: "FormUpload",
+      component: () => import("@/views/maint/database/upload.vue"),
+      meta: {
+        title: $t("menus.formUpload")
+      }
+    },
+    {
       path: "/line",
       name: "LineViewer",
       component: () => import("@/views/components/echarts/line.vue"),
