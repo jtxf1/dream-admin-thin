@@ -6,15 +6,12 @@ import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
 
 import Delete from "~icons/ep/delete";
-import EditPen from "~icons/ep/edit-pen";
 import Refresh from "~icons/ep/refresh";
-import AddFill from "~icons/ri/add-circle-line";
 import Search from "~icons/ep/search";
-import Copy from "~icons/ep/copy-document";
 
 defineOptions({
   // 定义组件的名称
-  name: "MntApp"
+  name: "MntDeployHistory"
 });
 const formRef = ref();
 const tableRef = ref();
@@ -27,7 +24,6 @@ const {
   pagination,
   onSearch,
   resetForm,
-  openDialog,
   handleDelete,
   handleSizeChange,
   handleCurrentChange,
@@ -45,15 +41,7 @@ const {
       :model="formQuery"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
     >
-      <el-form-item label="应用名称：" prop="name">
-        <el-input
-          v-model="formQuery.name"
-          placeholder="请输入应用名称"
-          clearable
-          class="!w-[200px]"
-        />
-      </el-form-item>
-      <el-form-item label="创建日期：" prop="createTime">
+      <el-form-item label="部署日期：" prop="deployDate">
         <datePicker v-model="formQuery.createTime" />
       </el-form-item>
       <el-form-item>
@@ -71,31 +59,12 @@ const {
       </el-form-item>
     </el-form>
 
-    <PureTableBar title="应用管理列表" :columns="columns" @refresh="onSearch">
+    <PureTableBar
+      title="部署备份管理列表"
+      :columns="columns"
+      @refresh="onSearch"
+    >
       <template #buttons>
-        <el-button
-          type="primary"
-          :icon="useRenderIcon(Copy)"
-          :disabled="multipleSelection.length !== 1"
-          @click="openDialog('复制', multipleSelection[0])"
-        >
-          复制
-        </el-button>
-        <el-button
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openDialog()"
-        >
-          新增
-        </el-button>
-        <el-button
-          type="success"
-          :disabled="multipleSelection.length !== 1"
-          :icon="useRenderIcon(EditPen)"
-          @click="openDialog('编辑', multipleSelection[0])"
-        >
-          编辑
-        </el-button>
         <el-button
           type="danger"
           :disabled="multipleSelection.length <= 0"
@@ -138,18 +107,8 @@ const {
           @page-current-change="handleCurrentChange"
         >
           <template #operation="{ row }">
-            <el-button
-              class="reset-margin"
-              link
-              type="primary"
-              :size="size"
-              :icon="useRenderIcon(EditPen)"
-              @click="openDialog('编辑', row)"
-            >
-              编辑
-            </el-button>
             <el-popconfirm
-              :title="`是否确认删除应用管理名称为${row.name}的这条数据`"
+              :title="`是否确认删除部署备份管理名称为${row.name}的这条数据`"
               @confirm="handleDelete(row)"
             >
               <template #reference>

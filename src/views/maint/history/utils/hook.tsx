@@ -1,8 +1,6 @@
-import editForm from "../form.vue";
 import { message } from "@/utils/message";
-import { addDialog } from "@/components/ReDialog";
-import { reactive, ref, onMounted, h } from "vue";
-import type { FormItemProps, FormQuery } from "./types.ts";
+import { reactive, ref, onMounted } from "vue";
+import type { FormItemProps, FormQuery } from "./types";
 import { ElMessageBox } from "element-plus";
 import { PageQuery } from "@/utils/http/ApiAbstract";
 import { CRUD, pagination } from "@/api/utils";
@@ -11,19 +9,13 @@ export function useDept() {
   //查询条件
   const formQuery = reactive<FormQuery>(new PageQuery());
   /** 请求URL */
-  const crudURL = "app";
-  /** 新增编辑内容渲染 */
-  const formRef = ref();
+  const crudURL = "deployHistory";
   /** 表格数据 */
   const dataList = reactive([]);
   /** 表格加载状态 */
   const loading = ref(true);
   /** 多选选中的数据 */
   const multipleSelection = ref([]);
-  /** 表格索引 */
-  const indexMethod = (index: number) => {
-    return index + 1 + (pagination.currentPage - 1) * pagination.pageSize;
-  };
   /**
    * 定义表头和数据格式
    */
@@ -32,37 +24,23 @@ export function useDept() {
       type: "selection"
     },
     {
-      type: "index",
-      index: indexMethod
-    },
-    {
       label: "应用名称",
-      prop: "name",
+      prop: "appName",
       minWidth: 70
     },
     {
-      label: "应用端口",
-      prop: "port",
+      label: "服务器IP",
+      prop: "ip",
       minWidth: 70
     },
     {
-      label: "上传目录",
-      prop: "uploadPath",
+      label: "部署用户",
+      prop: "deployUser",
       minWidth: 70
     },
     {
-      label: "部署路径",
-      prop: "deployPath",
-      minWidth: 70
-    },
-    {
-      label: "备份路径",
-      prop: "backupPath",
-      minWidth: 70
-    },
-    {
-      label: "创建日期",
-      prop: "createTime",
+      label: "部署日期",
+      prop: "deployDate",
       minWidth: 70
     },
     {
@@ -97,63 +75,6 @@ export function useDept() {
       .finally(() => (loading.value = false));
   }
   /**
-   * 新增修改函数
-   * @param title 标题
-   * @param row 数据
-   */
-  function openDialog(title = "新增", row?: FormItemProps) {
-    const formInline = {
-      id: title == "复制" ? null : row?.id,
-      version: title == "复制" ? null : row?.version,
-      name: title == "复制" ? null : row?.name,
-      uploadPath: row?.uploadPath,
-      deployPath: row?.deployPath,
-      backupPath: row?.backupPath,
-      port: row?.port,
-      startScript: title == "复制" ? null : row?.startScript,
-      deployScript: title == "复制" ? null : row?.deployScript
-    };
-    addDialog({
-      title: `${title}应用管理`,
-      props: {
-        formInline: formInline
-      },
-      width: "40%",
-      draggable: true,
-      fullscreenIcon: true,
-      closeOnClickModal: false,
-      popconfirm: { title: `是否确认${title}当前数据` },
-      contentRenderer: () =>
-        h(editForm, { ref: formRef, formInline: formInline }),
-      beforeSure: (done, { options }) => {
-        const FormRef = formRef.value.getRef();
-        const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了应用管理名称为${curData.name}的这条数据`, {
-            type: "success"
-          });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
-          if (valid) {
-            // 表单规则校验通过
-            if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post<FormItemProps, FormItemProps>(crudURL, {
-                data: curData
-              }).then(() => chores());
-            } else if (title === "编辑") {
-              CRUD.put<FormItemProps, FormItemProps>(crudURL, {
-                data: curData
-              }).then(() => chores());
-            }
-          }
-        });
-      }
-    });
-  }
-  /**
    * 删除函数
    * @param row 删除的数据
    */
@@ -161,7 +82,7 @@ export function useDept() {
     CRUD.delete(crudURL, {
       data: [row.id]
     }).then(() => {
-      message(`您删除了应用管理名称为${row.name}的这条数据`, {
+      message(`您删除了部署备份管理名称为${row.name}的这条数据`, {
         type: "success"
       });
       onSearch();
@@ -170,7 +91,7 @@ export function useDept() {
 
   async function deleteAll() {
     ElMessageBox.confirm(
-      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个应用管理吗?`,
+      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个部署备份管理吗?`,
       "系统提示",
       {
         confirmButtonText: "确定",
@@ -183,7 +104,7 @@ export function useDept() {
       CRUD.delete(crudURL, {
         data: multipleSelection.value.map(dept => dept.id)
       }).then(() => {
-        message("已删除所选的应用管理", {
+        message("已删除所选的部署备份管理", {
           type: "success"
         });
         onSearch();
@@ -217,6 +138,7 @@ export function useDept() {
     formQuery.page = pagination.currentPage - 1;
     onSearch();
   }
+
   /**
    * 多选
    * @param val 选中的数据
@@ -240,8 +162,6 @@ export function useDept() {
     onSearch,
     /** 重置 */
     resetForm,
-    /** 新增、编辑岗位 */
-    openDialog,
     /** 删除岗位 */
     handleDelete,
     /** 分页大小 */
@@ -252,7 +172,6 @@ export function useDept() {
     handleSelectionChange,
     /** 删除 */
     deleteAll,
-    /** 导出 */
     exportClick
   };
 }
