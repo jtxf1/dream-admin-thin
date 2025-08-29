@@ -37,6 +37,7 @@ const {
       :inline="true"
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
+      @submit.prevent
     >
       <el-form-item label="表名" prop="name">
         <el-input

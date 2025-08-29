@@ -25,6 +25,7 @@ import { userKey, type DataInfo } from "@/utils/auth";
 import { type menuType, routerArrays } from "@/layout/types";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
+import { useUserStoreHook } from "@/store/modules/user";
 const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
@@ -199,7 +200,7 @@ function handleAsyncRoutes(routeList) {
 function initRouter() {
   if (getConfig()?.CachingAsyncRoutes) {
     // 开启动态路由缓存本地localStorage
-    const key = "async-routes";
+    /* const key = "async-routes";
     const asyncRouteList = storageLocal().getItem(key) as any;
     if (asyncRouteList && asyncRouteList?.length > 0) {
       return new Promise(resolve => {
@@ -208,19 +209,28 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({ data }) => {
-          Menu.menusBuild()
-            .then(re => {
-              data.push(...re.data);
-              handleAsyncRoutes(cloneDeep(data));
-              storageLocal().setItem(key, data);
-            })
-            .finally(() => {
-              resolve(router);
-            });
-        });
+        Menu.menusBuild()
+          .then(re => {
+            handleAsyncRoutes(cloneDeep(re.data));
+            storageLocal().setItem(key, re.data);
+          })
+          .finally(() => {
+            resolve(router);
+          });
       });
-    }
+    } */
+    return new Promise(resolve => {
+      Menu.menusBuild()
+        .then(re => {
+          handleAsyncRoutes(cloneDeep(re.data));
+        })
+        .catch(() => {
+          useUserStoreHook().logOut();
+        })
+        .finally(() => {
+          resolve(router);
+        });
+    });
   } else {
     return new Promise(resolve => {
       getAsyncRoutes().then(({ data }) => {
