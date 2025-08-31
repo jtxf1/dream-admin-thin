@@ -1,4 +1,5 @@
 import editForm from "../form.vue";
+import upload from "../upload.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -213,6 +214,80 @@ export function useDept() {
   const handleSelectionChange = val => {
     multipleSelection.value = val;
   };
+  /**
+   * 状态查询
+   * @param row 要查询的数据
+   */
+  function serverStatus(row) {
+    CRUD.post(crudURL + "/serverStatus", {
+      data: row
+    })
+      .then(req => {
+        message(`${row?.app?.name}的状态:${req?.data}`, {
+          type: "success"
+        });
+      })
+      .catch(() => {
+        message(`查询${row?.app?.name}的状态失败!`, {
+          type: "error"
+        });
+      });
+  }
+  /**
+   * 启动
+   * @param row 要启动的数据
+   */
+  function startServer(row) {
+    CRUD.post(crudURL + "/startServer", {
+      data: row
+    })
+      .then(() => {
+        message(`启动${row?.app?.name}成功`, {
+          type: "success"
+        });
+      })
+      .catch(req => {
+        message(`启动${row?.app?.name}失败!${req?.data}`, {
+          type: "error"
+        });
+      });
+  }
+  /**
+   * 停止
+   * @param row 要停止的数据
+   */
+  function stopServer(row) {
+    CRUD.post(crudURL + "/stopServer", {
+      data: row
+    })
+      .then(() => {
+        message(`停止${row?.app?.name}成功`, {
+          type: "success"
+        });
+      })
+      .catch(req => {
+        message(`停止${row?.app?.name}失败!${req?.data}`, {
+          type: "error"
+        });
+      });
+  }
+
+  function formUpload(title = "执行脚本", row?: FormItemProps) {
+    const formInline = {
+      id: row?.id
+    };
+    addDialog({
+      title: `${title}`,
+      props: {
+        formInline: formInline
+      },
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      hideFooter: true,
+      contentRenderer: () => h(upload, { ref: formRef, formInline: formInline })
+    });
+  }
   /** 页面初始化完成执行的函数 */
   onMounted(() => {
     onSearch();
@@ -250,6 +325,10 @@ export function useDept() {
     /** 删除 */
     deleteAll,
     /** 导出 */
-    exportClick
+    exportClick,
+    serverStatus,
+    startServer,
+    stopServer,
+    formUpload
   };
 }

@@ -11,7 +11,7 @@ import UploadIcon from "~icons/ri/upload-2-line?width=26&height=26";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    id: ""
+    id: 0
   })
 });
 const ruleFormRef = ref();
@@ -89,7 +89,7 @@ defineExpose({ getRef });
         </div>
       </el-upload>
       <el-alert
-        title="上传后，系统会自动执行SQL脚本"
+        title="多个应用上传文件名称为all.zip,数据库更新脚本扩展名为.sql,上传成功后系统自动部署系统。"
         type="info"
         effect="dark"
         :closable="false"

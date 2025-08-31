@@ -10,6 +10,9 @@ import EditPen from "~icons/ep/edit-pen";
 import Refresh from "~icons/ep/refresh";
 import AddFill from "~icons/ri/add-circle-line";
 import Search from "~icons/ep/search";
+import Restart from "~icons/ri/restart-fill";
+import Running from "~icons/fa-solid/running";
+import Stop from "~icons/ri/stop-circle-line";
 
 defineOptions({
   // 定义组件的名称
@@ -32,7 +35,11 @@ const {
   handleCurrentChange,
   handleSelectionChange,
   deleteAll,
-  exportClick
+  exportClick,
+  serverStatus,
+  startServer,
+  stopServer,
+  formUpload
 } = useDept();
 </script>
 
@@ -101,6 +108,38 @@ const {
           @click="exportClick()"
         >
           导出
+        </el-button>
+        <el-button
+          type="primary"
+          :disabled="multipleSelection.length <= 0"
+          :icon="useRenderIcon(Restart)"
+          @click="serverStatus(multipleSelection[0])"
+        >
+          状态查询
+        </el-button>
+        <el-button
+          type="success"
+          :disabled="multipleSelection.length <= 0"
+          :icon="useRenderIcon(Running)"
+          @click="startServer(multipleSelection[0])"
+        >
+          启动
+        </el-button>
+        <el-button
+          type="danger"
+          :disabled="multipleSelection.length <= 0"
+          :icon="useRenderIcon(Stop)"
+          @click="stopServer(multipleSelection[0])"
+        >
+          停止
+        </el-button>
+        <el-button
+          type="warning"
+          :icon="useRenderIcon('solar:upload-bold')"
+          :disabled="multipleSelection.length !== 1"
+          @click="formUpload('一件部署', multipleSelection[0])"
+        >
+          一件部署
         </el-button>
       </template>
       <template v-slot="{ size, dynamicColumns }">

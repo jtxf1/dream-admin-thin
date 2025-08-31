@@ -3,10 +3,10 @@ import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 import { baseUrlApi } from "../utils";
 
 /** 文件上传 */
-export const formUpload = data => {
+export const formUpload = (data, url) => {
   return http.request<ApiAbstract>(
     "post",
-    baseUrlApi("database/upload"),
+    baseUrlApi(url),
     { data },
     {
       headers: {
