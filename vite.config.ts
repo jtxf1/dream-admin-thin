@@ -49,6 +49,12 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/avatar/, "")
         },
+        "/file": {
+          // 这里填写后端地址
+          target: VITE_APP_BASE_API + "file",
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/file/, "")
+        },
         "/hello": {
           // 这里填写后端地址
           target: "https://free.picui.cn",
