@@ -132,8 +132,6 @@ watch(
 
 // 组件挂载后启动定时器
 onMounted(() => {
-  console.log("组件已挂载");
-
   const data = getToken();
   // 连接 SSE 服务端
   eventSource = new EventSource(
@@ -143,14 +141,13 @@ onMounted(() => {
 
   // 默认的 message 事件
   eventSource.onmessage = (e: MessageEvent) => {
-    console.log("message:", e);
-
     try {
       const data: Monitor = JSON.parse(e.data); // 如果后端传 JSON，就解析
-      gaugeData.value[0].value = data?.cpu?.used;
-      gaugeData.value[1].value = data?.memory?.used.replace(/\s*GiB\s*$/, "");
-      gaugeData.value[2].value = data?.swap?.usageRate;
-      console.log(`[message] ${data} (${data})`);
+      gaugeData.value[0].value = Number(data?.cpu?.used);
+      gaugeData.value[1].value = Number(
+        data?.memory?.used.replace(/\s*GiB\s*$/, "")
+      );
+      gaugeData.value[2].value = Number(data?.swap?.usageRate);
     } catch {
       console.log(`[raw] ${e.data}`);
     }
@@ -160,7 +157,6 @@ onMounted(() => {
   eventSource.addEventListener("error", e => {
     eventSource.close();
     eventSource = null;
-    console.log("[error] 连接或消息错误", e.type);
   });
   intervalId = window.setInterval(() => {
     /* getMonitor().then(response => {
@@ -176,7 +172,6 @@ onMounted(() => {
 
 // 组件卸载前清理定时器
 onBeforeUnmount(() => {
-  console.log("组件即将卸载");
   if (intervalId !== null) {
     clearInterval(intervalId);
   }

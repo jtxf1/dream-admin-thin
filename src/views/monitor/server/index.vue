@@ -81,7 +81,6 @@ onMounted(() => {
   eventSource.addEventListener("error", e => {
     eventSource.close();
     eventSource = null;
-    console.log("[error] 连接或消息错误", e.type);
   });
 });
 
