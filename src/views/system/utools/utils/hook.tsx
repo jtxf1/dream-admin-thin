@@ -1,4 +1,5 @@
 import editForm from "../form.vue";
+import upload from "../upload.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -73,12 +74,6 @@ export function useDept() {
       label: "创建日期",
       prop: "createTime",
       minWidth: 70
-    },
-    {
-      label: "操作",
-      fixed: "right",
-      width: 160,
-      slot: "operation"
     }
   ];
   /**
@@ -159,6 +154,22 @@ export function useDept() {
           }
         });
       }
+    });
+  }
+  function formUpload(title = "上传文件", row?: FormItemProps) {
+    const formInline = {
+      id: row?.id
+    };
+    addDialog({
+      title: `${title}`,
+      props: {
+        formInline: formInline
+      },
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      hideFooter: true,
+      contentRenderer: () => h(upload, { ref: null, formInline: formInline })
     });
   }
   /**
@@ -262,6 +273,7 @@ export function useDept() {
     /** 删除 */
     deleteAll,
     /** 导出 */
-    exportClick
+    exportClick,
+    formUpload
   };
 }

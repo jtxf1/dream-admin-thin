@@ -8,7 +8,7 @@ import datePicker from "@/views/components/date-picker.vue";
 import Delete from "~icons/ep/delete";
 import EditPen from "~icons/ep/edit-pen";
 import Refresh from "~icons/ep/refresh";
-import AddFill from "~icons/ri/add-circle-line";
+import Upload from "~icons/ep/upload-filled";
 import Search from "~icons/ep/search";
 
 defineOptions({
@@ -32,7 +32,8 @@ const {
   handleCurrentChange,
   handleSelectionChange,
   deleteAll,
-  exportClick
+  exportClick,
+  formUpload
 } = useDept();
 </script>
 
@@ -66,10 +67,10 @@ const {
       <template #buttons>
         <el-button
           type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openDialog()"
+          :icon="useRenderIcon(Upload)"
+          @click="formUpload()"
         >
-          新增
+          上传
         </el-button>
         <el-button
           type="success"
@@ -122,6 +123,7 @@ const {
         >
           <template #image="{ row, index }">
             <el-image
+              v-if="row?.type === '图像'"
               preview-teleported
               loading="lazy"
               :src="row.path"
@@ -130,34 +132,10 @@ const {
               fit="cover"
               class="w-[100px] h-[100px]"
             />
-          </template>
-          <template #operation="{ row }">
-            <el-button
-              class="reset-margin"
-              link
-              type="primary"
-              :size="size"
-              :icon="useRenderIcon(EditPen)"
-              @click="openDialog('编辑', row)"
-            >
-              编辑
-            </el-button>
-            <el-popconfirm
-              :title="`是否确认删除本地存储名称为${row.name}的这条数据`"
-              @confirm="handleDelete(row)"
-            >
-              <template #reference>
-                <el-button
-                  class="reset-margin"
-                  link
-                  type="danger"
-                  :size="size"
-                  :icon="useRenderIcon(Delete)"
-                >
-                  删除
-                </el-button>
-              </template>
-            </el-popconfirm>
+            <el-avatar
+              v-if="row?.type !== '图像'"
+              :icon="useRenderIcon('ep:files')"
+            />
           </template>
         </pure-table>
       </template>
