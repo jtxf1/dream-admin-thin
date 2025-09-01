@@ -5,7 +5,7 @@ import { ElMessageBox } from "element-plus";
 import { PageQuery } from "@/utils/http/ApiAbstract";
 import { CRUD, pagination } from "@/api/utils";
 
-export function useDept() {
+export function useDept(formInline) {
   //查询条件
   const formQuery = reactive<FormQuery>(new PageQuery());
   /** 请求URL */
@@ -21,7 +21,8 @@ export function useDept() {
    */
   const columns: TableColumnList = [
     {
-      type: "selection"
+      type: "selection",
+      hide: formInline?.id !== null && formInline?.id !== ""
     },
     {
       label: "应用名称",
@@ -47,7 +48,8 @@ export function useDept() {
       label: "操作",
       fixed: "right",
       width: 160,
-      slot: "operation"
+      slot: "operation",
+      hide: formInline?.id !== null && formInline?.id !== ""
     }
   ];
   /**

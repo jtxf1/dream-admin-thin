@@ -1,5 +1,6 @@
 import editForm from "../form.vue";
 import upload from "../upload.vue";
+import history from "../../history/index.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { reactive, ref, onMounted, h } from "vue";
@@ -139,6 +140,60 @@ export function useDept() {
             }
           }
         });
+      }
+    });
+  }
+  /**
+   * 系统还原
+   * @param title 标题
+   * @param row 数据
+   */
+  function serverReduction(title = "系统还原", row?: FormItemProps) {
+    const formInline = {
+      id: row?.id + ""
+    };
+    addDialog({
+      title: `${title}`,
+      props: {
+        formInline: formInline
+      },
+      width: "40%",
+      draggable: true,
+      fullscreenIcon: true,
+      closeOnClickModal: false,
+      popconfirm: { title: `是否确认${title}当前数据` },
+      contentRenderer: () =>
+        h(history, { ref: formRef, formInline: formInline }),
+      beforeSure: (done, { options }) => {
+        const FormRef = formRef.value.getRef();
+        const curData = options.props.formInline as FormItemProps;
+        if (
+          FormRef === null ||
+          FormRef === undefined ||
+          FormRef?.id === null ||
+          FormRef?.id === undefined
+        ) {
+          message(`请选择数据`, {
+            type: "error"
+          });
+        } else {
+          function chores() {
+            message(
+              `您${title}了部署管理名称为${curData?.app?.name}的这条数据`,
+              {
+                type: "success"
+              }
+            );
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
+          }
+          CRUD.post<FormItemProps, FormItemProps>(
+            crudURL + "/serverReduction",
+            {
+              data: FormRef
+            }
+          ).then(() => chores());
+        }
       }
     });
   }
@@ -329,6 +384,7 @@ export function useDept() {
     serverStatus,
     startServer,
     stopServer,
-    formUpload
+    formUpload,
+    serverReduction
   };
 }

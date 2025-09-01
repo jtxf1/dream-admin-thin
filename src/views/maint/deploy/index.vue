@@ -39,7 +39,8 @@ const {
   serverStatus,
   startServer,
   stopServer,
-  formUpload
+  formUpload,
+  serverReduction
 } = useDept();
 </script>
 
@@ -108,6 +109,14 @@ const {
           @click="exportClick()"
         >
           导出
+        </el-button>
+        <el-button
+          type="success"
+          :disabled="multipleSelection.length !== 1"
+          :icon="useRenderIcon(EditPen)"
+          @click="serverReduction('系统还原', multipleSelection[0])"
+        >
+          系统还原
         </el-button>
         <el-button
           type="primary"

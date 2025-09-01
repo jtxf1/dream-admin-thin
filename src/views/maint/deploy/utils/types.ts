@@ -10,6 +10,7 @@ interface FormItemProps extends BaseEntity {
   appList?: App[];
   appId?: number;
   deployIds?: number[];
+  row?: any;
 }
 interface FormProps {
   formInline: FormItemProps;

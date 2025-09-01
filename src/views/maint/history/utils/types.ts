@@ -7,9 +7,10 @@ interface FormItemProps extends BaseEntity {
   deployUser?: string; //部署用户
   ip?: string; //服务器IP
   deployId?: number; //部署编号
+  row?: any;
 }
 interface FormProps {
-  formInline: FormItemProps;
+  formInline?: FormItemProps;
 }
 interface FormQuery extends PageQuery {
   //配置了搜索的数组

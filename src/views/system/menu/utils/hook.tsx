@@ -197,10 +197,10 @@ export function useMenu() {
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
-              add(curData).finally(() => chores());
+              add(replaceEmptyStrings(curData)).finally(() => chores());
             } else {
               // 实际开发先调用修改接口，再进行下面操作
-              edit(curData).finally(() => chores());
+              edit(replaceEmptyStrings(curData)).finally(() => chores());
             }
           }
         });
@@ -215,6 +215,40 @@ export function useMenu() {
       });
       onSearch();
     });
+  }
+  /**
+   * 遍历对象的所有属性，将值为空字符串的属性替换为null。
+   * @param curData 输入的对象
+   * @returns 处理后的对象
+   */
+  function replaceEmptyStrings(
+    curData: Record<string, any>
+  ): Record<string, any> {
+    // 检查curData是否为对象且非空
+    if (
+      curData === null ||
+      curData === undefined ||
+      typeof curData !== "object" ||
+      Array.isArray(curData)
+    ) {
+      // 如果不是对象或为null/undefined，直接返回原值
+      return curData;
+    }
+
+    // 使用Object.keys()获取对象的所有键
+    const keys = Object.keys(curData);
+
+    // 使用for...of循环遍历键
+    for (const key of keys) {
+      // 检查属性值是否为空字符串
+      if (curData[key] === "") {
+        // 如果是空字符串，则修改为null
+        curData[key] = null;
+      }
+    }
+
+    // 返回处理后的对象
+    return curData;
   }
   const exportClick = async () => {
     const response: Blob = await download(form);

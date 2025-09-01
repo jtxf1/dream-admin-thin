@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useDept } from "./utils/hook";
+import type { FormProps } from "./utils/types";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
@@ -9,12 +10,20 @@ import Delete from "~icons/ep/delete";
 import Refresh from "~icons/ep/refresh";
 import Search from "~icons/ep/search";
 
+const props = withDefaults(defineProps<FormProps>(), {
+  formInline: () => ({
+    id: ""
+  })
+});
+
 defineOptions({
   // 定义组件的名称
   name: "MntDeployHistory"
 });
 const formRef = ref();
 const tableRef = ref();
+const rowRef = ref();
+const newFormInline = ref(props.formInline);
 const {
   formQuery,
   loading,
@@ -30,7 +39,15 @@ const {
   handleSelectionChange,
   deleteAll,
   exportClick
-} = useDept();
+} = useDept(newFormInline);
+
+const handleCurrentChange2 = (row?: any) => {
+  rowRef.value = row;
+};
+function getRef() {
+  return rowRef.value;
+}
+defineExpose({ getRef });
 </script>
 
 <template>
@@ -65,21 +82,23 @@ const {
       @refresh="onSearch"
     >
       <template #buttons>
-        <el-button
-          type="danger"
-          :disabled="multipleSelection.length <= 0"
-          :icon="useRenderIcon(Delete)"
-          @click="deleteAll()"
-        >
-          删除
-        </el-button>
-        <el-button
-          type="warning"
-          :icon="useRenderIcon('solar:upload-bold')"
-          @click="exportClick()"
-        >
-          导出
-        </el-button>
+        <div v-if="formInline?.id === null || formInline?.id === ''">
+          <el-button
+            type="danger"
+            :disabled="multipleSelection.length <= 0"
+            :icon="useRenderIcon(Delete)"
+            @click="deleteAll()"
+          >
+            删除
+          </el-button>
+          <el-button
+            type="warning"
+            :icon="useRenderIcon('solar:upload-bold')"
+            @click="exportClick()"
+          >
+            导出
+          </el-button>
+        </div>
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
@@ -102,9 +121,11 @@ const {
             background: 'var(--el-fill-color-light)',
             color: 'var(--el-text-color-primary)'
           }"
+          highlight-current-row
           @selection-change="handleSelectionChange"
           @page-size-change="handleSizeChange"
           @page-current-change="handleCurrentChange"
+          @current-change="handleCurrentChange2"
         >
           <template #operation="{ row }">
             <el-popconfirm
