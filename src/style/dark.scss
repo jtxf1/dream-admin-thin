@@ -30,6 +30,11 @@ html.dark {
     background: #020409 !important;
   }
 
+  .logic-flow-view,
+  .wangeditor {
+    filter: invert(0.9) hue-rotate(180deg);
+  }
+
   /* 标签页 */
   .tags-view {
     .arrow-left,
