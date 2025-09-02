@@ -12,6 +12,14 @@ export default {
   },
   children: [
     {
+      path: "/editor/index",
+      name: "editor",
+      component: () => import("@/views/components/editor/index.vue"),
+      meta: {
+        title: $t("menus.editor")
+      }
+    },
+    {
       path: "/formUpload",
       name: "FormUpload",
       component: () => import("@/views/maint/database/upload.vue"),
@@ -36,11 +44,11 @@ export default {
       }
     },
     {
-      path: "/editor/index",
-      name: "editor",
+      path: "/editorCode/index",
+      name: "editorCode",
       component: () => import("@/views/editor/index.vue"),
       meta: {
-        title: $t("menus.editor")
+        title: $t("menus.editorCode")
       }
     },
     {

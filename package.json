@@ -58,6 +58,8 @@
     "@pureadmin/utils": "latest",
     "@vueuse/core": "latest",
     "@vueuse/motion": "latest",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
     "@zxcvbn-ts/core": "latest",
     "animate.css": "latest",
     "axios": "latest",
