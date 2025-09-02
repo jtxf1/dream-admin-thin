@@ -12,8 +12,8 @@ export default {
   },
   children: [
     {
-      path: "/editor/index",
-      name: "editor",
+      path: "/editor1/index",
+      name: "editor1",
       component: () => import("@/views/components/editor/index.vue"),
       meta: {
         title: $t("menus.editor")

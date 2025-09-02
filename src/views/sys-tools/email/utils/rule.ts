@@ -9,5 +9,8 @@ export const formRules = reactive(<FormRules>{
   host: [{ required: true, message: "SMTP地址为必填项", trigger: "blur" }],
   pass: [{ required: true, message: "邮箱密码为必填项", trigger: "blur" }],
   port: [{ required: true, message: "SMTP端口为必填项", trigger: "blur" }],
-  user: [{ required: true, message: "发件用户名为必填项", trigger: "blur" }]
+  user: [{ required: true, message: "发件用户名为必填项", trigger: "blur" }],
+  subject: [{ required: true, message: "邮件标题为必填项", trigger: "blur" }],
+  tos: [{ required: true, message: "收件地址为必填项", trigger: "blur" }],
+  content: [{ required: true, message: "邮件内容为必填项", trigger: "blur" }]
 });

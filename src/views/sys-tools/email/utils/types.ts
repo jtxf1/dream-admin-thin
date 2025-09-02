@@ -5,6 +5,9 @@ interface FormItemProps {
   pass?: string;
   port?: string;
   user?: string;
+  content?: string;
+  subject?: string;
+  tos?: string;
 }
 interface FormProps {
   formInline: FormItemProps;

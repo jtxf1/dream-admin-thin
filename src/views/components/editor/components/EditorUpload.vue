@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, shallowRef } from "vue";
+import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import "@wangeditor/editor/dist/css/style.css";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 
 defineOptions({
   name: "picUpload"
 });
-
+// 定义一个自定义事件，用于向父组件传递编辑器内容
+const emit = defineEmits<{
+  (e: "update:content", value: string): void;
+}>();
 const mode = "default";
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
@@ -42,6 +45,16 @@ const handleCreated = editor => {
   // 记录 editor 实例，重要！
   editorRef.value = editor;
 };
+
+// 监听编辑器内容变化，实时传递给父组件
+watch(
+  valueHtml,
+  newValue => {
+    // 触发自定义事件，将最新内容传递给父组件
+    emit("update:content", newValue);
+  },
+  { immediate: true }
+); // immediate: true 表示初始化时就触发一次
 
 // 组件销毁时，也及时销毁编辑器
 onBeforeUnmount(() => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDept } from "./utils/hook";
 import Form from "./form.vue";
+import Send from "./send.vue";
 
 import Setting from "~icons/ep/setting";
 import Mail from "~icons/ri/mail-send-line";
@@ -36,7 +37,7 @@ const { formData, loading } = useDept();
             >
           </span>
         </template>
-        发送邮件
+        <Send :formInline="formData" />
       </el-tab-pane>
       <el-tab-pane>
         <template #label>
