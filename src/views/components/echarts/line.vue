@@ -3,113 +3,138 @@ import dayjs from "dayjs";
 import { ref, computed, watch } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
 
-// 兼容dark主题
+/**
+ * 系统监控折线图组件
+ * 显示 CPU 和内存使用情况的变化趋势
+ */
+defineOptions({
+  name: "LineChart"
+});
+
+// --- 兼容dark主题 ---
 const { isDark } = useDark();
-let theme = computed(() => {
+const theme = computed(() => {
   return isDark.value ? "dark" : "default";
 });
 
-// 初始化ECharts
+// --- 初始化ECharts ---
 const chartRef = ref();
 const { setOptions } = useECharts(chartRef, { theme });
 
-// 定义props接收父组件传递的数据
-const allData = defineProps({
-  cpuData: {
-    type: Array,
-    required: false,
-    default: () => [10]
-  },
-  romData: {
-    type: Array,
-    required: false,
-    default: () => [10]
-  },
-  xData: {
-    type: Array as () => string[],
-    required: false,
-    default: () => [dayjs().format("HH:mm:ss")]
-  }
+// --- 定义props接收父组件传递的数据 ---
+interface Props {
+  /**
+   * CPU使用数据数组
+   */
+  cpuData?: number[];
+  /**
+   * 内存使用数据数组
+   */
+  romData?: number[];
+  /**
+   * X轴时间数据数组
+   */
+  xData?: string[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  cpuData: () => [10],
+  romData: () => [10],
+  xData: () => [dayjs().format("HH:mm:ss")]
 });
-// 根据配置项渲染ECharts
-setOptions({
-  title: {
-    text: "系统监控"
-  },
-  tooltip: {
-    trigger: "axis",
-    axisPointer: {
-      type: "shadow"
-    }
-  },
-  legend: {
-    left: "3%",
-    top: "3%",
-    data: ["CPU", "ROM"]
-  },
-  grid: {
-    left: "3%",
-    right: "4%",
-    bottom: "3%"
-  },
-  xAxis: {
-    type: "category",
-    boundaryGap: false,
-    data: allData.xData
-  },
-  yAxis: {
-    type: "value"
-  },
-  series: [
-    {
-      name: "ROM",
-      type: "line",
-      stack: "Total",
-      data: allData.romData
+
+/**
+ * 初始化图表配置
+ */
+const initChartOptions = () => {
+  setOptions({
+    title: {
+      text: "系统监控"
     },
-    {
-      name: "CPU",
-      data: allData.cpuData,
-      type: "line",
-      stack: "Total",
-      symbol: "triangle",
-      symbolSize: 20,
-      lineStyle: {
-        color: "#5470C6",
-        width: 4,
-        type: "dashed"
-      },
-      itemStyle: {
-        borderWidth: 3,
-        borderColor: "#EE6666",
-        color: "yellow"
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "shadow"
       }
-    }
-  ]
-});
-// --- 监听 gaugeData 变化 ---
+    },
+    legend: {
+      left: "3%",
+      top: "3%",
+      data: ["CPU", "ROM"]
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true
+    },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: props.xData
+    },
+    yAxis: {
+      type: "value",
+      name: "使用率 (%)"
+    },
+    series: [
+      {
+        name: "内存",
+        type: "line",
+        stack: "Total",
+        data: props.romData,
+        smooth: true,
+        lineStyle: {
+          width: 2
+        }
+      },
+      {
+        name: "CPU",
+        data: props.cpuData,
+        type: "line",
+        stack: "Total",
+        symbol: "triangle",
+        symbolSize: 20,
+        lineStyle: {
+          color: "#5470C6",
+          width: 4,
+          type: "dashed"
+        },
+        itemStyle: {
+          borderWidth: 3,
+          borderColor: "#EE6666",
+          color: "yellow"
+        }
+      }
+    ]
+  });
+};
+
+// 初始化图表
+initChartOptions();
+
+// --- 监听数据变化 ---
 watch(
-  allData,
-  newGaugeData => {
-    // 当 gaugeData 内部任何值改变时，调用 setOptions 更新图表
+  props,
+  newProps => {
+    // 当数据变化时，调用 setOptions 更新图表
     setOptions({
       clear: false,
       xAxis: {
-        data: newGaugeData.xData
+        data: newProps.xData
       },
       series: [
         {
-          data: newGaugeData.romData
+          data: newProps.romData
         },
         {
-          data: newGaugeData.cpuData
+          data: newProps.cpuData
         }
       ]
     });
   },
   {
     deep: true // 必须启用深层监听
-    // immediate: true // 如果需要初始化时也更新一次图表（虽然初始时数据可能还没变）
   }
 );
 </script>
