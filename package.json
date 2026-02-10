@@ -106,6 +106,7 @@
     "@types/sortablejs": "latest",
     "@vitejs/plugin-vue": "latest",
     "@vitejs/plugin-vue-jsx": "latest",
+    "baseline-browser-mapping": "^2.9.19",
     "boxen": "latest",
     "code-inspector-plugin": "latest",
     "cssnano": "latest",

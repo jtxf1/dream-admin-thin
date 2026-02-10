@@ -1,58 +1,58 @@
 buttons:
-  userInfo: user info
-  hsfullscreen: FullScreen
-  hsexitfullscreen: ExitFullscreen
-  hsrefreshRoute: RefreshRoute
+  userInfo: User Info
+  hsfullscreen: Full Screen
+  hsexitfullscreen: Exit Full Screen
+  hsrefreshRoute: Refresh Route
   hsadd: Add
   hsmark: Mark/Cancel
   hssave: Save
   hssearch: Search
   hsexpendAll: Expand All
   hscollapseAll: Collapse All
-  hssystemSet: Open ProjectConfig
+  hssystemSet: Open Project Config
   hsdelete: Delete
   hsreload: Reload
-  hsDict: dict config
-  hsJobs: jobs config
-  hscloseCurrentTab: Close CurrentTab
-  hscloseLeftTabs: Close LeftTabs
-  hscloseRightTabs: Close RightTabs
-  hscloseOtherTabs: Close OtherTabs
-  hscloseAllTabs: Close AllTabs
-  hswholeFullScreen: FullScreen
-  hswholeExitFullScreen: ExitFull
-  hscontentFullScreen: Content FullScreen
-  hscontentExitFullScreen: Content ExitFullScreen
-  pureLoginOut: LoginOut
+  hsDict: Dict Config
+  hsJobs: Jobs Config
+  hscloseCurrentTab: Close Current Tab
+  hscloseLeftTabs: Close Left Tabs
+  hscloseRightTabs: Close Right Tabs
+  hscloseOtherTabs: Close Other Tabs
+  hscloseAllTabs: Close All Tabs
+  hswholeFullScreen: Full Screen
+  hswholeExitFullScreen: Exit Full Screen
+  hscontentFullScreen: Content Full Screen
+  hscontentExitFullScreen: Content Exit Full Screen
+  pureLoginOut: Logout
   pureLogin: Login
-  pureOpenSystemSet: Open System Configs
+  pureOpenSystemSet: Open System Config
   pureReload: Reload
-  pureCloseCurrentTab: Close CurrentTab
-  pureCloseLeftTabs: Close LeftTabs
-  pureCloseRightTabs: Close RightTabs
-  pureCloseOtherTabs: Close OtherTabs
-  pureCloseAllTabs: Close AllTabs
-  pureContentFullScreen: Content FullScreen
-  pureContentExitFullScreen: Content ExitFullScreen
-  pureClickCollapse: Collapse
-  pureClickExpand: Expand
+  pureCloseCurrentTab: Close Current Tab
+  pureCloseLeftTabs: Close Left Tabs
+  pureCloseRightTabs: Close Right Tabs
+  pureCloseOtherTabs: Close Other Tabs
+  pureCloseAllTabs: Close All Tabs
+  pureContentFullScreen: Content Full Screen
+  pureContentExitFullScreen: Content Exit Full Screen
+  pureClickCollapse: Click to Collapse
+  pureClickExpand: Click to Expand
   pureConfirm: Confirm
   pureSwitch: Switch
   pureClose: Close
-  pureBackTop: BackTop
-  pureOpenText: Open
-  pureCloseText: Close
+  pureBackTop: Back to Top
+  pureOpenText: On
+  pureCloseText: Off
 search:
   pureTotal: Total
-  pureHistory: History
+  pureHistory: Search History
   pureCollect: Collect
-  pureDragSort: （Drag Sort）
-  pureEmpty: Empty
-  purePlaceholder: Search Menu
+  pureDragSort: (Drag Sort)
+  pureEmpty: No Search Results
+  purePlaceholder: Search Menu (Support Pinyin Search)
 panel:
-  pureSystemSet: System Configs
-  pureCloseSystemSet: Close System Configs
-  pureClearCacheAndToLogin: Clear cache and return to login page
+  pureSystemSet: System Config
+  pureCloseSystemSet: Close Config
+  pureClearCacheAndToLogin: Clear Cache and Return to Login Page
   pureClearCache: Clear Cache
   pureOverallStyle: Overall Style
   pureOverallStyleLight: Light
@@ -63,15 +63,15 @@ panel:
   pureOverallStyleSystemTip: Synchronize time, the interface naturally responds to morning and dusk
   pureThemeColor: Theme Color
   pureLayoutModel: Layout Model
-  pureVerticalTip: The menu on the left is familiar and friendly
+  pureVerticalTip: Left menu, familiar and friendly
   pureHorizontalTip: Top menu, concise overview
-  pureMixTip: Mixed menu, flexible
-  pureStretch: Stretch Page
+  pureMixTip: Mixed menu, flexible and versatile
+  pureStretch: Page Width
   pureStretchFixed: Fixed
   pureStretchFixedTip: Compact pages make it easy to find the information you need
   pureStretchCustom: Custom
   pureStretchCustomTip: Minimum 1280, maximum 1600
-  pureTagsStyle: Tags Style
+  pureTagsStyle: Tab Style
   pureTagsStyleSmart: Smart
   pureTagsStyleSmartTip: Smart tags add fun and brilliance
   pureTagsStyleCard: Card
@@ -79,43 +79,107 @@ panel:
   pureTagsStyleChrome: Chrome
   pureTagsStyleChromeTip: Chrome style is classic and elegant
   pureInterfaceDisplay: Interface Display
-  pureGreyModel: Grey Model
-  pureWeakModel: Weak Model
-  pureHiddenTags: Hidden Tags
+  pureGreyModel: Grey Mode
+  pureWeakModel: Weak Mode
+  pureHiddenTags: Hidden Tabs
   pureHiddenFooter: Hidden Footer
-  pureMultiTagsCache: MultiTags Cache
+  pureMultiTagsCache: Tab Persistence
 menus:
+  hshome: Home
+  hsabnormal: Abnormal Page
+  hsfourZeroFour: "404"
+  hsfourZeroOne: "403"
+  hsFive: "500"
+  permission: Permission Management
+  permissionPage: Page Permission
+  permissionButton: Button Permission
+  hsAbout: About
+  hssysManagement: System Management
+  hsUser: User Management
+  hsRole: Role Management
+  hsSystemMenu: Menu Management
+  hsDept: Department Management
+  hsJob: Job Management
+  hsDict: Dictionary Management
+  hsJobs: Task Management
+  hssysMonitor: System Monitor
+  hsOnlineUser: Online Users
+  hsOperationLog: Operation Log
+  hsSystemLog: System Log
+  hsGenerator: Code Generator
+  pureSystemMenu: Menu Management
   pureHome: Home
+  pureLogin: Login
   pureAbnormal: Abnormal Page
   pureFourZeroFour: "404"
   pureFourZeroOne: "403"
   pureFive: "500"
-  purePermission: Permission Manage
+  purePermission: Permission Management
   purePermissionPage: Page Permission
   purePermissionButton: Button Permission
-  purePermissionButtonRouter: Route return button permission
-  purePermissionButtonLogin: Login interface return button permission
-  webUtools: web utools
-  editor: editor
-  editorCode: Code editor
-  gauge: gauge
-  sse: sse
-  line: line
-  formUpload: form upload
+  purePermissionButtonRouter: Route Return Button Permission
+  purePermissionButtonLogin: Login Interface Return Button Permission
+  webUtools: Web Tools
+  editor: Editor
+  editorCode: Code Editor
+  gauge: Gauge
+  sse: SSE
+  line: Line Chart
+  formUpload: File Upload
 status:
   pureLoad: Loading...
   pureMessage: Message
-  pureNotify: Notify
+  pureNotify: Notification
   pureTodo: Todo
-  pureNoMessage: No Message
-  pureNoNotify: No Notify
-  pureNoTodo: No Todo
+  pureNoMessage: No Messages
+  pureNoNotify: No Notifications
+  pureNoTodo: No Todos
 login:
+  username: Username
+  password: Password
+  verifyCode: Verification Code
+  remember: Remember Me for
+  rememberInfo: Check and login, no need to enter username and password within the specified days
+  sure: Confirm Password
+  forget: Forgot Password?
+  login: Login
+  thirdLogin: Third-party Login
+  phoneLogin: Phone Login
+  qRCodeLogin: QR Code Login
+  register: Register
+  weChatLogin: WeChat Login
+  alipayLogin: Alipay Login
+  qqLogin: QQ Login
+  weiboLogin: Weibo Login
+  phone: Phone Number
+  smsVerifyCode: SMS Verification Code
+  back: Back
+  test: Test
+  tip: Scan and click "Confirm" to complete login
+  definite: Confirm
+  loginSuccess: Login Successful
+  registerSuccess: Registration Successful
+  tickPrivacy: Please accept the Privacy Policy
+  readAccept: I have carefully read and accept the
+  privacyPolicy: "Privacy Policy"
+  getVerifyCode: Get Verification Code
+  info: Resend in seconds
+  usernameReg: Please enter username
+  passwordReg: Please enter password
+  verifyCodeReg: Please enter verification code
+  verifyCodeCorrectReg: Please enter correct verification code
+  verifyCodeSixReg: Please enter 6-digit verification code
+  phoneReg: Please enter phone number
+  phoneCorrectReg: Please enter correct phone number format
+  passwordRuleReg: Password format should be 5-12 digits, letters, or symbols in any combination of two
+  passwordSureReg: Please enter confirm password
+  passwordDifferentReg: Two passwords do not match!
+  passwordUpdateReg: Password changed successfully
   pureUsername: Username
   purePassword: Password
   pureLogin: Login
-  pureLoginSuccess: Login Success
-  pureLoginFail: Login Fail
+  pureLoginSuccess: Login Successful
+  pureLoginFail: Login Failed
   pureUsernameReg: Please enter username
   purePassWordReg: Please enter password
-  purePassWordRuleReg: The password format should be any combination of 8-18 digits
+  purePassWordRuleReg: Password format should be any combination of 8-18 digits, letters, or symbols

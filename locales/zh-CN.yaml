@@ -121,7 +121,7 @@ menus:
   editor: 编辑器
   editorCode: 代码编辑器
   gauge: 仪表盘
-  sse: sse
+  sse: SSE
   line: 折线图
   formUpload: 文件上传
 status:
@@ -139,7 +139,7 @@ login:
   remember: 天内免登录
   rememberInfo: 勾选并登录后，规定天数内无需输入用户名和密码会自动登入系统
   sure: 确认密码
-  forget: 忘记密码?
+  forget: 忘记密码？
   login: 登录
   thirdLogin: 第三方登录
   phoneLogin: 手机登录
@@ -171,7 +171,7 @@ login:
   phoneCorrectReg: 请输入正确的手机号码格式
   passwordRuleReg: 密码格式应为5-12位数字、字母、符号的任意两种组合
   passwordSureReg: 请输入确认密码
-  passwordDifferentReg: 两次密码不一致!
+  passwordDifferentReg: 两次密码不一致！
   passwordUpdateReg: 修改密码成功
 
   pureUsername: 账号
