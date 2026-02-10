@@ -3,116 +3,83 @@ import { isPhone } from "@pureadmin/utils";
 import type { FormRules } from "element-plus";
 import { $t, transformI18n } from "@/plugins/i18n";
 
-/** 6位数字验证码正则 */
 export const REGEXP_SIX = /^\d{6}$/;
-
-/** 密码正则（密码格式应为8-18位数字、字母、符号的任意两种组合） */
 export const REGEXP_PWD =
   /^[0-9a-zA-Z!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]{5,12}$/;
 
-/** 登录校验 */
+const createRequiredValidator = (messageKey: string) => ({
+  validator: (_rule: any, value: string, callback: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t(messageKey))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
+const createPhoneValidator = () => ({
+  validator: (_rule: any, value: string, callback: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t("login.phoneReg"))));
+    } else if (!isPhone(value)) {
+      callback(new Error(transformI18n($t("login.phoneCorrectReg"))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
+const createPasswordValidator = (
+  emptyMessageKey: string,
+  ruleMessageKey: string
+) => ({
+  validator: (_rule: any, value: string, callback: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t(emptyMessageKey))));
+    } else if (!REGEXP_PWD.test(value)) {
+      callback(new Error(transformI18n($t(ruleMessageKey))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
+const createVerifyCodeValidator = (requireSix = false) => ({
+  validator: (_rule: any, value: string, callback: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t("login.verifyCodeReg"))));
+    } else if (requireSix && !REGEXP_SIX.test(value)) {
+      callback(new Error(transformI18n($t("login.verifyCodeSixReg"))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
 const loginRules = reactive<FormRules>({
   password: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.passwordReg"))));
-        } else if (!REGEXP_PWD.test(value)) {
-          callback(new Error(transformI18n($t("login.passwordRuleReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
+    createPasswordValidator("login.passwordReg", "login.passwordRuleReg")
   ],
-  verifyCode: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.verifyCodeReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ]
+  verifyCode: [createRequiredValidator("login.verifyCodeReg")]
 });
 
-/** 手机登录校验 */
 const phoneRules = reactive<FormRules>({
-  phone: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.phoneReg"))));
-        } else if (!isPhone(value)) {
-          callback(new Error(transformI18n($t("login.phoneCorrectReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ],
-  verifyCode: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.verifyCodeReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ]
+  phone: [createPhoneValidator()],
+  verifyCode: [createRequiredValidator("login.verifyCodeReg")]
 });
 
-/** 忘记密码校验 */
 const updateRules = reactive<FormRules>({
-  phone: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.phoneReg"))));
-        } else if (!isPhone(value)) {
-          callback(new Error(transformI18n($t("login.phoneCorrectReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ],
-  verifyCode: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.verifyCodeReg"))));
-        } else if (!REGEXP_SIX.test(value)) {
-          callback(new Error(transformI18n($t("login.verifyCodeSixReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
-  ],
+  phone: [createPhoneValidator()],
+  verifyCode: [createVerifyCodeValidator(true)],
   password: [
-    {
-      validator: (rule, value, callback) => {
-        if (value === "") {
-          callback(new Error(transformI18n($t("login.purePassWordReg"))));
-        } else if (!REGEXP_PWD.test(value)) {
-          callback(new Error(transformI18n($t("login.purePassWordRuleReg"))));
-        } else {
-          callback();
-        }
-      },
-      trigger: "blur"
-    }
+    createPasswordValidator(
+      "login.purePassWordReg",
+      "login.purePassWordRuleReg"
+    )
   ]
 });
 

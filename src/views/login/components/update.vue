@@ -22,9 +22,10 @@ const ruleForm = reactive({
 });
 const ruleFormRef = ref<FormInstance>();
 const { isDisabled, text } = useVerifyCode();
+
 const repeatPasswordRule = [
   {
-    validator: (rule, value, callback) => {
+    validator: (_rule: any, value: string, callback: any) => {
       if (value === "") {
         callback(new Error(transformI18n($t("login.passwordSureReg"))));
       } else if (ruleForm.password !== value) {
@@ -38,21 +39,20 @@ const repeatPasswordRule = [
 ];
 
 const onUpdate = async (formEl: FormInstance | undefined) => {
-  loading.value = true;
   if (!formEl) return;
-  await formEl.validate(valid => {
-    if (valid) {
-      // 模拟请求，需根据实际开发进行修改
-      setTimeout(() => {
-        message(transformI18n($t("login.passwordUpdateReg")), {
-          type: "success"
-        });
-        loading.value = false;
-      }, 2000);
-    } else {
+  try {
+    await formEl.validate();
+    loading.value = true;
+    setTimeout(() => {
+      message(transformI18n($t("login.passwordUpdateReg")), {
+        type: "success"
+      });
       loading.value = false;
-    }
-  });
+    }, 2000);
+  } catch (error) {
+    console.error("Update password failed:", error);
+    loading.value = false;
+  }
 };
 
 function onBack() {

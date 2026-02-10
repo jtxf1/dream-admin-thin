@@ -21,19 +21,18 @@ const ruleFormRef = ref<FormInstance>();
 const { isDisabled, text } = useVerifyCode();
 
 const onLogin = async (formEl: FormInstance | undefined) => {
-  loading.value = true;
   if (!formEl) return;
-  await formEl.validate(valid => {
-    if (valid) {
-      // 模拟登录请求，需根据实际开发进行修改
-      setTimeout(() => {
-        message(transformI18n($t("login.loginSuccess")), { type: "success" });
-        loading.value = false;
-      }, 2000);
-    } else {
+  try {
+    await formEl.validate();
+    loading.value = true;
+    setTimeout(() => {
+      message(transformI18n($t("login.loginSuccess")), { type: "success" });
       loading.value = false;
-    }
-  });
+    }, 2000);
+  } catch (error) {
+    console.error("Phone login failed:", error);
+    loading.value = false;
+  }
 };
 
 function onBack() {

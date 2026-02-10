@@ -20,12 +20,10 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
 import { ReImageVerify } from "@/components/ReImageVerify";
-import { ref, toRaw, reactive, watch, computed } from "vue";
+import { ref, reactive, watch, computed, shallowRef, markRaw } from "vue";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-import * as Menu from "@/api/system/menu";
-import { cloneDeep } from "@pureadmin/utils";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -46,9 +44,9 @@ const loading = ref(false);
 const disabled = ref(false);
 const checked = ref(false);
 const ruleFormRef = ref<FormInstance>();
-const currentPage = computed(() => {
-  return useUserStoreHook().currentPage;
-});
+const userStore = useUserStoreHook();
+const currentPage = computed(() => userStore.currentPage);
+const illustrationComponent = markRaw(illustration);
 
 const { t } = useI18n();
 const { initStorage } = useLayout();
@@ -58,6 +56,10 @@ dataThemeChange(overallStyle.value);
 const { title, getDropdownItemStyle, getDropdownItemClass } = useNav();
 const { locale, translationCh, translationEn } = useTranslationLang();
 
+const userIcon = useRenderIcon(User);
+const lockIcon = useRenderIcon(Lock);
+const shieldIcon = useRenderIcon("ri:shield-keyhole-line");
+
 const ruleForm = reactive({
   username: "admin",
   password: "123456",
@@ -66,58 +68,56 @@ const ruleForm = reactive({
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  await formEl.validate(valid => {
-    if (valid) {
-      loading.value = true;
-      useUserStoreHook()
-        .loginByUsername({
-          username: ruleForm.username,
-          password: ruleForm.password,
-          code: ruleForm.verifyCode,
-          uuid: imgCode.value
-        })
-        .then(res => {
-          if (res) {
-            // 获取后端路由
-            return initRouter().then(() => {
-              disabled.value = true;
-              router
-                .push(getTopMenu(true).path)
-                .then(() => {
-                  message(t("login.pureLoginSuccess"), { type: "success" });
-                })
-                .finally(() => (disabled.value = false));
-            });
-          }
-        })
-        .finally(() => (loading.value = false));
-    } else {
-      loading.value = false;
-      //return fields;
+  try {
+    await formEl.validate();
+    loading.value = true;
+    const res = await userStore.loginByUsername({
+      username: ruleForm.username,
+      password: ruleForm.password,
+      code: ruleForm.verifyCode,
+      uuid: imgCode.value
+    });
+    if (res) {
+      await initRouter();
+      disabled.value = true;
+      try {
+        await router.push(getTopMenu(true).path);
+        message(t("login.pureLoginSuccess"), { type: "success" });
+      } finally {
+        disabled.value = false;
+      }
     }
-  });
+  } catch (error) {
+    console.error("Login failed:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
-const immediateDebounce: any = debounce(
-  formRef => onLogin(formRef),
-  1000,
-  true
-);
+const handleKeyPress = () => {
+  if (ruleFormRef.value) {
+    onLogin(ruleFormRef.value);
+  }
+};
+
+const immediateDebounce = debounce(handleKeyPress, 1000, true);
 
 useEventListener(document, "keypress", ({ code }) => {
   if (
     ["Enter", "NumpadEnter"].includes(code) &&
     !disabled.value &&
     !loading.value
-  )
-    immediateDebounce(ruleFormRef.value);
+  ) {
+    immediateDebounce();
+  }
 });
 
 watch(checked, bool => {
-  useUserStoreHook().SET_ISREMEMBERED(bool);
+  userStore.SET_ISREMEMBERED(bool);
 });
+
 watch(loginDay, value => {
-  useUserStoreHook().SET_LOGINDAY(value);
+  userStore.SET_LOGINDAY(value);
 });
 </script>
 
@@ -168,7 +168,7 @@ watch(loginDay, value => {
     </div>
     <div class="login-container">
       <div class="img">
-        <component :is="toRaw(illustration)" />
+        <component :is="illustrationComponent" />
       </div>
       <div class="login-box">
         <div class="login-form">
@@ -204,7 +204,7 @@ watch(loginDay, value => {
                   v-copy="ruleForm.username"
                   clearable
                   :placeholder="t('login.username')"
-                  :prefix-icon="useRenderIcon(User)"
+                  :prefix-icon="userIcon"
                 />
               </el-form-item>
             </Motion>
@@ -216,7 +216,7 @@ watch(loginDay, value => {
                   clearable
                   show-password
                   :placeholder="t('login.password')"
-                  :prefix-icon="useRenderIcon(Lock)"
+                  :prefix-icon="lockIcon"
                 />
               </el-form-item>
             </Motion>
@@ -227,7 +227,7 @@ watch(loginDay, value => {
                   v-model="ruleForm.verifyCode"
                   clearable
                   :placeholder="t('login.verifyCode')"
-                  :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
+                  :prefix-icon="shieldIcon"
                 >
                   <template v-slot:append>
                     <ReImageVerify v-model:code="imgCode" />
@@ -267,7 +267,7 @@ watch(loginDay, value => {
                   <el-button
                     link
                     type="primary"
-                    @click="useUserStoreHook().SET_CURRENTPAGE(4)"
+                    @click="userStore.SET_CURRENTPAGE(4)"
                   >
                     {{ t("login.forget") }}
                   </el-button>
@@ -293,7 +293,7 @@ watch(loginDay, value => {
                     :key="index"
                     class="w-full mt-4"
                     size="default"
-                    @click="useUserStoreHook().SET_CURRENTPAGE(index + 1)"
+                    @click="userStore.SET_CURRENTPAGE(index + 1)"
                   >
                     {{ t(item.title) }}
                   </el-button>

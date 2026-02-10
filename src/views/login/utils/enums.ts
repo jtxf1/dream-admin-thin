@@ -1,32 +1,30 @@
-import { $t } from "@/plugins/i18n";
-
 const operates = [
   {
-    title: $t("login.phoneLogin")
+    title: "login.phoneLogin"
   },
   {
-    title: $t("login.qRCodeLogin")
+    title: "login.qRCodeLogin"
   },
   {
-    title: $t("login.register")
+    title: "login.register"
   }
 ];
 
 const thirdParty = [
   {
-    title: $t("login.weChatLogin"),
+    title: "login.weChatLogin",
     icon: "wechat"
   },
   {
-    title: $t("login.alipayLogin"),
+    title: "login.alipayLogin",
     icon: "alipay"
   },
   {
-    title: $t("login.qqLogin"),
+    title: "login.qqLogin",
     icon: "qq"
   },
   {
-    title: $t("login.weiboLogin"),
+    title: "login.weiboLogin",
     icon: "weibo"
   }
 ];
