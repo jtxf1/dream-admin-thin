@@ -54,9 +54,6 @@ class PureHttp {
     this.httpInterceptorsResponse();
   }
 
-  /** `token`过期后，暂存待执行的请求 */
-  private static requests: Array<() => void> = [];
-
   /** 初始化配置对象 */
   private static initConfig: PureHttpRequestConfig = {};
 

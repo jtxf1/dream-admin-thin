@@ -15,7 +15,8 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
     VITE_PORT,
     VITE_COMPRESSION,
     VITE_PUBLIC_PATH,
-    VITE_APP_BASE_API
+    VITE_APP_BASE_API,
+    VITE_APP_WS_API
   } = wrapperEnv(loadEnv(mode, root));
   return {
     base: VITE_PUBLIC_PATH,
@@ -54,6 +55,13 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           target: VITE_APP_BASE_API + "file",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/file/, "")
+        },
+        "/ws": {
+          // 这里填写后端地址
+          target: VITE_APP_WS_API,
+          changeOrigin: true,
+          ws: true,
+          rewrite: path => path.replace(/^\/ws/, "")
         },
         "/hello": {
           // 这里填写后端地址
