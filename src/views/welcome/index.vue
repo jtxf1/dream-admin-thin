@@ -49,8 +49,7 @@ onMounted(() => {
   connect("/auth/sse/objects", {
     method: "POST",
     headers: {
-      Authorization: getToken().accessToken,
-      "Cache-Control": "no-cache"
+      Authorization: getToken().accessToken
     },
     body: JSON.stringify({ topic: "news" }),
     onMessage: msg => {
