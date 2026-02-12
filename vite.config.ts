@@ -38,6 +38,31 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         },
+        "/auth/sse": {
+          // 这里填写后端地址
+          target: VITE_APP_BASE_API + "auth/sse",
+          changeOrigin: true,
+          configure: proxy => {
+            // 请求事件：禁用请求压缩
+            proxy.on("proxyReq", proxyReq => {
+              proxyReq.setHeader("Accept-Encoding", "identity"); // 禁用压缩
+              proxyReq.setHeader("Cache-Control", "no-cache"); // 禁用缓存
+            });
+            // 响应事件：处理 SSE 响应
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              // 检查是否为 SSE 响应
+              const contentType = proxyRes.headers["content-type"];
+              if (contentType && contentType.includes("text/event-stream")) {
+                // 禁用响应压缩，保留 SSE 原始响应头
+                res.setHeader("Content-Encoding", "identity");
+                res.setHeader("Cache-Control", "no-cache");
+                res.setHeader("Connection", "keep-alive"); // 保持长连接
+                res.setHeader("X-Accel-Buffering", "no"); // 禁用 Nginx 缓冲
+              }
+            });
+          },
+          rewrite: path => path.replace(/^\/auth\/sse/, "")
+        },
         "/auth": {
           // 这里填写后端地址
           target: VITE_APP_BASE_API + "auth",

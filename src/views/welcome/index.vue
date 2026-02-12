@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import ReCol from "@/components/ReCol";
 import { useDark } from "./utils";
 import { ReNormalCountTo } from "@/components/ReCountTo";
@@ -8,8 +8,9 @@ import { lineChart, roundChart } from "./components/chart";
 import { chartData } from "./data";
 import Gauge from "../components/echarts/gauge.vue";
 import Line from "../components/echarts/line.vue";
-import { getToken, formatToken } from "@/utils/auth";
 import { type Monitor } from "@/api/monitor/monitor";
+import { useEventSource } from "@/utils/sse";
+import { getToken } from "@/utils/auth";
 
 defineOptions({
   name: "Welcome"
@@ -41,60 +42,23 @@ function convertVramBitToGB(vRam: number | null | any): string {
   }
   return "";
 }
-let eventSource: EventSource | null = null;
 
+const { connect } = useEventSource();
 // 组件挂载后启动定时器
 onMounted(() => {
-  const data = getToken();
-  // 连接 SSE 服务端
-  eventSource = new EventSource(
-    "http://localhost:8888/auth/sse/objects?token=" +
-      formatToken(data.accessToken)
-  );
-
-  // 默认的 message 事件
-  eventSource.onmessage = (e: MessageEvent) => {
-    try {
-      const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
-      monitorCPU.cpu = data.cpu;
-      monitorCPU.sys = data.sys;
-      monitorCPU.memory = data.memory;
-      monitorCPU.swap = data.swap;
-      monitorCPU.disk = data.disk;
-      monitorCPU.gpu = data.gpu;
-      cpuValue.value = parseFloat(data?.cpu?.used) || 0;
-      romValue.value =
-        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0;
-      swapValue.value = parseFloat(data?.swap?.usageRate) || 0;
-
-      xData.value.push(dayjs().format("HH:mm:ss"));
-      romData.value.push(
-        parseFloat(data?.memory?.used.replace(/\s*GiB\s*$/, "")) || 0
-      );
-      cpuData.value.push(parseFloat(data?.cpu?.used) || 0);
-      if (xData.value.length > 10) {
-        xData.value.shift();
-        romData.value.shift();
-        cpuData.value.shift();
-      }
-    } catch {
-      console.log(`[raw] ${e.data}`);
-    }
-  };
-
-  // 如果服务端定义了 event: error
-  eventSource.addEventListener("error", e => {
-    eventSource.close();
-    eventSource = null;
+  connect("/auth/sse/objects", {
+    method: "POST",
+    headers: {
+      Authorization: getToken().accessToken,
+      "Cache-Control": "no-cache"
+    },
+    body: JSON.stringify({ topic: "news" }),
+    onMessage: msg => {
+      console.log("收到消息:", msg);
+    },
+    onOpen: () => console.log("连接打开"),
+    onError: err => console.error("SSE错误", err)
   });
-});
-
-// 组件卸载前清理定时器
-onBeforeUnmount(() => {
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
 });
 </script>
 

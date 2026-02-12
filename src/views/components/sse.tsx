@@ -24,6 +24,7 @@ export default defineComponent({
      * @param e - 消息事件
      */
     const handleMessageEvent = (e: MessageEvent) => {
+      console.log(`[raw] ${e}`);
       try {
         const data = JSON.parse(e.data); // 解析 JSON 数据
         messages.value.push(`[message] ${JSON.stringify(data)}`);
@@ -73,7 +74,7 @@ export default defineComponent({
 
         // 连接 SSE 服务端
         eventSource = new EventSource(
-          "http://localhost:8888/auth/sse/objects?token=" +
+          "http://localhost:8888/auth/sse/objects1?token=" +
             formatToken(tokenData.accessToken)
         );
 

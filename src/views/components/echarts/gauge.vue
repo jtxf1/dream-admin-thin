@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, onBeforeUnmount } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  onUnmounted
+} from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
-import type { Monitor } from "@/api/monitor/monitor";
-import { getToken, formatToken } from "@/utils/auth";
-import { message } from "@/utils/message";
+
+// 组件卸载时关闭连接，避免内存泄漏
+onUnmounted(() => {});
 
 /**
  * 系统监控仪表盘组件
@@ -166,95 +173,8 @@ watch(
   }
 );
 
-/**
- * 处理 EventSource 消息
- * @param e - 消息事件
- */
-const handleSseMessage = (e: MessageEvent) => {
-  try {
-    const data: Monitor = JSON.parse(e.data); // 解析后端传的 JSON
-
-    // 更新 CPU 使用值
-    if (data?.cpu?.used !== undefined) {
-      gaugeData.value[0].value = Number(data.cpu.used);
-    }
-
-    // 更新内存使用值
-    if (data?.memory?.used !== undefined) {
-      gaugeData.value[1].value = Number(
-        data.memory.used.replace(/\s*GiB\s*$/, "")
-      );
-    }
-
-    // 更新交换空间使用值
-    if (data?.swap?.usageRate !== undefined) {
-      gaugeData.value[2].value = Number(data.swap.usageRate);
-    }
-  } catch (error) {
-    console.warn("解析 SSE 数据失败:", error);
-    console.log(`[raw] ${e.data}`);
-  }
-};
-
-/**
- * 处理 EventSource 错误
- * @param e - 错误事件
- */
-const handleSseError = (e: Event) => {
-  console.error("SSE 连接错误:", e);
-  message("监控数据连接失败", { type: "error" });
-
-  // 关闭 EventSource 连接
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-};
-
-/**
- * 连接 SSE 服务
- */
-const connectSse = () => {
-  try {
-    const tokenData = getToken();
-    if (!tokenData?.accessToken) {
-      console.error("获取 token 失败");
-      message("获取认证信息失败", { type: "error" });
-      return;
-    }
-
-    // 连接 SSE 服务端
-    eventSource = new EventSource(
-      "http://localhost:8888/auth/sse/objects?token=" +
-        formatToken(tokenData.accessToken)
-    );
-
-    // 监听 message 事件
-    eventSource.onmessage = handleSseMessage;
-
-    // 监听 error 事件
-    eventSource.addEventListener("error", handleSseError);
-  } catch (error) {
-    console.error("SSE 连接失败:", error);
-    message("监控数据连接失败", { type: "error" });
-  }
-};
-
 // 组件挂载后连接 SSE
-onMounted(() => {
-  connectSse();
-
-  // 备用定时器（当前已注释）
-  intervalId = window.setInterval(() => {
-    /* getMonitor().then(response => {
-      gaugeData.value[0].value = response?.data?.cpu?.used;
-      gaugeData.value[1].value = response?.data?.memory?.used.replace(
-        /\s*GiB\s*$/, ""
-      );
-      gaugeData.value[2].value = response?.data?.swap?.usageRate;
-    }); */
-  }, 10000);
-});
+onMounted(() => {});
 
 // 组件卸载前清理资源
 onBeforeUnmount(() => {

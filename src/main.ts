@@ -52,7 +52,6 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
 import VueTippy from "vue-tippy";
 app.use(VueTippy);
-
 getPlatformConfig(app).then(async config => {
   setupStore(app);
   app.use(router);

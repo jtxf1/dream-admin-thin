@@ -43,12 +43,13 @@ onMounted(() => {
   const data = getToken();
   // 连接 SSE 服务端
   eventSource = new EventSource(
-    "http://localhost:8888/auth/sse/objects?token=" +
+    "http://localhost:8888/auth/sse/objects2?token=" +
       formatToken(data.accessToken)
   );
 
   // 默认的 message 事件
   eventSource.onmessage = (e: MessageEvent) => {
+    console.log(`[raw] ${e}`);
     try {
       const data: Monitor = JSON.parse(e.data) as Monitor; // 如果后端传 JSON，就解析
       monitorCPU.cpu = data.cpu;
