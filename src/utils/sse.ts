@@ -1,4 +1,5 @@
 import { ref, readonly } from "vue";
+import { useSSEStore } from "@/store/modules/sse";
 
 /**
  * SSE 消息接口
@@ -81,18 +82,12 @@ export function useEventSource() {
    * 取消读取器，中止控制器，并重置状态
    */
   const close = () => {
-    // 取消读取器，释放资源
     reader?.cancel();
-    // 中止控制器，停止网络请求
     controller?.abort();
-    // 重置引用
     reader = null;
     controller = null;
-    // 更新连接状态为已关闭
     readyState.value = 2;
   };
-
-  let totalBytesReceived = 0;
 
   /**
    * 连接到 SSE 服务器
@@ -102,22 +97,17 @@ export function useEventSource() {
    * @throws 当连接失败或响应不符合 SSE 规范时抛出错误
    */
   const connect = async (url: string, options: SSEOptions = {}) => {
-    // 先关闭已有连接，确保资源释放
     close();
 
-    // 创建新的中止控制器
     controller = new AbortController();
 
-    // 提取 SSE 特定的回调函数，剩余的作为 fetch 选项
     const { onMessage, onError, onOpen, eventHandlers, ...fetchOptions } =
       options;
 
-    // 重置缓冲区，准备接收新数据
     buffer = "";
 
     try {
       readyState.value = 0;
-      console.log(`SSE 开始连接到: ${url}`);
 
       const response = await fetch(url, {
         ...fetchOptions,
@@ -130,10 +120,6 @@ export function useEventSource() {
           ...fetchOptions.headers
         }
       });
-
-      console.log(
-        `SSE 响应状态: ${response.status} , SSE 响应头 Content-Type: ${response.headers.get("Content-Type")} ,SSE 响应头 Transfer-Encoding: ${response.headers.get("Transfer-Encoding")} , SSE 响应头 Connection: ${response.headers.get("Connection")}`
-      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -148,38 +134,25 @@ export function useEventSource() {
         throw new Error("Response body is null");
       }
 
-      console.log("SSE 连接成功，开始接收数据");
-
       readyState.value = 1;
       onOpen?.();
 
       reader = response.body.getReader();
       const decoder = new TextDecoder();
 
-      // 循环读取流
       while (true) {
         try {
           const { done, value } = await reader.read();
           if (done) {
-            console.log("SSE 连接已关闭");
-            // 处理缓冲区中剩余的数据
             if (buffer.length > 0) {
-              console.log(`SSE 处理剩余缓冲区数据: ${buffer.length} 字符`);
               parseSSEBuffer();
             }
             break;
           }
 
-          totalBytesReceived += value.length;
-          console.log(
-            `SSE 接收到数据: ${value.length} 字节，累计: ${totalBytesReceived} 字节`
-          );
-
           buffer += decoder.decode(value, { stream: true });
-          console.log(`SSE 缓冲区内容: ${JSON.stringify(buffer)}`);
           parseSSEBuffer();
         } catch (readError) {
-          console.error("SSE 数据读取错误:", readError);
           if (readError.name !== "AbortError") {
             onError?.(readError);
           }
@@ -188,7 +161,6 @@ export function useEventSource() {
       }
     } catch (err: any) {
       if (err.name === "AbortError") {
-        // 主动中止，不触发错误回调
       } else {
         error.value = err;
         onError?.(err);
@@ -203,55 +175,39 @@ export function useEventSource() {
      * @private
      */
     function parseSSEBuffer() {
-      // 按换行符分割缓冲区内容
+      const sseStore = useSSEStore();
+
       const lines = buffer.split("\n");
-      console.log(
-        `SSE 开始解析缓冲区，长度: ${buffer.length}  ,SSE 分割后行数: ${lines.length}`
-      );
-      //console.log(`SSE 缓冲区内容: ${buffer}`);
 
-      console.log(
-        `SSE 格式化内容: ${processBufferToJson(buffer, ["\n", "\r", '"\\n\\n"'])}`
-      );
+      sseStore.updateBuffer(buffer);
 
-      // 弹出最后一行，因为可能不完整，保留到下一次解析
-      buffer = lines.pop() || ""; // 最后一行可能不完整，保留到下一次
+      const parsedData = processBufferToJson(buffer, sseStore.removeChars);
+      sseStore.updateSSEData(buffer, parsedData);
+
+      buffer = lines.pop() || "";
 
       let currentMessage: Partial<SSEMessage> = {};
-      let messageCount = 0;
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        console.log(`SSE 处理第 ${i + 1} 行: ${JSON.stringify(line)}`);
 
         const trimmedLine = line.trim();
 
-        // 跳过注释行
         if (line.startsWith("#")) {
-          console.log(`SSE 跳过注释行: ${line}`);
           continue;
         }
 
-        // 空行表示消息结束
         if (trimmedLine === "") {
-          console.log(`SSE 遇到消息结束标记`);
           if (currentMessage.data !== undefined) {
-            // 确保消息对象完整
             const message: SSEMessage = {
               data: currentMessage.data,
               event: currentMessage.event,
               id: currentMessage.id
             };
 
-            messageCount++;
-            console.log(`SSE 解析到消息 ${messageCount}:`, message);
-
-            // 触发事件
             eventSourceRef.value = message;
-            console.log(`SSE 触发 onMessage 回调`);
             onMessage?.(message);
             if (message.event && eventHandlers?.[message.event]) {
-              console.log(`SSE 触发事件 ${message.event} 回调`);
               eventHandlers[message.event](message);
             }
             currentMessage = {};
@@ -261,8 +217,6 @@ export function useEventSource() {
 
         const colonIdx = line.indexOf(":");
         if (colonIdx === -1) {
-          // 处理没有冒号的行（可能是事件名）
-          console.log(`SSE 处理无冒号行作为事件名: ${line}`);
           currentMessage.event = line;
           continue;
         }
@@ -270,11 +224,8 @@ export function useEventSource() {
         const field = line.slice(0, colonIdx);
         let value = line.slice(colonIdx + 1);
         if (value.startsWith(" ")) {
-          value = value.slice(1); // 去掉开头的空格
-          console.log(`SSE 去掉值开头空格: ${value}`);
+          value = value.slice(1);
         }
-
-        console.log(`SSE 解析字段: ${field} = ${JSON.stringify(value)}`);
 
         switch (field) {
           case "data":
@@ -282,72 +233,59 @@ export function useEventSource() {
               (currentMessage.data || "") +
               (currentMessage.data ? "\n" : "") +
               value;
-            console.log(
-              `SSE 更新 data 字段: ${JSON.stringify(currentMessage.data)}`
-            );
             break;
           case "event":
             currentMessage.event = value;
-            console.log(`SSE 更新 event 字段: ${value}`);
             break;
           case "id":
             currentMessage.id = value;
-            console.log(`SSE 更新 id 字段: ${value}`);
             break;
           case "retry":
-            // 可解析 retry 字段，这里暂不处理
-            console.log(`SSE 忽略 retry 字段: ${value}`);
             break;
           default:
-            // 忽略其他字段
-            console.log(`SSE 忽略未知字段: ${field}`);
             break;
         }
       }
-
-      console.log(`SSE 解析完成，共解析 ${messageCount} 条消息`);
     }
   };
 
   /**
-   * 处理 Buffer 字符串：去除指定字符 → 按"data:分割 → 格式化为JSON
+   * 处理 Buffer 字符串：去除指定字符 → 按"data:分割 → 返回数组
    * @param buffer - 原始 Buffer 数据
    * @param removeChars - 需要去除的指定字符（数组形式，支持多个）
-   * @returns 格式化后的 JSON 字符串 | 错误信息
+   * @returns 处理后的数组，包含分割后的数据片段
    */
   function processBufferToJson(
     bufferStr: string,
-    removeChars: string[] = ["\n", "\r", " ", "\t"] // 默认去除换行、回车、空格、制表符
-  ): string {
+    removeChars: string[] = ["\n", "\r", " ", "\t"]
+  ): unknown[] {
     try {
-      // 步骤2：去除指定字符（循环替换所有需要移除的字符）
       removeChars.forEach(char => {
-        // 转义特殊字符（比如 $、^、* 等），避免正则匹配异常
         const escapedChar = char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         bufferStr = bufferStr.replace(new RegExp(escapedChar, "g"), "");
       });
 
-      // 步骤3：按 "\"data:" 分割成数组（注意转义双引号）
-      // 过滤空字符串，避免数组包含无效元素
       const splitArray = bufferStr
         .split('"data:"')
         .filter(item => item.trim() !== "");
 
-      // 步骤4：格式化数组为 JSON（带缩进，可读性更高）
-      const jsonResult = JSON.stringify(splitArray, null, 2);
+      const resultArray = splitArray.map(item => {
+        try {
+          return JSON.parse(item);
+        } catch {
+          return item;
+        }
+      });
 
-      return jsonResult;
+      return resultArray;
     } catch (error) {
-      // 异常处理：捕获分割/JSON 格式化错误
       const errMsg = error instanceof Error ? error.message : "未知错误";
-      return JSON.stringify(
+      return [
         {
           success: false,
           error: `处理失败：${errMsg}`
-        },
-        null,
-        2
-      );
+        }
+      ];
     }
   }
 

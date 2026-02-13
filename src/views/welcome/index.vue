@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import ReCol from "@/components/ReCol";
 import { useDark } from "./utils";
 import { ReNormalCountTo } from "@/components/ReCountTo";
@@ -11,6 +11,7 @@ import Line from "../components/echarts/line.vue";
 import { type Monitor } from "@/api/monitor/monitor";
 import { useEventSource } from "@/utils/sse";
 import { getToken } from "@/utils/auth";
+import { useSSEStore } from "@/store/modules/sse";
 
 defineOptions({
   name: "Welcome"
@@ -18,6 +19,9 @@ defineOptions({
 
 const { isDark } = useDark();
 const monitorCPU = reactive<Monitor>({});
+
+// 获取 SSE store 实例
+const sseStore = useSSEStore();
 
 const cpuValue = ref(0);
 const romValue = ref(0);
@@ -44,6 +48,8 @@ function convertVramBitToGB(vRam: number | null | any): string {
 }
 
 const { connect } = useEventSource();
+
+const indexSSE = ref(0);
 // 组件挂载后启动定时器
 onMounted(() => {
   connect("/auth/sse/objects", {
@@ -55,9 +61,51 @@ onMounted(() => {
     onMessage: msg => {
       console.log("收到消息:", msg);
     },
-    onOpen: () => console.log("连接打开"),
+    onOpen: () => {
+      console.log("连接打开");
+      sseStore.setConnectionStatus(true);
+    },
     onError: err => console.error("SSE错误", err)
   });
+
+  // 监听 SSE 数据变化
+  watch(
+    () => sseStore.sseData,
+    newData => {
+      if (newData) {
+        // 将解析后的数据赋值给 monitorCPU
+        if (newData.parsedData.length > 0) {
+          const latestData = newData.parsedData[indexSSE.value] as Monitor;
+          indexSSE.value += 1;
+          if (indexSSE.value >= newData.parsedData.length) {
+            indexSSE.value = 0;
+          }
+          if (latestData) {
+            Object.assign(monitorCPU, latestData);
+            console.log("monitorCPU 已更新:", monitorCPU);
+            // 更新图表数据
+            const currentTime = dayjs().format("HH:mm:ss");
+            // 添加数据到数组
+            cpuData.value.push(parseFloat(latestData.cpu?.used || "0"));
+            romData.value.push(parseFloat(latestData.memory?.used || "0"));
+            xData.value.push(currentTime);
+            cpuValue.value = parseFloat(latestData.cpu?.used || "0");
+            romValue.value = parseFloat(latestData.memory?.used || "0");
+            swapValue.value = parseFloat(latestData.swap?.used || "0");
+          }
+        }
+      }
+    },
+    { deep: true }
+  );
+
+  // 监听连接状态变化
+  watch(
+    () => sseStore.isConnected,
+    isConnected => {
+      console.log("SSE 连接状态:", isConnected ? "已连接" : "已断开");
+    }
+  );
 });
 </script>
 
@@ -142,9 +190,6 @@ onMounted(() => {
         }"
       >
         <el-card class="bar-card" shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">系统监控</span>
-          </div>
           <Gauge
             :cpu-value="cpuValue"
             :rom-value="romValue"
@@ -171,10 +216,6 @@ onMounted(() => {
         }"
       >
         <el-card shadow="never">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">系统配置</span>
-          </div>
-
           <table
             class="demo-typo-size"
             style="width: 100%; table-layout: fixed; border-collapse: collapse"
@@ -250,9 +291,6 @@ onMounted(() => {
         }"
       >
         <el-card shadow="never" class="h-[480px]">
-          <div class="flex justify-between">
-            <span class="text-md font-medium">数据统计</span>
-          </div>
           <div class="flex justify-between items-start mt-3">
             <Line :cpu-data="cpuData" :rom-data="romData" :x-data="xData" />
           </div>

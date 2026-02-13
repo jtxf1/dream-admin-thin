@@ -1,16 +1,6 @@
 <script setup lang="ts">
-import {
-  ref,
-  watch,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  onUnmounted
-} from "vue";
+import { ref, watch, computed } from "vue";
 import { useDark, useECharts } from "@pureadmin/utils";
-
-// 组件卸载时关闭连接，避免内存泄漏
-onUnmounted(() => {});
 
 /**
  * 系统监控仪表盘组件
@@ -35,11 +25,6 @@ interface Props {
    */
   swapValue?: number;
 }
-
-/**
- * EventSource实例
- */
-let eventSource: EventSource | null = null;
 
 // 使用 withDefaults 为可选 prop 设置默认值
 const props = withDefaults(defineProps<Props>(), {
@@ -149,10 +134,19 @@ const initChartOptions = () => {
 // 初始化图表
 initChartOptions();
 
-/**
- * 定时器ID
- */
-let intervalId: number | null = null;
+// --- 监听 props 变化 ---
+watch(
+  () => props,
+  newProps => {
+    // 当 props 变化时，更新 gaugeData 中对应的值
+    gaugeData.value[0].value = newProps.cpuValue;
+    gaugeData.value[1].value = newProps.romValue;
+    gaugeData.value[2].value = newProps.swapValue;
+  },
+  {
+    deep: true // 必须启用深层监听
+  }
+);
 
 // --- 监听 gaugeData 变化 ---
 watch(
@@ -172,24 +166,6 @@ watch(
     deep: true // 必须启用深层监听
   }
 );
-
-// 组件挂载后连接 SSE
-onMounted(() => {});
-
-// 组件卸载前清理资源
-onBeforeUnmount(() => {
-  // 清理定时器
-  if (intervalId !== null) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-
-  // 关闭 EventSource 连接
-  if (eventSource) {
-    eventSource.close();
-    eventSource = null;
-  }
-});
 </script>
 
 <template>
