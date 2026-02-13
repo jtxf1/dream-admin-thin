@@ -94,10 +94,10 @@ class crud {
    */
   public put<T, P>(
     url: string,
-    params?: AxiosRequestConfig<T>,
+    params?: AxiosRequestConfig<P>,
     config?: PureHttpRequestConfig
-  ): Promise<ApiAbstract<P>> {
-    return http.put<T, ApiAbstract<P>>(baseUrlApi(url), params, config);
+  ): Promise<ApiAbstract<T>> {
+    return http.put<P, ApiAbstract<T>>(baseUrlApi(url), params, config);
   }
 
   /**

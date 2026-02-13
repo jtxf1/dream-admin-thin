@@ -108,13 +108,27 @@ export const download = (data: Partial<UserQueryCriteria>) => {
   );
 };
 
-export const updateAvatarByid = ({ id, avatar, key }) => {
-  return http.request("post", baseUrlApi("users/updateAvatar2/" + id), {
+export const updateAvatarByid = ({
+  id,
+  avatar,
+  key
+}: {
+  id: number;
+  avatar: string;
+  key: string;
+}) => {
+  return http.request("post", baseUrlApi(`users/updateAvatar2/${id}`), {
     data: { avatar, key }
   });
 };
 
-export function updatePass({ oldPass, newPass }) {
+export function updatePass({
+  oldPass,
+  newPass
+}: {
+  oldPass: string;
+  newPass: string;
+}) {
   const data = {
     oldPass: encrypt(oldPass),
     newPass: encrypt(newPass)

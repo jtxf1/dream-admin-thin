@@ -38,8 +38,8 @@ export const getDeptTree = (params?: DeptQueryCriteria | any) => {
   });
 };
 
-export const getDeptSuperior = (ids: number[]) => {
-  const data = ids.length || ids.length === 0 ? ids : Array.of(ids);
+export const getDeptSuperior = (ids: number | number[]) => {
+  const data = Array.isArray(ids) ? ids : [ids];
   return http.request<ApiAbstract<Dept>>("post", baseUrlApi("dept/superior"), {
     data
   });

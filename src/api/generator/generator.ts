@@ -6,21 +6,23 @@ export class Generator {
   name: string;
   content: string;
 }
-export const get = (tableName, type) => {
+export const get = (tableName: string | string[], type: number) => {
+  const tableNameStr = Array.isArray(tableName) ? tableName[0] : tableName;
   return http.request<ApiAbstract<Generator>>(
     "post",
-    baseUrlApi("generator/") + tableName + "/" + type
+    baseUrlApi(`generator/${tableNameStr}/${type}`)
   );
 };
-export const put = generators => {
+export const put = (generators: any) => {
   return http.request<ApiAbstract<Generator>>("put", baseUrlApi("generator"), {
     data: generators
   });
 };
-export const generate = tableName => {
+export const generate = (tableName: string | string[]) => {
+  const tableNameStr = Array.isArray(tableName) ? tableName[0] : tableName;
   return http.request<ApiAbstract<Generator>>(
     "post",
-    baseUrlApi("generator/") + tableName + "/0"
+    baseUrlApi(`generator/${tableNameStr}/0`)
   );
 };
 
@@ -33,17 +35,18 @@ export const download = (name: string) => {
   );
 };
 
-export function sync(tables) {
+export function sync(tables: string[]) {
   return http.request<Blob>("post", baseUrlApi("generator/sync"), {
     data: tables
   });
 }
 
-export const getColumns = tableName => {
+export const getColumns = (tableName: string | string[]) => {
+  const tableNameStr = Array.isArray(tableName) ? tableName[0] : tableName;
   return http.request<ApiAbstract<Generator>>(
     "get",
     baseUrlApi("generator/columns"),
-    { params: { tableName } }
+    { params: { tableName: tableNameStr } }
   );
 };
 

@@ -60,36 +60,31 @@ export const imageTokens = () => {
 };
 
 export const uploadPost = async (data: FormData): Promise<ImgReturn | any> => {
-  let token;
-  await imageTokens()
-    .then(async req => {
-      token = await req?.data?.data?.tokens[0]?.token;
-    })
-    .catch(error => {
-      throw error;
-    });
+  try {
+    const req = await imageTokens();
+    const token = req?.data?.data?.tokens[0]?.token;
 
-  await data.append("token", token);
-  data.append("album_id", "2054");
-  const config: {
-    method: "post";
-    url: string;
-    headers: { [key: string]: string };
-    data: FormData;
-  } = {
-    method: "post",
-    url: "https://picui.cn/api/v1/upload",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "multipart/form-data"
-    },
-    data: data
-  };
-  return await axios(config)
-    .then(app => {
-      return app.data;
-    })
-    .catch(error => {
-      throw error;
-    });
+    if (!token) {
+      throw new Error("获取上传令牌失败");
+    }
+
+    data.append("token", token);
+    data.append("album_id", "2054");
+
+    const config = {
+      method: "post" as const,
+      url: "https://picui.cn/api/v1/upload",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data"
+      },
+      data
+    };
+
+    const response = await axios(config);
+    return response.data;
+  } catch (error) {
+    console.error("图片上传失败:", error);
+    throw error;
+  }
 };

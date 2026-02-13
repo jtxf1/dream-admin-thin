@@ -54,7 +54,7 @@ export const getLevel = () => {
   return http.request("get", baseUrlApi("roles/level"));
 };
 
-export const editMenu = data => {
+export const editMenu = (data: { id: number; menus: any[] }) => {
   return http.request("put", baseUrlApi("roles/menu"), { data });
 };
 export const add = (data: Partial<Role>) => {
@@ -73,7 +73,7 @@ export const edit = (data: Partial<Role>) => {
     data
   });
 };
-export const menus = (data: Partial<Dept>) => {
+export const menus = (data: { id: number; menus: any[] }) => {
   return http.request("put", baseUrlApi("roles/menu"), {
     data
   });

@@ -54,9 +54,10 @@ export const login = (data?: object) => {
 };
 /** 获取用户信息 */
 export const userInfo = () => {
+  const token = Cookies.get("token");
   return http.request<ApiAbstract>("get", baseUrlAuth("info"), null, {
     headers: {
-      Authorization: Cookies.get("token")
+      Authorization: token
     }
   });
 };

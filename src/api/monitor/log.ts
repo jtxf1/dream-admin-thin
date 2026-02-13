@@ -115,7 +115,7 @@ interface ShowSql {
   lastInsertId?: number; //8
   insertId?: number; //9
   serverId?: number; //0
-  sqlText?: number[]; //11
+  sqlText?: string; //11
   threadId?: number; //12
 }
 
