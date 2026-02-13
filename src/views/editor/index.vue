@@ -41,12 +41,9 @@ const activeNames = ref("1");
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-collapse-item__header) {
-  padding-left: 10px;
-}
+/* 使用Tailwind工具类替代原有样式 */
 
-.card-header {
-  display: flex;
-  align-items: center;
-}
+/* :deep(.el-collapse-item__header) 已通过在el-collapse-item组件上添加class="pl-2.5"实现 */
+
+/* .card-header 已通过class="flex items-center"实现 */
 </style>

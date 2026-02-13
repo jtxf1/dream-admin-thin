@@ -236,11 +236,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-card) {
-  --el-card-border-color: none;
-}
+/* 使用Tailwind工具类替代原有样式 */
 
-.main-content {
-  margin: 20px 20px 0 !important;
-}
+/* :deep(.el-card) 已通过在el-card组件上添加class="border-0"实现 */
+
+/* .main-content 已通过在父容器上添加class="mt-5 mx-5"实现 */
 </style>

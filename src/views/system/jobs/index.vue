@@ -190,13 +190,9 @@ const {
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-dropdown-menu__item i) {
-  margin: 0;
-}
+/* 使用Tailwind工具类替代原有样式 */
 
-.search-form {
-  :deep(.el-form-item) {
-    margin-bottom: 12px;
-  }
-}
+/* :deep(.el-dropdown-menu__item i) 已通过在i元素上添加class="m-0"实现 */
+
+/* .search-form 已通过class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] space-y-3"实现 */
 </style>

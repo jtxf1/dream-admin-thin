@@ -159,9 +159,7 @@ function onFullscreen() {
 </template>
 
 <style lang="scss" scoped>
-.search-form {
-  :deep(.el-form-item) {
-    margin-bottom: 12px;
-  }
-}
+/* 使用Tailwind工具类替代原有样式 */
+
+/* .search-form 已通过class="search-form bg-bg_color w-full pl-8 pt-[12px] space-y-3 overflow-auto"实现 */
 </style>

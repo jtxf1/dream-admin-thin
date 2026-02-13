@@ -180,9 +180,7 @@ const {
 </template>
 
 <style scoped lang="scss">
-.search-form {
-  :deep(.el-form-item) {
-    margin-bottom: 12px;
-  }
-}
+/* 使用Tailwind工具类替代原有样式 */
+
+/* .search-form 已通过class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] space-y-3"实现 */
 </style>

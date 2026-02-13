@@ -249,11 +249,9 @@ defineExpose({ onTreeReset });
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-divider) {
-  margin: 0;
-}
+/* 使用Tailwind工具类替代原有样式 */
 
-:deep(.el-tree) {
-  --el-tree-node-hover-bg-color: transparent;
-}
+/* :deep(.el-divider) 已通过在el-divider组件上添加class="my-0"实现 */
+
+/* :deep(.el-tree) 已通过在el-tree组件上添加class="hover:bg-transparent"实现 */
 </style>
