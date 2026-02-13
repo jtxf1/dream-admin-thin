@@ -2,7 +2,6 @@
 import { useI18n } from "vue-i18n";
 import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
-import { message } from "@/utils/message";
 import { loginRules } from "./utils/rule";
 import phone from "./components/phone.vue";
 import TypeIt from "@/components/ReTypeit";
@@ -13,17 +12,17 @@ import update from "./components/update.vue";
 import { useNav } from "@/layout/hooks/useNav";
 import { useEventListener } from "@vueuse/core";
 import type { FormInstance } from "element-plus";
-import { $t, transformI18n } from "@/plugins/i18n";
 import { operates, thirdParty } from "./utils/enums";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
 import { initRouter, getTopMenu } from "@/router/utils";
 import { bg, avatar, illustration } from "./utils/static";
 import { ReImageVerify } from "@/components/ReImageVerify";
-import { ref, reactive, watch, computed, shallowRef, markRaw } from "vue";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { ref, reactive, watch, computed, markRaw } from "vue";
 import { useTranslationLang } from "@/layout/hooks/useTranslationLang";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { handleError, handleSuccess } from "./utils/errorHandler";
+import { useCachedRenderIcon } from "./utils/iconCache";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -56,15 +55,17 @@ dataThemeChange(overallStyle.value);
 const { title, getDropdownItemStyle, getDropdownItemClass } = useNav();
 const { locale, translationCh, translationEn } = useTranslationLang();
 
-const userIcon = useRenderIcon(User);
-const lockIcon = useRenderIcon(Lock);
-const shieldIcon = useRenderIcon("ri:shield-keyhole-line");
+const userIcon = useCachedRenderIcon(User);
+const lockIcon = useCachedRenderIcon(Lock);
+const shieldIcon = useCachedRenderIcon("ri:shield-keyhole-line");
 
 const ruleForm = reactive({
   username: "admin",
   password: "123456",
   verifyCode: ""
 });
+
+const reImageVerifyRef = ref<any>();
 
 const onLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -82,13 +83,17 @@ const onLogin = async (formEl: FormInstance | undefined) => {
       disabled.value = true;
       try {
         await router.push(getTopMenu(true).path);
-        message(t("login.pureLoginSuccess"), { type: "success" });
+        handleSuccess("login.pureLoginSuccess");
       } finally {
         disabled.value = false;
       }
     }
   } catch (error) {
-    console.error("Login failed:", error);
+    handleError(error);
+    // 登录失败时自动刷新验证码
+    if (reImageVerifyRef.value) {
+      reImageVerifyRef.value.getImgCode();
+    }
   } finally {
     loading.value = false;
   }
@@ -189,16 +194,7 @@ watch(loginDay, value => {
             size="large"
           >
             <Motion :delay="100">
-              <el-form-item
-                :rules="[
-                  {
-                    required: true,
-                    message: transformI18n($t('login.usernameReg')),
-                    trigger: 'blur'
-                  }
-                ]"
-                prop="username"
-              >
+              <el-form-item prop="username">
                 <el-input
                   v-model="ruleForm.username"
                   v-copy="ruleForm.username"
@@ -230,7 +226,10 @@ watch(loginDay, value => {
                   :prefix-icon="shieldIcon"
                 >
                   <template v-slot:append>
-                    <ReImageVerify v-model:code="imgCode" />
+                    <ReImageVerify
+                      ref="reImageVerifyRef"
+                      v-model:code="imgCode"
+                    />
                   </template>
                 </el-input>
               </el-form-item>

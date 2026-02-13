@@ -18,6 +18,17 @@ const createRequiredValidator = (messageKey: string) => ({
   trigger: "blur"
 });
 
+const createUsernameValidator = () => ({
+  validator: (_rule: any, value: string, callback: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t("login.usernameReg"))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
 const createPhoneValidator = () => ({
   validator: (_rule: any, value: string, callback: any) => {
     if (value === "") {
@@ -60,7 +71,21 @@ const createVerifyCodeValidator = (requireSix = false) => ({
   trigger: "blur"
 });
 
+const createRepeatPasswordValidator = () => ({
+  validator: (_rule: any, value: string, callback: any, form: any) => {
+    if (value === "") {
+      callback(new Error(transformI18n($t("login.passwordSureReg"))));
+    } else if (form.password !== value) {
+      callback(new Error(transformI18n($t("login.passwordDifferentReg"))));
+    } else {
+      callback();
+    }
+  },
+  trigger: "blur"
+});
+
 const loginRules = reactive<FormRules>({
+  username: [createUsernameValidator()],
   password: [
     createPasswordValidator("login.passwordReg", "login.passwordRuleReg")
   ],
@@ -80,7 +105,8 @@ const updateRules = reactive<FormRules>({
       "login.purePassWordReg",
       "login.purePassWordRuleReg"
     )
-  ]
+  ],
+  repeatPassword: [createRepeatPasswordValidator()]
 });
 
 export { loginRules, phoneRules, updateRules };

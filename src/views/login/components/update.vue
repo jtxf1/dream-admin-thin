@@ -2,7 +2,6 @@
 import { useI18n } from "vue-i18n";
 import { ref, reactive } from "vue";
 import Motion from "../utils/motion";
-import { message } from "@/utils/message";
 import { updateRules } from "../utils/rule";
 import type { FormInstance } from "element-plus";
 import { useVerifyCode } from "../utils/verifyCode";
@@ -11,6 +10,8 @@ import { useUserStoreHook } from "@/store/modules/user";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Lock from "~icons/ri/lock-fill";
 import Iphone from "~icons/ep/iphone";
+import { handleError, handleSuccess } from "../utils/errorHandler";
+import { useCachedRenderIcon } from "../utils/iconCache";
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -23,34 +24,17 @@ const ruleForm = reactive({
 const ruleFormRef = ref<FormInstance>();
 const { isDisabled, text } = useVerifyCode();
 
-const repeatPasswordRule = [
-  {
-    validator: (_rule: any, value: string, callback: any) => {
-      if (value === "") {
-        callback(new Error(transformI18n($t("login.passwordSureReg"))));
-      } else if (ruleForm.password !== value) {
-        callback(new Error(transformI18n($t("login.passwordDifferentReg"))));
-      } else {
-        callback();
-      }
-    },
-    trigger: "blur"
-  }
-];
-
 const onUpdate = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   try {
     await formEl.validate();
     loading.value = true;
     setTimeout(() => {
-      message(transformI18n($t("login.passwordUpdateReg")), {
-        type: "success"
-      });
+      handleSuccess("login.passwordUpdateReg");
       loading.value = false;
     }, 2000);
   } catch (error) {
-    console.error("Update password failed:", error);
+    handleError(error);
     loading.value = false;
   }
 };
@@ -74,7 +58,7 @@ function onBack() {
           v-model="ruleForm.phone"
           clearable
           :placeholder="t('login.phone')"
-          :prefix-icon="useRenderIcon(Iphone)"
+          :prefix-icon="useCachedRenderIcon(Iphone)"
         />
       </el-form-item>
     </Motion>
@@ -86,7 +70,7 @@ function onBack() {
             v-model="ruleForm.verifyCode"
             clearable
             :placeholder="t('login.smsVerifyCode')"
-            :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
+            :prefix-icon="useCachedRenderIcon('ri:shield-keyhole-line')"
           />
           <el-button
             :disabled="isDisabled"
@@ -110,19 +94,19 @@ function onBack() {
           clearable
           show-password
           :placeholder="t('login.password')"
-          :prefix-icon="useRenderIcon(Lock)"
+          :prefix-icon="useCachedRenderIcon(Lock)"
         />
       </el-form-item>
     </Motion>
 
     <Motion :delay="200">
-      <el-form-item :rules="repeatPasswordRule" prop="repeatPassword">
+      <el-form-item prop="repeatPassword">
         <el-input
           v-model="ruleForm.repeatPassword"
           clearable
           show-password
           :placeholder="t('login.sure')"
-          :prefix-icon="useRenderIcon(Lock)"
+          :prefix-icon="useCachedRenderIcon(Lock)"
         />
       </el-form-item>
     </Motion>

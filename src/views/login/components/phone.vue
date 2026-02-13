@@ -2,7 +2,6 @@
 import { useI18n } from "vue-i18n";
 import { ref, reactive } from "vue";
 import Motion from "../utils/motion";
-import { message } from "@/utils/message";
 import { phoneRules } from "../utils/rule";
 import type { FormInstance } from "element-plus";
 import { $t, transformI18n } from "@/plugins/i18n";
@@ -10,6 +9,8 @@ import { useVerifyCode } from "../utils/verifyCode";
 import { useUserStoreHook } from "@/store/modules/user";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Iphone from "~icons/ep/iphone";
+import { handleError, handleSuccess } from "../utils/errorHandler";
+import { useCachedRenderIcon } from "../utils/iconCache";
 
 const { t } = useI18n();
 const loading = ref(false);
@@ -26,11 +27,11 @@ const onLogin = async (formEl: FormInstance | undefined) => {
     await formEl.validate();
     loading.value = true;
     setTimeout(() => {
-      message(transformI18n($t("login.loginSuccess")), { type: "success" });
+      handleSuccess("login.loginSuccess");
       loading.value = false;
     }, 2000);
   } catch (error) {
-    console.error("Phone login failed:", error);
+    handleError(error);
     loading.value = false;
   }
 };
@@ -49,7 +50,7 @@ function onBack() {
           v-model="ruleForm.phone"
           clearable
           :placeholder="t('login.phone')"
-          :prefix-icon="useRenderIcon(Iphone)"
+          :prefix-icon="useCachedRenderIcon(Iphone)"
         />
       </el-form-item>
     </Motion>
@@ -61,7 +62,7 @@ function onBack() {
             v-model="ruleForm.verifyCode"
             clearable
             :placeholder="t('login.smsVerifyCode')"
-            :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
+            :prefix-icon="useCachedRenderIcon('ri:shield-keyhole-line')"
           />
           <el-button
             :disabled="isDisabled"
