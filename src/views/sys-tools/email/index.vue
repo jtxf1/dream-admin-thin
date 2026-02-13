@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useDept } from "./utils/hook";
+import { useEmail } from "./utils/hook";
 import Form from "./form.vue";
 import Send from "./send.vue";
 
@@ -11,7 +11,7 @@ defineOptions({
   // 定义组件的名称
   name: "Email"
 });
-const { formData, loading } = useDept();
+const { formData, loading } = useEmail();
 </script>
 
 <template>

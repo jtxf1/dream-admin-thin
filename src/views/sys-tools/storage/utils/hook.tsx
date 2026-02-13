@@ -8,7 +8,7 @@ import { ElMessageBox } from "element-plus";
 import { PageQuery } from "@/utils/http/ApiAbstract";
 import { CRUD, pagination } from "@/api/utils";
 
-export function useDept() {
+export function useStorage() {
   //查询条件
   const formQuery = reactive<FormQuery>(new PageQuery());
   /** 请求URL */
@@ -91,14 +91,32 @@ export function useDept() {
    */
   async function onSearch() {
     dataList.splice(0, dataList.length);
-    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
-      params: formQuery
-    })
-      .then(res => {
-        pagination.total = res.data.totalElements;
-        dataList.push(...res.data.content);
+    try {
+      await CRUD.get<FormQuery, FormItemProps>(crudURL, {
+        params: formQuery
       })
-      .finally(() => (loading.value = false));
+        .then(res => {
+          if (res && res.data) {
+            pagination.total = res.data.totalElements || 0;
+            if (Array.isArray(res.data.content)) {
+              dataList.push(...res.data.content);
+            }
+          }
+        })
+        .catch(error => {
+          message("加载数据失败，请重试", {
+            type: "error"
+          });
+          console.error("加载数据失败:", error);
+        });
+    } catch (error) {
+      message("加载数据失败，请重试", {
+        type: "error"
+      });
+      console.error("加载数据失败:", error);
+    } finally {
+      loading.value = false;
+    }
   }
   /**
    * 新增修改函数
@@ -109,12 +127,12 @@ export function useDept() {
     const formInline = {
       id: row?.id,
       version: row?.version,
-      realName: row?.realName,
-      name: row?.name,
-      suffix: row?.suffix,
-      path: row?.path,
-      type: row?.type,
-      size: row?.size
+      realName: row?.realName || "",
+      name: row?.name || "",
+      suffix: row?.suffix || "",
+      path: row?.path || "",
+      type: row?.type || "",
+      size: row?.size || ""
     };
     addDialog({
       title: `${title}本地存储`,
@@ -129,12 +147,18 @@ export function useDept() {
       contentRenderer: () =>
         h(editForm, { ref: formRef, formInline: formInline }),
       beforeSure: (done, { options }) => {
+        if (!formRef.value) return;
         const FormRef = formRef.value.getRef();
+        if (!FormRef) return;
         const curData = options.props.formInline as FormItemProps;
+        if (!curData) return;
         function chores() {
-          message(`您${title}了本地存储名称为${curData.name}的这条数据`, {
-            type: "success"
-          });
+          message(
+            `您${title}了本地存储名称为${curData.name || "未知"}的这条数据`,
+            {
+              type: "success"
+            }
+          );
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
@@ -145,11 +169,25 @@ export function useDept() {
               // 实际开发先调用新增接口，再进行下面操作
               CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).then(() => chores());
+              })
+                .then(() => chores())
+                .catch(error => {
+                  message("新增数据失败，请重试", {
+                    type: "error"
+                  });
+                  console.error("新增数据失败:", error);
+                });
             } else if (title === "编辑") {
               CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).then(() => chores());
+              })
+                .then(() => chores())
+                .catch(error => {
+                  message("编辑数据失败，请重试", {
+                    type: "error"
+                  });
+                  console.error("编辑数据失败:", error);
+                });
             }
           }
         });
@@ -176,18 +214,28 @@ export function useDept() {
    * 删除函数
    * @param row 删除的数据
    */
-  function handleDelete(row) {
+  function handleDelete(row: FormItemProps) {
+    if (!row || !row.id) return;
     CRUD.delete(crudURL, {
       data: [row.id]
-    }).then(() => {
-      message(`您删除了本地存储名称为${row.name}的这条数据`, {
-        type: "success"
+    })
+      .then(() => {
+        message(`您删除了本地存储名称为${row.name || "未知"}的这条数据`, {
+          type: "success"
+        });
+        onSearch();
+      })
+      .catch(error => {
+        message("删除数据失败，请重试", {
+          type: "error"
+        });
+        console.error("删除数据失败:", error);
       });
-      onSearch();
-    });
   }
 
   async function deleteAll() {
+    if (!multipleSelection.value || multipleSelection.value.length === 0)
+      return;
     ElMessageBox.confirm(
       `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个本地存储吗?`,
       "系统提示",
@@ -199,24 +247,43 @@ export function useDept() {
         draggable: true
       }
     ).then(() => {
-      CRUD.delete(crudURL, {
-        data: multipleSelection.value.map(dept => dept.id)
-      }).then(() => {
-        message("已删除所选的本地存储", {
-          type: "success"
-        });
-        onSearch();
-      });
+      const ids = multipleSelection.value
+        .filter(item => item && item.id)
+        .map(item => item.id);
+      if (ids.length > 0) {
+        CRUD.delete(crudURL, {
+          data: ids
+        })
+          .then(() => {
+            message("已删除所选的本地存储", {
+              type: "success"
+            });
+            onSearch();
+          })
+          .catch(error => {
+            message("批量删除数据失败，请重试", {
+              type: "error"
+            });
+            console.error("批量删除数据失败:", error);
+          });
+      }
     });
   }
   /**
    * 下载表格数据
    */
   const exportClick = async () => {
-    CRUD.download(crudURL);
-    message("导出成功", {
-      type: "success"
-    });
+    try {
+      CRUD.download(crudURL);
+      message("导出成功", {
+        type: "success"
+      });
+    } catch (error) {
+      message("导出数据失败，请重试", {
+        type: "error"
+      });
+      console.error("导出数据失败:", error);
+    }
   };
   /**
    * 分页大小

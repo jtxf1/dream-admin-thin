@@ -1,7 +1,7 @@
 import type { BaseEntity, PageQuery } from "@/utils/http/ApiAbstract";
 
 interface FormItemProps extends BaseEntity {
-  id?: string; //存储桶名称
+  id?: number; //存储桶名称
   ownerName?: string; //作者名称
   ownerId?: string; //作者id
   creationDate?: Date; //存储桶创建时间
