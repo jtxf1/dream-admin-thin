@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRole, useDetail } from "./hook";
+import { useGenerator, useDetail } from "./hook";
 import {
   getColumns,
   generateConfig,
@@ -40,7 +40,7 @@ const props = reactive<FormItemProps>({
 });
 
 initToDetail();
-const { columns1, dataList1, syncCode, saveCode } = useRole();
+const { columns1, dataList1, syncCode, saveCode } = useGenerator();
 
 function getRef() {
   return ruleFormRef.value;

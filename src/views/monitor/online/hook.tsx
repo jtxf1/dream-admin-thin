@@ -5,7 +5,7 @@ import { reactive, ref, onMounted, toRaw } from "vue";
 import type { PaginationProps } from "@pureadmin/table";
 import { CRUD } from "@/api/utils";
 
-export function useRole() {
+export function useOnline() {
   const form = reactive({
     username: ""
   });
@@ -84,11 +84,11 @@ export function useRole() {
     onSearch();
   }
   function handleSelectionChange(val) {
-    changeList.value = val.map(person => person.key);
+    changeList.value = val.map(person => person.id);
   }
 
   function handleOffline(row) {
-    del([row?.key])
+    del([row?.id])
       .then(() => {
         message(`${row.nickName}已被强制下线`, { type: "success" });
         onSearch();
@@ -114,9 +114,7 @@ export function useRole() {
     dataList.value = data.content;
     pagination.total = data.totalElements;
 
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   const resetForm = formEl => {

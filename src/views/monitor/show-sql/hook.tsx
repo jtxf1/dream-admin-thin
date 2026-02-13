@@ -7,7 +7,7 @@ import { addDialog } from "@/components/ReDialog";
 import { Code } from "@/views/editor/components";
 import { View as IconView } from "@element-plus/icons-vue";
 
-export function useDept() {
+export function useSql() {
   //查询条件
   const formQuery = reactive<PageQuery>({ sort: "id,asc" });
   /** 表格数据 */
@@ -125,9 +125,7 @@ export function useDept() {
       dataList.push(...res.data.content);
     });
     /** 表格加载完成 */
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
   /**
    * 分页大小

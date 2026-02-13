@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRole } from "./hook";
+import { useOnline } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
@@ -26,7 +26,7 @@ const {
   handleSelectionChange,
   handleOfflineAll,
   exportClick
-} = useRole();
+} = useOnline();
 </script>
 
 <template>
@@ -79,6 +79,7 @@ const {
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
+          row-key="id"
           align-whole="center"
           showOverflowTooltip
           table-layout="auto"
@@ -110,7 +111,6 @@ const {
                   type="primary"
                   :size="size"
                   :icon="useRenderIcon(Plane)"
-                  @click="handleSelectionChange(row)"
                 >
                   强退
                 </el-button>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRole } from "./hook";
+import { useLog } from "./hook";
 import { getPickerShortcuts } from "../../utils";
 import { message } from "@/utils/message";
 import { PureTableBar } from "@/components/RePureTableBar";
@@ -46,7 +46,7 @@ const {
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
-} = useRole(tableRef);
+} = useLog(tableRef);
 </script>
 
 <template>

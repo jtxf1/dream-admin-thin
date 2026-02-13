@@ -11,7 +11,7 @@ import { type Ref, reactive, ref, onMounted, toRaw } from "vue";
 import { addDialog } from "@/components/ReDialog";
 import { Code } from "@/views/editor/components";
 
-export function useRole(tableRef: Ref) {
+export function useLog(tableRef: Ref) {
   const form = reactive({
     blurry: "",
     createTime: [],
@@ -163,9 +163,7 @@ export function useRole(tableRef: Ref) {
     dataList.value = data?.content;
     pagination.total = data?.totalElements;
 
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   function onHideFooterClick(row) {

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRole, useDetail } from "./hook";
+import { useGenerator, useDetail } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 
 import Refresh from "~icons/ep/refresh";
 
 defineOptions({
-  name: "OnlineUser"
+  name: "Generator"
 });
 
 const { toDetail } = useDetail();
@@ -27,7 +27,7 @@ const {
   handleSelectionChange,
   downloadCode,
   syncCode
-} = useRole();
+} = useGenerator();
 </script>
 
 <template>
@@ -76,6 +76,7 @@ const {
       </template>
       <template v-slot="{ size, dynamicColumns }">
         <pure-table
+          row-key="tableName"
           adaptive
           :adaptiveConfig="{ offsetBottom: 45 }"
           align-whole="center"

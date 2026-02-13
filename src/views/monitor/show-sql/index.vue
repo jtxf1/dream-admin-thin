@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useDept } from "./hook";
+import { useSql } from "./hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import Search from "~icons/ri/search-line";
@@ -22,7 +22,7 @@ const {
   resetForm,
   handleSizeChange,
   handleCurrentChange
-} = useDept();
+} = useSql();
 </script>
 
 <template>

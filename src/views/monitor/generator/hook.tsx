@@ -21,7 +21,7 @@ import {
   type RouteRecordName
 } from "vue-router";
 
-export function useRole() {
+export function useGenerator() {
   const form = reactive({
     username: "",
     name: "",
@@ -112,9 +112,7 @@ export function useRole() {
       dictsAll.value = data.data;
     });
 
-    setTimeout(() => {
-      loading.value = false;
-    }, 500);
+    loading.value = false;
   }
 
   const resetForm = formEl => {
