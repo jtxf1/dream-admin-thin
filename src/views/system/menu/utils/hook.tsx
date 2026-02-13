@@ -105,9 +105,7 @@ export function useMenu() {
     }
   ];
 
-  function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val);
-  }
+  function handleSelectionChange() {}
 
   function resetForm(formEl) {
     if (!formEl) return;
@@ -117,27 +115,35 @@ export function useMenu() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await get(form); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
-    let newData = data;
-    if (!isAllEmpty(form.title)) {
-      // 前端搜索菜单名称
-      newData = newData.filter(item =>
-        transformI18n(item.title).includes(form.title)
-      );
-    }
-    dataList.value = handleTree(newData); // 处理成树结构
-    setTimeout(() => {
+    try {
+      const { data } = await get(form); // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
+      let newData = data;
+      if (!isAllEmpty(form.title)) {
+        // 前端搜索菜单名称
+        newData = newData.filter(item =>
+          transformI18n(item.title).includes(form.title)
+        );
+      }
+      dataList.value = handleTree(newData); // 处理成树结构
+    } catch (error) {
+      message(`获取菜单数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
 
   function formatHigherMenuOptions(treeList) {
-    if (!treeList || !treeList.length) return;
+    if (!treeList || !treeList.length) return [];
     const newTreeList = [];
     for (let i = 0; i < treeList.length; i++) {
-      treeList[i].title = transformI18n(treeList[i].title);
-      formatHigherMenuOptions(treeList[i].children);
-      newTreeList.push(treeList[i]);
+      const item = { ...treeList[i] };
+      item.title = transformI18n(item.title);
+      if (item.children) {
+        item.children = formatHigherMenuOptions(item.children);
+      }
+      newTreeList.push(item);
     }
     return newTreeList;
   }
@@ -179,47 +185,56 @@ export function useMenu() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(
-            `您${title}了菜单名称为${transformI18n(curData.title)}的这条数据`,
-            {
-              type: "success"
-            }
-          );
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
+          });
           if (valid) {
             // 表单规则校验通过
+            const processedData = replaceEmptyStrings(curData);
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              add(replaceEmptyStrings(curData)).finally(() => chores());
+              await add(processedData);
             } else {
-              // 实际开发先调用修改接口，再进行下面操作
-              edit(replaceEmptyStrings(curData)).finally(() => chores());
+              await edit(processedData);
             }
+            message(
+              `您${title}了菜单名称为${transformI18n(curData.title)}的这条数据`,
+              {
+                type: "success"
+              }
+            );
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
 
-  function handleDelete(row) {
-    del([row.id]).then(() => {
+  async function handleDelete(row) {
+    try {
+      await del([row.id]);
       message(`您删除了菜单名称为${transformI18n(row.title)}的这条数据`, {
         type: "success"
       });
       onSearch();
-    });
+    } catch (error) {
+      message(`删除菜单失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
   /**
    * 遍历对象的所有属性，将值为空字符串的属性替换为null。
    * @param curData 输入的对象
-   * @returns 处理后的对象
+   * @returns 处理后的新对象
    */
   function replaceEmptyStrings(
     curData: Record<string, any>
@@ -235,36 +250,45 @@ export function useMenu() {
       return curData;
     }
 
+    // 创建一个新对象，避免直接修改原始数据
+    const newData = { ...curData };
+
     // 使用Object.keys()获取对象的所有键
-    const keys = Object.keys(curData);
+    const keys = Object.keys(newData);
 
     // 使用for...of循环遍历键
     for (const key of keys) {
       // 检查属性值是否为空字符串
-      if (curData[key] === "") {
+      if (newData[key] === "") {
         // 如果是空字符串，则修改为null
-        curData[key] = null;
+        newData[key] = null;
       }
     }
 
-    // 返回处理后的对象
-    return curData;
+    // 返回处理后的新对象
+    return newData;
   }
   const exportClick = async () => {
-    const response: Blob = await download(form);
-    const a = document.createElement("a");
-    const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
+    try {
+      const response: Blob = await download(form);
+      const a = document.createElement("a");
+      const url = window.URL.createObjectURL(response); // 创建媒体流 url ，详细了解可自己查 URL.createObjectURL（推荐 MDN ）
 
-    a.href = url;
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    a.parentNode.removeChild(a);
-    window.URL.revokeObjectURL(url); // 删除创建的媒体流 url 对象
+      a.href = url;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.parentNode.removeChild(a);
+      window.URL.revokeObjectURL(url); // 删除创建的媒体流 url 对象
 
-    message(`您导出了菜单的数据`, {
-      type: "success"
-    });
+      message(`您导出了菜单的数据`, {
+        type: "success"
+      });
+    } catch (error) {
+      message(`导出菜单数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   };
 
   onMounted(() => {

@@ -96,18 +96,24 @@ export function useDept() {
    * 加载数据
    */
   async function onSearch() {
-    await getDictDetails("job_status");
-    formQuery.page = pagination.currentPage - 1;
-    formQuery.size = pagination.pageSize;
-    dataList.splice(0, dataList.length);
-    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
-      params: formQuery
-    })
-      .then(res => {
-        pagination.total = res.data.totalElements;
-        dataList.push(...res.data.content);
-      })
-      .finally(() => (loading.value = false));
+    loading.value = true;
+    try {
+      await getDictDetails("job_status");
+      formQuery.page = pagination.currentPage - 1;
+      formQuery.size = pagination.pageSize;
+      dataList.splice(0, dataList.length);
+      const res = await CRUD.get<FormQuery, FormItemProps>(crudURL, {
+        params: formQuery
+      });
+      pagination.total = res.data.totalElements;
+      dataList.push(...res.data.content);
+    } catch (error) {
+      message(`获取岗位数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
+      loading.value = false;
+    }
   }
   /**
    * 新增修改函数
@@ -133,35 +139,39 @@ export function useDept() {
       closeOnClickModal: false,
       contentRenderer: () =>
         h(editForm, { ref: formRef, formInline: formInline }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了岗位名称为${curData.name}的这条数据`, {
-            type: "success"
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
           });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: {
                   name: curData.name,
                   enabled: curData.enabled,
                   jobSort: curData.jobSort
                 }
-              }).then(() => chores());
+              });
             } else if (title === "编辑") {
-              CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).then(() => chores());
+              });
             }
+            message(`您${title}了岗位名称为${curData.name}的这条数据`, {
+              type: "success"
+            });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
@@ -169,13 +179,18 @@ export function useDept() {
    * 删除函数
    * @param row 删除的数据
    */
-  function handleDelete(row) {
-    CRUD.delete(crudURL, {
-      data: [row.id]
-    }).then(() => {
+  async function handleDelete(row) {
+    try {
+      await CRUD.delete(crudURL, {
+        data: [row.id]
+      });
       message(`您删除了岗位名称为${row.name}的这条数据`, { type: "success" });
       onSearch();
-    });
+    } catch (error) {
+      message(`删除岗位失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
   /**
    * 状态: 停用 启用
@@ -183,67 +198,86 @@ export function useDept() {
    * @param index 数据索引
    *
    */
-  function onChange({ row }) {
-    ElMessageBox.confirm(
-      `确认要<strong>${
-        !row.enabled ? "停用" : "启用"
-      }</strong><strong style='color:var(--el-color-primary)'>${
-        row.name
-      }</strong>用户吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        setTimeout(() => {
-          CRUD.put<FormItemProps, FormItemProps>(crudURL, {
-            data: row
-          });
-          message("已成功修改岗位状态", {
-            type: "success"
-          });
-        }, 300);
-      })
-      .catch(() => {
-        row.enabled ? (row.enabled = false) : (row.enabled = true);
+  async function onChange({ row }) {
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>${
+          !row.enabled ? "停用" : "启用"
+        }</strong><strong style='color:var(--el-color-primary)'>${
+          row.name
+        }</strong>岗位吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
+        }
+      );
+
+      await CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+        data: row
       });
+      message("已成功修改岗位状态", {
+        type: "success"
+      });
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`修改岗位状态失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+      }
+      // 恢复原状态
+      row.enabled = !row.enabled;
+    }
   }
 
   async function deleteAll() {
-    ElMessageBox.confirm(
-      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个岗位吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    ).then(() => {
-      CRUD.delete(crudURL, {
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个岗位吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
+        }
+      );
+
+      await CRUD.delete(crudURL, {
         data: multipleSelection.value.map(dept => dept.id)
-      }).then(() => {
-        message("已删除所选的岗位", {
-          type: "success"
-        });
-        onSearch();
       });
-    });
+      message("已删除所选的岗位", {
+        type: "success"
+      });
+      onSearch();
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`删除岗位失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+      }
+    }
   }
   /**
    * 下载表格数据
    */
   const exportClick = async () => {
-    CRUD.download(crudURL);
-    message("导出成功", {
-      type: "success"
-    });
+    try {
+      await CRUD.download(crudURL);
+      message("导出成功", {
+        type: "success"
+      });
+    } catch (error) {
+      message(`导出岗位数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   };
   /**
    * 分页大小
@@ -277,10 +311,16 @@ export function useDept() {
   });
 
   /** 字典查询 */
-  function getDictDetails(name) {
-    getDictDetail(name).then(data => {
+  async function getDictDetails(name) {
+    try {
+      const data = await getDictDetail(name);
       dictsDetails.value = data.data.content;
-    });
+    } catch (error) {
+      message(`获取字典数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+      dictsDetails.value = [];
+    }
   }
 
   return {

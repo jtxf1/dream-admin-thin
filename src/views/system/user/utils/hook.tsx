@@ -23,8 +23,7 @@ import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import * as Img from "@/api/tools/img";
 
-export function useUser(tableRef: Ref, treeRef: Ref) {
-  console.log("treeRef:", treeRef);
+export function useUser(tableRef: Ref) {
   const form = reactive({
     // 左侧部门树的id
     deptId: "",
@@ -41,8 +40,6 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const formRef = ref();
   const dataList = ref([]);
   const loading = ref(true);
-  // 上传头像信息
-  //const avatarInfo = ref();
   const switchLoadMap = ref({});
   const { switchStyle } = usePublicHooks();
   const higherDeptOptions = ref();
@@ -166,14 +163,11 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
     treeLoading.value = true;
     onSearch();
 
-    // 归属部门
-    // const { data } = await getDeptList();
     const { data } = await Dept.getDeptTree({ enabled: true });
     higherDeptOptions.value = handleTree(data, "id", "pid");
     treeData.value = handleTree(data, "id", "pid");
     treeLoading.value = false;
 
-    // 角色列表
     roleOptions.value = (await Role.get()).data.content;
     jobOptions.value = (await CRUD.get("job")).data.content;
   });
@@ -198,9 +192,12 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
   const jobOptions = ref([]);
 
   function onChange({ row, index }) {
+    const originalEnabled = row.enabled;
+    const newEnabled = !originalEnabled;
+
     ElMessageBox.confirm(
       `确认要<strong>${
-        row.enabled ? "激活" : "锁定"
+        newEnabled ? "激活" : "锁定"
       }</strong><strong style='color:var(--el-color-primary)'>${
         row.username
       }</strong>用户吗?`,
@@ -221,7 +218,10 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             loading: true
           }
         );
-        User.edit(row).finally(() => {
+
+        const updatedRow = { ...row, enabled: newEnabled };
+
+        User.edit(updatedRow).finally(() => {
           switchLoadMap.value[index] = Object.assign(
             {},
             switchLoadMap.value[index],
@@ -236,19 +236,22 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         });
       })
       .catch(() => {
-        if (row.status === 1) {
-          row.enabled = 0;
-        } else {
-          row.enabled = 1;
-        }
+        // 取消操作，不需要修改数据，因为我们没有直接修改原始数据
       });
   }
 
   function handleDelete(row) {
-    User.del([row.id]).then(() => {
-      message(`您删除了用户编号为${row.id}的这条数据!`, { type: "success" });
-      onSearch();
-    });
+    User.del([row.id])
+      .then(() => {
+        message(`您删除了用户编号为${row.id}的这条数据!`, { type: "success" });
+        onSearch();
+      })
+      .catch(error => {
+        message("删除用户失败，请稍后重试", {
+          type: "error"
+        });
+        console.error("删除用户失败:", error);
+      });
   }
 
   function handleSizeChange(val: number) {
@@ -283,57 +286,74 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
 
   /** 批量删除 */
   function onbatchDel() {
-    // 返回当前选中的行
     const curSelected = tableRef.value.getTableRef().getSelectionRows();
-    User.del(getKeyList(curSelected, "id")).then(() => {
-      // 接下来根据实际业务，通过选中行的某项数据，比如下面的id，调用接口进行批量删除
-      message(`已删除用户编号为 ${getKeyList(curSelected, "id")} 的数据`, {
-        type: "success"
+    if (curSelected.length === 0) {
+      message("请先选择要删除的用户", {
+        type: "warning"
       });
-      tableRef.value.getTableRef().clearSelection();
-      onSearch();
-    });
+      return;
+    }
+
+    User.del(getKeyList(curSelected, "id"))
+      .then(() => {
+        message(`已删除用户编号为 ${getKeyList(curSelected, "id")} 的数据`, {
+          type: "success"
+        });
+        tableRef.value.getTableRef().clearSelection();
+        onSearch();
+      })
+      .catch(error => {
+        message("批量删除用户失败，请稍后重试", {
+          type: "error"
+        });
+        console.error("批量删除用户失败:", error);
+      });
   }
 
   async function onSearch() {
     loading.value = true;
-    const queryType = new User.UserQueryCriteria();
-    if (!isAllEmpty(form.blurry)) {
-      queryType.blurry = form.blurry;
+    try {
+      const queryType = new User.UserQueryCriteria();
+      if (!isAllEmpty(form.blurry)) {
+        queryType.blurry = form.blurry;
+      }
+      if (!isAllEmpty(form.enabled)) {
+        queryType.enabled = form.enabled;
+      }
+      if (!isAllEmpty(form.createTime)) {
+        queryType.createTime = form.createTime;
+      }
+      if (
+        form.deptId !== null &&
+        form.deptId !== "0" &&
+        form.deptId !== "" &&
+        form.deptId !== " "
+      ) {
+        queryType.deptId = Number(form.deptId);
+      }
+      queryType.page = pagination.currentPage - 1;
+      queryType.size = pagination.pageSize;
+      const data = await User.get(queryType);
+      data.data.content.forEach(userFor => {
+        userFor["roleOptionsId"] = userFor.roles.map(x => x.id);
+        userFor["jobOptionsId"] = userFor.jobs.map(x => x.id);
+      });
+      dataList.value = data.data.content;
+      pagination.total = data.data.totalElements;
+    } catch (error) {
+      message("获取用户列表失败，请稍后重试", {
+        type: "error"
+      });
+      console.error("获取用户列表失败:", error);
+    } finally {
+      loading.value = false;
     }
-    if (!isAllEmpty(form.enabled)) {
-      queryType.enabled = form.enabled;
-    }
-    if (!isAllEmpty(form.createTime)) {
-      queryType.createTime = form.createTime;
-    }
-    if (
-      form.deptId !== null &&
-      form.deptId !== "0" &&
-      form.deptId !== "" &&
-      form.deptId !== " "
-    ) {
-      queryType.deptId = Number(form.deptId);
-    }
-    queryType.page = pagination.currentPage - 1;
-    queryType.size = pagination.pageSize;
-    User.get(queryType)
-      .then(data => {
-        data.data.content.forEach(userFor => {
-          userFor["roleOptionsId"] = userFor.roles.map(x => x.id);
-          userFor["jobOptionsId"] = userFor.jobs.map(x => x.id);
-        });
-        dataList.value = data.data.content;
-        pagination.total = data.data.totalElements;
-      })
-      .finally(() => (loading.value = false));
   }
 
   const resetForm = formEl => {
     if (!formEl) return;
     formEl.resetFields();
     form.deptId = "";
-    //treeRef.value.onTreeReset();
     onSearch();
   };
 
@@ -411,18 +431,32 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
             delete userClone.jobOptionsId;
             // 表单规则校验通过
             if (title === "新增") {
-              User.add(userClone).finally(() => {
-                chores();
-              });
+              User.add(userClone)
+                .then(() => {
+                  chores();
+                })
+                .catch(error => {
+                  message("新增用户失败，请稍后重试", {
+                    type: "error"
+                  });
+                  console.error("新增用户失败:", error);
+                });
             } else {
               // 返回当前选中的行
-              User.edit(
+              const editData =
                 row == null || row.id == null
                   ? tableRef.value.getTableRef().getSelectionRows()
-                  : userClone
-              ).finally(() => {
-                chores();
-              });
+                  : userClone;
+              User.edit(editData)
+                .then(() => {
+                  chores();
+                })
+                .catch(error => {
+                  message("编辑用户失败，请稍后重试", {
+                    type: "error"
+                  });
+                  console.error("编辑用户失败:", error);
+                });
             }
           }
         });
@@ -445,19 +479,41 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
       beforeSure: done => {
         const fd = new FormData();
         fd.append("file", cropperBlob.value, "test.png");
-        Img.uploadPost(fd).then(data => {
-          if (data) {
-            User.updateAvatarByid({
-              id: row.id,
-              avatar: data?.data?.links?.url,
-              key: data?.data?.key
+        Img.uploadPost(fd)
+          .then(data => {
+            if (data) {
+              User.updateAvatarByid({
+                id: row.id,
+                avatar: data?.data?.links?.url,
+                key: data?.data?.key
+              })
+                .then(() => {
+                  message("上传头像成功", {
+                    type: "success"
+                  });
+                })
+                .catch(error => {
+                  message("更新头像信息失败，请稍后重试", {
+                    type: "error"
+                  });
+                  console.error("更新头像信息失败:", error);
+                });
+            } else {
+              message("上传头像失败，请稍后重试", {
+                type: "error"
+              });
+            }
+          })
+          .catch(error => {
+            message("上传头像失败，请稍后重试", {
+              type: "error"
             });
-          }
-        });
-        //User.updateAvatarByid({ id: row.id, avatar: avatarInfo.value.blob });
-        // 根据实际业务使用avatarInfo.value和row里的某些字段去调用上传头像接口即可
-        done(); // 关闭弹框
-        onSearch(); // 刷新表格数据
+            console.error("上传头像失败:", error);
+          })
+          .finally(() => {
+            done();
+            onSearch();
+          });
       }
     });
   }
@@ -481,22 +537,37 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         </>
       ),
       beforeSure: done => {
-        // 表单规则校验通过
-        User.resetPwd([row.id]).then(() => {
-          message(`已成功重置 ${row.username} 用户的密码`, {
-            type: "success"
+        User.resetPwd([row.id])
+          .then(() => {
+            message(`已成功重置 ${row.username} 用户的密码`, {
+              type: "success"
+            });
+          })
+          .catch(error => {
+            message("重置密码失败，请稍后重试", {
+              type: "error"
+            });
+            console.error("重置密码失败:", error);
+          })
+          .finally(() => {
+            done();
+            onSearch();
           });
-        });
-        // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
-        done(); // 关闭弹框
-        onSearch(); // 刷新表格数据
       }
     });
   }
   /** 批量重置密码 */
   function handleResetBatch() {
+    const curSelected = tableRef.value.getTableRef().getSelectionRows();
+    if (curSelected.length === 0) {
+      message("请先选择要重置密码的用户", {
+        type: "warning"
+      });
+      return;
+    }
+
     addDialog({
-      title: `重置 ${getKeyList(tableRef.value.getTableRef().getSelectionRows(), "id")} 用户的密码`,
+      title: `重置 ${getKeyList(curSelected, "id")} 用户的密码`,
       width: "10%",
       draggable: true,
       closeOnClickModal: false,
@@ -506,17 +577,22 @@ export function useUser(tableRef: Ref, treeRef: Ref) {
         </>
       ),
       beforeSure: done => {
-        // 返回当前选中的行
-        const curSelected = tableRef.value.getTableRef().getSelectionRows();
-        // 表单规则校验通过
-        User.resetPwd(getKeyList(curSelected, "id")).then(() => {
-          message(`已成功重置 ${getKeyList(curSelected, "id")} 用户的密码`, {
-            type: "success"
+        User.resetPwd(getKeyList(curSelected, "id"))
+          .then(() => {
+            message(`已成功重置 ${getKeyList(curSelected, "id")} 用户的密码`, {
+              type: "success"
+            });
+          })
+          .catch(error => {
+            message("批量重置密码失败，请稍后重试", {
+              type: "error"
+            });
+            console.error("批量重置密码失败:", error);
+          })
+          .finally(() => {
+            done();
+            onSearch();
           });
-        });
-        // 根据实际业务使用pwdForm.newPwd和row里的某些字段去调用重置用户密码接口即可
-        done(); // 关闭弹框
-        onSearch(); // 刷新表格数据
       }
     });
   }

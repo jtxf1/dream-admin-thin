@@ -137,30 +137,41 @@ export function useDept() {
    * 加载数据
    */
   async function onSearch() {
-    dataList.splice(0, dataList.length);
-    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
-      params: formQuery
-    }).then(res => {
+    loading.value = true;
+    try {
+      dataList.splice(0, dataList.length);
+      const res = await CRUD.get<FormQuery, FormItemProps>(crudURL, {
+        params: formQuery
+      });
       pagination.total = res.data.totalElements;
       dataList.push(...res.data.content);
-    });
-    /** 表格加载完成 */
-    setTimeout(() => {
+    } catch (error) {
+      message(`获取字典数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
   async function onSearchDictDetail() {
-    dataListDictDetail.splice(0, dataListDictDetail.length);
-    await CRUD.get<DictDetailProps, FormQuery>(crudDictDetailURL, {
-      params: formQuery1
-    }).then(res => {
+    loading.value = true;
+    try {
+      dataListDictDetail.splice(0, dataListDictDetail.length);
+      const res = await CRUD.get<DictDetailProps, FormQuery>(
+        crudDictDetailURL,
+        {
+          params: formQuery1
+        }
+      );
       paginationDictDetail.total = res.data.totalElements;
       dataListDictDetail.push(...res.data.content);
-    });
-    /** 表格加载完成 */
-    setTimeout(() => {
+    } catch (error) {
+      message(`获取字典详情数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
   /**
    * 新增修改函数
@@ -182,31 +193,35 @@ export function useDept() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了字典名称为${curData.name}的这条数据`, {
-            type: "success"
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
           });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).finally(() => chores());
+              });
             } else if (title === "编辑") {
-              CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).finally(() => chores());
+              });
             }
+            message(`您${title}了字典名称为${curData.name}的这条数据`, {
+              type: "success"
+            });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
@@ -214,13 +229,18 @@ export function useDept() {
    * 删除函数
    * @param row 删除的数据
    */
-  function handleDelete(row) {
-    CRUD.delete(crudURL, {
-      data: [row.id]
-    }).then(() => {
+  async function handleDelete(row) {
+    try {
+      await CRUD.delete(crudURL, {
+        data: [row.id]
+      });
       message(`您删除了字典名称为${row.name}的这条数据`, { type: "success" });
       onSearch();
-    });
+    } catch (error) {
+      message(`删除字典失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
 
   /**
@@ -248,35 +268,45 @@ export function useDept() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm1, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as DictDetailProps;
-        function chores() {
-          message(
-            `您${title}了字典详情名称为${curData.description}的这条数据`,
-            {
-              type: "success"
-            }
-          );
-          done(); // 关闭弹框
-          onSearchDictDetail(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
+          });
           if (valid) {
             curData.dict = { id: formQuery1.id };
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post<DictDetailProps, FormItemProps>(crudDictDetailURL, {
-                data: curData
-              }).finally(() => chores());
+              await CRUD.post<DictDetailProps, FormItemProps>(
+                crudDictDetailURL,
+                {
+                  data: curData
+                }
+              );
             } else if (title === "编辑") {
-              CRUD.put<DictDetailProps, FormItemProps>(crudDictDetailURL, {
-                data: curData
-              }).finally(() => chores());
+              await CRUD.put<DictDetailProps, FormItemProps>(
+                crudDictDetailURL,
+                {
+                  data: curData
+                }
+              );
             }
+            message(
+              `您${title}了字典详情名称为${curData.description}的这条数据`,
+              {
+                type: "success"
+              }
+            );
+            done(); // 关闭弹框
+            onSearchDictDetail(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
@@ -284,47 +314,61 @@ export function useDept() {
    * 删除函数
    * @param row 删除的数据
    */
-  function handleDelete1(row) {
-    CRUD.delete(crudDictDetailURL + "/" + row.id).then(() => {
+  async function handleDelete1(row) {
+    try {
+      await CRUD.delete(crudDictDetailURL + "/" + row.id);
       message(`您删除了字典详情名称为${row.label}的这条数据`, {
         type: "success"
       });
       onSearchDictDetail();
-    });
+    } catch (error) {
+      message(`删除字典详情失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
 
   async function deleteAll() {
-    ElMessageBox.confirm(
-      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个字典吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        CRUD.delete(crudURL, {
-          data: multipleSelection.value.map(dept => dept.id)
-        }).then(() => {
-          message("已删除所选的字典", {
-            type: "success"
-          });
-          onSearch();
-        });
-      })
-      .catch(() => {
-        onSearch();
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个字典吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
+        }
+      );
+
+      await CRUD.delete(crudURL, {
+        data: multipleSelection.value.map(dept => dept.id)
       });
+      message("已删除所选的字典", {
+        type: "success"
+      });
+      onSearch();
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`删除字典失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+      }
+    }
   }
   const exportClick = async () => {
-    CRUD.download(crudURL);
-    // downloadByUrl("/api/dict/download", "test-url.xls");
-    message("导出成功", {
-      type: "success"
-    });
+    try {
+      await CRUD.download(crudURL);
+      message("导出成功", {
+        type: "success"
+      });
+    } catch (error) {
+      message(`导出字典数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   };
   /**
    * 分页大小
@@ -362,22 +406,28 @@ export function useDept() {
     formQuery1.page = paginationDictDetail.currentPage - 1;
     onSearchDictDetail();
   }
-  function handleRowClick(row: any) {
-    formQuery1.sort = "dictSort,asc;dict_id,asc";
-    formQuery1.id = row.id;
+  async function handleRowClick(row: any) {
+    loading.value = true;
+    try {
+      formQuery1.sort = "dictSort,asc;dict_id,asc";
+      formQuery1.id = row.id;
 
-    dataListDictDetail.splice(0, dataListDictDetail.length);
-    CRUD.get<DictDetailProps, FormDetailQuery>(crudDictDetailURL, {
-      params: formQuery1
-    }).then(res => {
+      dataListDictDetail.splice(0, dataListDictDetail.length);
+      const res = await CRUD.get<DictDetailProps, FormDetailQuery>(
+        crudDictDetailURL,
+        {
+          params: formQuery1
+        }
+      );
       paginationDictDetail.total = res.data.totalElements;
       dataListDictDetail.push(...res.data.content);
-    });
-    /** 表格加载完成 */
-    setTimeout(() => {
+    } catch (error) {
+      message(`获取字典详情数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
-    // 在这里，你可以根据 row 数据做你想做的事情
+    }
   }
 
   /**

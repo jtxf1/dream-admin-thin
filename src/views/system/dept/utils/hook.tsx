@@ -91,24 +91,28 @@ export function useDept() {
   async function onSearch() {
     dataList.value = [];
     loading.value = true;
-    const queryType = new Dept.DeptQueryCriteria();
+    try {
+      const queryType = new Dept.DeptQueryCriteria();
 
-    if (!isAllEmpty(form.name)) {
-      queryType.name = form.name;
-    }
-    if (!isAllEmpty(form.enabled)) {
-      queryType.enabled = form.enabled;
-    }
-    if (!isAllEmpty(form.createTime)) {
-      queryType.createTime = form.createTime;
-    }
-    const depts = (await Dept.getDepts(queryType)).data; // 这里是返回一维数组结构，前端自行处理成树结构，返回格式要求：唯一id加父节点parentId，parentId取父节点id
-    //dataList.value = handleTree2(newData); // 处理成树结构
-    dataList.value = depts;
-    deptCascader.value = extractFields(depts);
-    setTimeout(() => {
+      if (!isAllEmpty(form.name)) {
+        queryType.name = form.name;
+      }
+      if (!isAllEmpty(form.enabled)) {
+        queryType.enabled = form.enabled;
+      }
+      if (!isAllEmpty(form.createTime)) {
+        queryType.createTime = form.createTime;
+      }
+      const depts = (await Dept.getDepts(queryType)).data;
+      dataList.value = depts;
+      deptCascader.value = extractFields(depts);
+    } catch (error) {
+      message(`获取部门数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
   function extractFields(arr) {
     const result = [];
@@ -132,7 +136,6 @@ export function useDept() {
     result.forEach(item => {
       if (item.value === id) {
         item.disabled = true;
-        //item["disabled"] = true;
       }
       if (item.children !== null && item.children.length > 0) {
         item.children = copyFields(item.children, id);
@@ -145,13 +148,13 @@ export function useDept() {
     lazy: true,
     checkStrictly: true,
     lazyLoad(node, resolve) {
-      setTimeout(() => {
-        let queryDept = { pid: node?.data?.value };
-        if (!node.data) {
-          queryDept = null;
-        }
+      let queryDept = { pid: node?.data?.value };
+      if (!node.data) {
+        queryDept = null;
+      }
 
-        Dept.getDepts(queryDept).then(contentData => {
+      Dept.getDepts(queryDept)
+        .then(contentData => {
           const nodes = contentData.data.map(item => ({
             value: item.id,
             label: item.name,
@@ -160,8 +163,13 @@ export function useDept() {
           }));
           // 调用' resolve '回调以返回子节点数据并指示加载完成。
           resolve(nodes);
+        })
+        .catch(error => {
+          message(`加载部门数据失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+          resolve([]);
         });
-      }, 1000);
     }
   };
   function openDialog(title = "新增", row?: FormItemProps) {
@@ -190,102 +198,118 @@ export function useDept() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了部门名称为${curData.name}的这条数据`, {
-            type: "success"
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
           });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              Dept.add({
+              await Dept.add({
                 name: curData.name,
                 pid: curData.pid === 0 ? null : curData.pid[0],
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
-              }).then(() => {
-                chores();
               });
             } else if (title === "编辑") {
-              Dept.edit({
+              await Dept.edit({
                 id: curData.id,
                 name: curData.name,
                 pid: curData.pid === 0 ? null : curData.pid,
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
-              }).then(() => {
-                chores();
               });
-            } else {
-              chores();
             }
+            message(`您${title}了部门名称为${curData.name}的这条数据`, {
+              type: "success"
+            });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
 
-  function handleDelete(row) {
-    Dept.del([row.id]).then(() => {
+  async function handleDelete(row) {
+    try {
+      await Dept.del([row.id]);
       message(`您删除了部门名称为${row.name}的这条数据`, { type: "success" });
-    });
-    onSearch();
+      onSearch();
+    } catch (error) {
+      message(`删除部门失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
 
-  function onChange({ row, index }) {
-    ElMessageBox.confirm(
-      `确认要<strong>${
-        !row.enabled ? "停用" : "启用"
-      }</strong><strong style='color:var(--el-color-primary)'>${
-        row.name
-      }</strong>用户吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
+  async function onChange({ row, index }) {
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>${
+          !row.enabled ? "停用" : "启用"
+        }</strong><strong style='color:var(--el-color-primary)'>${
+          row.name
+        }</strong>部门吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
+        }
+      );
+
+      switchLoadMap.value[index] = Object.assign(
+        {},
+        switchLoadMap.value[index],
+        {
+          loading: true
+        }
+      );
+
+      try {
+        await Dept.edit({
+          id: row.id,
+          name: row.name,
+          pid: row.pid === 0 ? null : row.pid,
+          deptSort: row.deptSort,
+          enabled: row.enabled
+        });
+        message("已成功修改部门状态", {
+          type: "success"
+        });
+      } catch (error) {
+        message(`修改部门状态失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+        // 恢复原状态
+        row.enabled = !row.enabled;
+      } finally {
         switchLoadMap.value[index] = Object.assign(
           {},
           switchLoadMap.value[index],
           {
-            loading: true
+            loading: false
           }
         );
-        setTimeout(() => {
-          switchLoadMap.value[index] = Object.assign(
-            {},
-            switchLoadMap.value[index],
-            {
-              loading: false
-            }
-          );
-          Dept.edit({
-            id: row.id,
-            name: row.name,
-            pid: row.pid === 0 ? null : row.pid,
-            deptSort: row.deptSort,
-            enabled: row.enabled
-          });
-          message("已成功修改部门状态", {
-            type: "success"
-          });
-        }, 300);
-      })
-      .catch(() => {
-        row.enabled ? (row.enabled = false) : (row.enabled = true);
-      });
+      }
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`操作失败：${error.message || "未知错误"}`, { type: "error" });
+      }
+      // 恢复原状态
+      row.enabled = !row.enabled;
+    }
   }
   onMounted(() => {
     onSearch();

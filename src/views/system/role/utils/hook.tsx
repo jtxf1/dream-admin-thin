@@ -10,7 +10,6 @@ import { handleTree } from "@/utils/tree";
 import * as Menu from "@/api/system/menu";
 import { cloneDeep } from "@pureadmin/utils";
 import type { ApiAbstract } from "@/utils/http/ApiAbstract";
-//import { cloneDeep } from "@pureadmin/utils";
 
 export function useRole() {
   const deptList = ref();
@@ -70,19 +69,19 @@ export function useRole() {
       slot: "operation"
     }
   ];
-  // const buttonClass = computed(() => {
-  //   return [
-  //     "!h-[20px]",
-  //     "reset-margin",
-  //     "!text-gray-500",
-  //     "dark:!text-white",
-  //     "dark:hover:!text-primary"
-  //   ];
-  // });
 
   function handleDelete(row) {
-    message(`您删除了角色名称为${row.name}的这条数据`, { type: "success" });
-    Role.del([row.id]).finally(() => onSearch());
+    Role.del([row.id])
+      .then(() => {
+        message(`您删除了角色名称为${row.name}的这条数据`, { type: "success" });
+        onSearch();
+      })
+      .catch(error => {
+        message("删除角色失败，请稍后重试", {
+          type: "error"
+        });
+        console.error("删除角色失败:", error);
+      });
   }
 
   function handleSizeChange(val: number) {
@@ -103,17 +102,17 @@ export function useRole() {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await Role.get(
-      Object.entries(toRaw(form))
-        .filter(([_, value]) => value !== null && value !== "")
-        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
-    );
-    dataList.value = data.content;
-    pagination.total = data.totalElements;
-
-    setTimeout(() => {
+    try {
+      const { data } = await Role.get(
+        Object.entries(toRaw(form))
+          .filter(([_, value]) => value !== null && value !== "")
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
+      );
+      dataList.value = data.content;
+      pagination.total = data.totalElements;
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
 
   const resetForm = formEl => {
@@ -164,9 +163,18 @@ export function useRole() {
                 depts: curData.deptIds.map(person => ({
                   id: Object.values(person)[Object.values(person).length - 1]
                 }))
-              }; // 复制对象
-              delete obj.id; // 删除指定字段
-              Role.add(obj).finally(() => chores());
+              };
+              delete obj.id;
+              Role.add(obj)
+                .then(() => {
+                  chores();
+                })
+                .catch(error => {
+                  message("新增角色失败，请稍后重试", {
+                    type: "error"
+                  });
+                  console.error("新增角色失败:", error);
+                });
             } else if (title === "编辑") {
               const roleOne = {
                 ...curData,
@@ -176,7 +184,16 @@ export function useRole() {
                     : Object.values(person)[Object.values(person).length - 1]
                 }))
               };
-              Role.edit(roleOne).finally(() => chores());
+              Role.edit(roleOne)
+                .then(() => {
+                  chores();
+                })
+                .catch(error => {
+                  message("编辑角色失败，请稍后重试", {
+                    type: "error"
+                  });
+                  console.error("编辑角色失败:", error);
+                });
             }
           }
         });
@@ -194,18 +211,37 @@ export function useRole() {
         menus: menuIds.map(person => ({
           id: person
         }))
-      }).then(() => {
-        onSearch();
-      });
+      })
+        .then(() => {
+          message("角色菜单配置成功", {
+            type: "success"
+          });
+          onSearch();
+        })
+        .catch(error => {
+          message("角色菜单配置失败，请稍后重试", {
+            type: "error"
+          });
+          console.error("角色菜单配置失败:", error);
+        });
     }
   }
   onMounted(async () => {
-    // 归属部门
-    nenus.value = await Menu.menuTree([]);
-    const { data } = nenus.value;
-    treeData.value = cloneDeep(handleTree(data, "id", "parentId"));
-    treeLoading.value = false;
-    onSearch();
+    treeLoading.value = true;
+    try {
+      // 归属部门
+      nenus.value = await Menu.menuTree([]);
+      const { data } = nenus.value;
+      treeData.value = cloneDeep(handleTree(data, "id", "parentId"));
+    } catch (error) {
+      message("获取菜单树失败，请稍后重试", {
+        type: "error"
+      });
+      console.error("获取菜单树失败:", error);
+    } finally {
+      treeLoading.value = false;
+      onSearch();
+    }
   });
 
   return {

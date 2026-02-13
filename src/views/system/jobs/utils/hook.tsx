@@ -156,17 +156,21 @@ export function useDept() {
    * 加载数据
    */
   async function onSearch() {
-    dataList.splice(0, dataList.length);
-    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
-      params: formQuery
-    }).then(res => {
+    loading.value = true;
+    try {
+      dataList.splice(0, dataList.length);
+      const res = await CRUD.get<FormQuery, FormItemProps>(crudURL, {
+        params: formQuery
+      });
       pagination.total = res.data.totalElements;
       dataList.push(...res.data.content);
-    });
-    /** 表格加载完成 */
-    setTimeout(() => {
+    } catch (error) {
+      message(`获取定时任务数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    } finally {
       loading.value = false;
-    }, 500);
+    }
   }
   /**
    * 新增修改函数
@@ -198,31 +202,35 @@ export function useDept() {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
-        function chores() {
-          message(`您${title}了定时任务名称为${curData.beanName}的这条数据`, {
-            type: "success"
+        try {
+          const valid = await new Promise(resolve => {
+            FormRef.validate(valid => resolve(valid));
           });
-          done(); // 关闭弹框
-          onSearch(); // 刷新表格数据
-        }
-        FormRef.validate(valid => {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
-              // 实际开发先调用新增接口，再进行下面操作
-              CRUD.post<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).finally(() => chores());
+              });
             } else if (title === "编辑") {
-              CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+              await CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).finally(() => chores());
+              });
             }
+            message(`您${title}了定时任务名称为${curData.beanName}的这条数据`, {
+              type: "success"
+            });
+            done(); // 关闭弹框
+            onSearch(); // 刷新表格数据
           }
-        });
+        } catch (error) {
+          message(`操作失败：${error.message || "未知错误"}`, {
+            type: "error"
+          });
+        }
       }
     });
   }
@@ -230,68 +238,88 @@ export function useDept() {
    * 删除函数
    * @param row 删除的数据
    */
-  function handleDelete(row) {
-    CRUD.delete(crudURL, {
-      data: [row.id]
-    }).then(() => {
+  async function handleDelete(row) {
+    try {
+      await CRUD.delete(crudURL, {
+        data: [row.id]
+      });
       message(`您删除了定时任务名称为${row.jobName}的这条数据`, {
         type: "success"
       });
-    });
-    onSearch();
+      onSearch();
+    } catch (error) {
+      message(`删除定时任务失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   }
 
   async function deleteAll() {
-    ElMessageBox.confirm(
-      `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个定时任务吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        CRUD.delete(crudURL, {
-          data: multipleSelection.value.map(dept => dept.id)
-        }).then(() => {
-          message("已删除所选的定时任务", {
-            type: "success"
-          });
-          onSearch();
-        });
-      })
-      .catch(() => {
-        onSearch();
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>删除所选的</strong><strong style='color:var(--el-color-primary)'>${multipleSelection.value.length}</strong>个定时任务吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
+        }
+      );
+
+      await CRUD.delete(crudURL, {
+        data: multipleSelection.value.map(dept => dept.id)
       });
-  }
-  const exportClick = async () => {
-    CRUD.download(crudURL);
-    message("导出成功", {
-      type: "success"
-    });
-  };
-  const runTask = async (id: number) => {
-    CRUD.put(crudURL + "/exec/" + id);
-    message("执行成功", {
-      type: "success"
-    });
-  };
-  const recoverTask = async (id: number) => {
-    CRUD.put(crudURL + "/" + id)
-      .then(() => {
-        message("恢复成功", {
-          type: "success"
-        });
-        onSearch();
-      })
-      .catch(() => {
-        message("恢复失败", {
+      message("已删除所选的定时任务", {
+        type: "success"
+      });
+      onSearch();
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`删除定时任务失败：${error.message || "未知错误"}`, {
           type: "error"
         });
+      }
+    }
+  }
+  const exportClick = async () => {
+    try {
+      await CRUD.download(crudURL);
+      message("导出成功", {
+        type: "success"
       });
+    } catch (error) {
+      message(`导出定时任务数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
+  };
+  const runTask = async (id: number) => {
+    try {
+      await CRUD.put(crudURL + "/exec/" + id);
+      message("执行成功", {
+        type: "success"
+      });
+    } catch (error) {
+      message(`执行定时任务失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
+  };
+  const recoverTask = async (id: number) => {
+    try {
+      await CRUD.put(crudURL + "/" + id);
+      message("恢复成功", {
+        type: "success"
+      });
+      onSearch();
+    } catch (error) {
+      message(`恢复定时任务失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+    }
   };
   /**
    * 分页大小
@@ -332,34 +360,38 @@ export function useDept() {
     });
   }
 
-  function onChange({ row }) {
-    ElMessageBox.confirm(
-      `确认要<strong>${
-        row.isPause ? "启用" : "停用"
-      }</strong><strong style='color:var(--el-color-primary)'>${
-        row.jobName
-      }</strong>任务吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确认",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        CRUD.put<FormItemProps, FormItemProps>(crudURL, {
-          data: row
-        }).finally(() => onSearch());
-      })
-      .catch(() => {
-        if (row.status === 1) {
-          row.enabled = 0;
-        } else {
-          row.enabled = 1;
+  async function onChange({ row }) {
+    try {
+      await ElMessageBox.confirm(
+        `确认要<strong>${
+          row.isPause ? "启用" : "停用"
+        }</strong><strong style='color:var(--el-color-primary)'>${
+          row.jobName
+        }</strong>任务吗?`,
+        "系统提示",
+        {
+          confirmButtonText: "确认",
+          cancelButtonText: "取消",
+          type: "warning",
+          dangerouslyUseHTMLString: true,
+          draggable: true
         }
+      );
+
+      await CRUD.put<FormItemProps, FormItemProps>(crudURL, {
+        data: row
       });
+      onSearch();
+    } catch (error) {
+      // 用户取消操作
+      if (error !== "cancel") {
+        message(`修改定时任务状态失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+      }
+      // 恢复原状态
+      row.isPause = !row.isPause;
+    }
   }
   /** 页面初始化完成执行的函数 */
   onMounted(() => {
