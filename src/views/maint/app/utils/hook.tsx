@@ -7,7 +7,7 @@ import { ElMessageBox } from "element-plus";
 import { PageQuery } from "@/utils/http/ApiAbstract";
 import { CRUD, pagination } from "@/api/utils";
 
-export function useDept() {
+export function useApp() {
   //查询条件
   const formQuery = reactive<FormQuery>(new PageQuery());
   /** 请求URL */
@@ -87,14 +87,20 @@ export function useDept() {
    */
   async function onSearch() {
     dataList.splice(0, dataList.length);
-    await CRUD.get<FormQuery, FormItemProps>(crudURL, {
-      params: formQuery
-    })
-      .then(res => {
-        pagination.total = res.data.totalElements;
-        dataList.push(...res.data.content);
-      })
-      .finally(() => (loading.value = false));
+    try {
+      const res = await CRUD.get<FormQuery, FormItemProps>(crudURL, {
+        params: formQuery
+      });
+      pagination.total = res.data.totalElements;
+      dataList.push(...res.data.content);
+    } catch (error) {
+      message("获取数据失败，请稍后重试", {
+        type: "error"
+      });
+      console.log(error.message);
+    } finally {
+      loading.value = false;
+    }
   }
   /**
    * 新增修改函数
@@ -142,11 +148,23 @@ export function useDept() {
               // 实际开发先调用新增接口，再进行下面操作
               CRUD.post<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).then(() => chores());
+              })
+                .then(() => chores())
+                .catch(() => {
+                  message("新增失败，请稍后重试", {
+                    type: "error"
+                  });
+                });
             } else if (title === "编辑") {
               CRUD.put<FormItemProps, FormItemProps>(crudURL, {
                 data: curData
-              }).then(() => chores());
+              })
+                .then(() => chores())
+                .catch(() => {
+                  message("编辑失败，请稍后重试", {
+                    type: "error"
+                  });
+                });
             }
           }
         });
@@ -160,12 +178,18 @@ export function useDept() {
   function handleDelete(row) {
     CRUD.delete(crudURL, {
       data: [row.id]
-    }).then(() => {
-      message(`您删除了应用管理名称为${row.name}的这条数据`, {
-        type: "success"
+    })
+      .then(() => {
+        message(`您删除了应用管理名称为${row.name}的这条数据`, {
+          type: "success"
+        });
+        onSearch();
+      })
+      .catch(() => {
+        message("删除失败，请稍后重试", {
+          type: "error"
+        });
       });
-      onSearch();
-    });
   }
 
   async function deleteAll() {
@@ -182,22 +206,35 @@ export function useDept() {
     ).then(() => {
       CRUD.delete(crudURL, {
         data: multipleSelection.value.map(dept => dept.id)
-      }).then(() => {
-        message("已删除所选的应用管理", {
-          type: "success"
+      })
+        .then(() => {
+          message("已删除所选的应用管理", {
+            type: "success"
+          });
+          onSearch();
+        })
+        .catch(() => {
+          message("删除失败，请稍后重试", {
+            type: "error"
+          });
         });
-        onSearch();
-      });
     });
   }
   /**
    * 下载表格数据
    */
   const exportClick = async () => {
-    CRUD.download(crudURL);
-    message("导出成功", {
-      type: "success"
-    });
+    try {
+      CRUD.download(crudURL);
+      message("导出成功", {
+        type: "success"
+      });
+    } catch (error) {
+      message("导出失败，请稍后重试", {
+        type: "error"
+      });
+      console.log(error.message);
+    }
   };
   /**
    * 分页大小

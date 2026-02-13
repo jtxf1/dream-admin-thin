@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useDept } from "./utils/hook";
+import { useHistory } from "./utils/hook";
 import type { FormProps } from "./utils/types";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
@@ -39,7 +39,7 @@ const {
   handleSelectionChange,
   deleteAll,
   exportClick
-} = useDept(newFormInline);
+} = useHistory(newFormInline);
 
 const handleCurrentChange2 = (row?: any) => {
   rowRef.value = row;

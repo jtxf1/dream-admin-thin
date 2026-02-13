@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useDept } from "./utils/hook";
+import { useDeploy } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
@@ -41,7 +41,7 @@ const {
   stopServer,
   formUpload,
   serverReduction
-} = useDept();
+} = useDeploy();
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useDept } from "./utils/hook";
+import { useApp } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import datePicker from "@/views/components/date-picker.vue";
@@ -34,7 +34,7 @@ const {
   handleSelectionChange,
   deleteAll,
   exportClick
-} = useDept();
+} = useApp();
 </script>
 
 <template>
