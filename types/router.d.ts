@@ -106,4 +106,9 @@ declare global {
 declare module "vue-router" {
   // eslint-disable-next-line
   interface RouteMeta extends CustomizeRouteMeta {}
+
+  // 扩展RouteRecordRaw类型，添加parentId属性（用于后端返回的动态路由）
+  interface RouteRecordRaw {
+    parentId?: string | number;
+  }
 }

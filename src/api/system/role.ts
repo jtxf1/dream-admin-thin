@@ -1,22 +1,34 @@
 import { http } from "@/utils/http";
 import { type ApiAbstract, PageQuery } from "@/utils/http/ApiAbstract";
 import { baseUrlApi } from "../utils";
-import type { Dept } from "./dept";
+import type { User } from "./user";
+
+// 菜单类型定义
+export interface Menu {
+  id: number;
+  name: string;
+  path: string;
+  component?: string;
+  icon?: string;
+  sort?: number;
+  parentId?: number;
+  children?: Menu[];
+}
 
 export class Role {
   id: number;
   /**
    * 用户
    */
-  users: any;
+  users: User[];
   /**
    * 菜单
    */
-  menus: any;
+  menus: Menu[];
   /**
    * 部门
    */
-  depts: Dept[] | any[];
+  depts: Array<{ id: number | string }>;
   /**
    * 名称
    */
@@ -44,28 +56,33 @@ export const getAll = (data: Partial<RoleQueryCriteria>) => {
   });
 };
 
-export const get = (params?: number | any) => {
+export const get = (params?: number | Partial<RoleQueryCriteria>) => {
   return http.request<ApiAbstract<Role>>("get", baseUrlApi("roles"), {
     params
   });
 };
 
 export const getLevel = () => {
-  return http.request("get", baseUrlApi("roles/level"));
+  return http.request<ApiAbstract<{ level: number }>>(
+    "get",
+    baseUrlApi("roles/level")
+  );
 };
 
-export const editMenu = (data: { id: number; menus: any[] }) => {
-  return http.request("put", baseUrlApi("roles/menu"), { data });
+export const editMenu = (data: { id: number; menus: Menu[] }) => {
+  return http.request<ApiAbstract<unknown>>("put", baseUrlApi("roles/menu"), {
+    data
+  });
 };
 export const add = (data: Partial<Role>) => {
-  return http.request("post", baseUrlApi("roles"), {
+  return http.request<ApiAbstract<Role>>("post", baseUrlApi("roles"), {
     data
   });
 };
 
-export const del = (ids: number[] | any) => {
-  return http.request("delete", baseUrlApi("roles"), {
-    data: ids
+export const del = (ids: number[] | number) => {
+  return http.request<ApiAbstract<unknown>>("delete", baseUrlApi("roles"), {
+    data: Array.isArray(ids) ? ids : [ids]
   });
 };
 export const edit = (data: Partial<Role>) => {
@@ -73,8 +90,8 @@ export const edit = (data: Partial<Role>) => {
     data
   });
 };
-export const menus = (data: { id: number; menus: any[] }) => {
-  return http.request("put", baseUrlApi("roles/menu"), {
+export const menus = (data: { id: number; menus: Menu[] }) => {
+  return http.request<ApiAbstract<unknown>>("put", baseUrlApi("roles/menu"), {
     data
   });
 };

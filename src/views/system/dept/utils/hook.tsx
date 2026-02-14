@@ -148,9 +148,13 @@ export function useDept() {
     lazy: true,
     checkStrictly: true,
     lazyLoad(node, resolve) {
-      let queryDept = { pid: node?.data?.value };
-      if (!node.data) {
-        queryDept = null;
+      let queryDept = null;
+      if (node.data) {
+        const pidValue = node.data.value;
+        // 确保pid是字符串或数字类型
+        const pid =
+          typeof pidValue === "object" ? Object.values(pidValue)[0] : pidValue;
+        queryDept = { pid };
       }
 
       Dept.getDepts(queryDept)

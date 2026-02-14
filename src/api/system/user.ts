@@ -9,6 +9,18 @@ import type { Role } from "./role";
 import type { Dept } from "./dept";
 import { encrypt } from "@/utils/rsaEncrypt";
 
+// 岗位类型定义
+export interface Job {
+  id: number;
+  name: string;
+  jobSort: number;
+  enabled: boolean;
+  createBy?: string;
+  createTime?: Date;
+  updateBy?: string;
+  updateTime?: Date;
+}
+
 export class User extends VersionEntity {
   id: number;
   /**
@@ -18,6 +30,7 @@ export class User extends VersionEntity {
   /**
    * 用户岗位
    */
+  jobs: Job[];
   /**
    * 用户部门
    */
@@ -57,7 +70,7 @@ export class User extends VersionEntity {
   /**
    * 是否启用
    */
-  enabled: string;
+  enabled: boolean;
   /**
    * 是否为admin账号
    */
@@ -75,25 +88,25 @@ export class UserQueryCriteria extends PageQuery {
   blurry: string;
 }
 
-export const get = (params: number | any) => {
+export const get = (params: number | Partial<UserQueryCriteria>) => {
   return http.request<ApiAbstract<User>>("get", baseUrlApi("users"), {
     params
   });
 };
 
 export const add = (data: Partial<User>) => {
-  return http.request("post", baseUrlApi("users"), {
+  return http.request<ApiAbstract<User>>("post", baseUrlApi("users"), {
     data
   });
 };
 
-export const del = (ids: number[] | any) => {
-  return http.request("delete", baseUrlApi("users"), {
-    data: ids
+export const del = (ids: number[] | number) => {
+  return http.request<ApiAbstract<unknown>>("delete", baseUrlApi("users"), {
+    data: Array.isArray(ids) ? ids : [ids]
   });
 };
 export const edit = (data: Partial<User>) => {
-  return http.request("put", baseUrlApi("users"), {
+  return http.request<ApiAbstract<User>>("put", baseUrlApi("users"), {
     data
   });
 };
@@ -138,21 +151,32 @@ export function updatePass({
   });
 }
 
-export function resetEmail(data) {
-  return http.request("post", baseUrlApi("code/resetEmail?email=" + data));
+export function resetEmail(email: string) {
+  return http.request<ApiAbstract<unknown>>(
+    "post",
+    baseUrlApi("code/resetEmail?email=" + email)
+  );
 }
 
-export function updateEmail(form) {
+export function updateEmail(form: {
+  pass: string;
+  email: string;
+  code: string;
+}) {
   const data = {
     password: encrypt(form.pass),
     email: form.email
   };
-  return http.request("post", baseUrlApi("users/updateEmail/" + form.code), {
-    data
-  });
+  return http.request<ApiAbstract<unknown>>(
+    "post",
+    baseUrlApi("users/updateEmail/" + form.code),
+    {
+      data
+    }
+  );
 }
-export function editUser(data) {
-  return http.request("put", baseUrlApi("users/center"), {
+export function editUser(data: Partial<User>) {
+  return http.request<ApiAbstract<User>>("put", baseUrlApi("users/center"), {
     data
   });
 }
@@ -167,8 +191,12 @@ export function getLog<T>(page: number, size: number) {
   });
 }
 
-export function resetPwd(data) {
-  return http.request("put", baseUrlApi("users/resetPwd"), {
-    data
-  });
+export function resetPwd(ids: number[] | number) {
+  return http.request<ApiAbstract<unknown>>(
+    "put",
+    baseUrlApi("users/resetPwd"),
+    {
+      data: Array.isArray(ids) ? ids : [ids]
+    }
+  );
 }

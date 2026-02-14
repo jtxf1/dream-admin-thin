@@ -7,7 +7,6 @@ import { message } from "@/utils/message";
 import { usePublicHooks } from "@/utils/theme";
 import { addDialog } from "@/components/ReDialog";
 import type { PaginationProps } from "@pureadmin/table";
-import type { FormItemProps } from "../utils/types";
 import {
   hideTextAtIndex,
   getKeyList,
@@ -19,12 +18,67 @@ import * as Dept from "@/api/system/dept";
 import { CRUD, baseUrlHello } from "@/api/utils";
 import * as Role from "@/api/system/role";
 import { ElMessageBox } from "element-plus";
-import { type Ref, h, ref, watch, computed, reactive, onMounted } from "vue";
+import { h, ref, watch, computed, reactive, onMounted } from "vue";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import * as Img from "@/api/tools/img";
 
-export function useUser(tableRef: Ref) {
-  const form = reactive({
+// 类型定义
+interface TableRef {
+  value: {
+    setAdaptive: () => void;
+    getTableRef: () => any;
+  };
+}
+
+interface SwitchLoadMap {
+  [key: number]: {
+    loading: boolean;
+  };
+}
+
+interface HigherDeptOption {
+  id: number;
+  label: string;
+  children?: HigherDeptOption[];
+  disabled?: boolean;
+  status?: number;
+}
+
+interface UserRow extends User.User {
+  roleOptionsId?: number[];
+  jobOptionsId?: number[];
+  remark?: string;
+}
+
+interface FormData {
+  deptId: string;
+  username: string;
+  createTime: string;
+  phone: string;
+  status: string;
+  blurry: string;
+  enabled: string;
+}
+
+interface PwdFormData {
+  newPwd: string;
+}
+
+interface CropperResult {
+  blob: Blob;
+}
+
+interface UploadResult {
+  data?: {
+    links?: {
+      url: string;
+    };
+    key: string;
+  };
+}
+
+export function useUser(tableRef: TableRef) {
+  const form = reactive<FormData>({
     // 左侧部门树的id
     deptId: "",
     username: "",
@@ -35,15 +89,17 @@ export function useUser(tableRef: Ref) {
     enabled: ""
   });
   //要编辑的user
-  const userEdit = reactive({ user: {} });
-  const cropperBlob = ref();
-  const formRef = ref();
-  const dataList = ref([]);
+  const userEdit = reactive({ user: {} as Partial<UserRow> });
+  const cropperBlob = ref<Blob | undefined>();
+  const formRef = ref<{
+    getRef: () => { validate: (callback: (valid: boolean) => void) => void };
+  }>();
+  const dataList = ref<UserRow[]>([]);
   const loading = ref(true);
-  const switchLoadMap = ref({});
+  const switchLoadMap = ref<SwitchLoadMap>({});
   const { switchStyle } = usePublicHooks();
-  const higherDeptOptions = ref();
-  const treeData = ref([]);
+  const higherDeptOptions = ref<HigherDeptOption[] | undefined>();
+  const treeData = ref<HigherDeptOption[]>([]);
   const treeLoading = ref(true);
   const selectedNum = ref(0);
   /** 分页配置 */
@@ -183,15 +239,15 @@ export function useUser(tableRef: Ref) {
   });
 
   // 重置的新密码
-  const pwdForm = reactive({
+  const pwdForm = reactive<PwdFormData>({
     newPwd: ""
   });
   // 当前密码强度（0-4）
-  const curScore = ref();
-  const roleOptions = ref([]);
-  const jobOptions = ref([]);
+  const curScore = ref<number | undefined>();
+  const roleOptions = ref<Role.Role[]>([]);
+  const jobOptions = ref<User.Job[]>([]);
 
-  function onChange({ row, index }) {
+  function onChange({ row, index }: { row: UserRow; index: number }) {
     const originalEnabled = row.enabled;
     const newEnabled = !originalEnabled;
 
@@ -240,7 +296,7 @@ export function useUser(tableRef: Ref) {
       });
   }
 
-  function handleDelete(row) {
+  function handleDelete(row: UserRow) {
     User.del([row.id])
       .then(() => {
         message(`您删除了用户编号为${row.id}的这条数据!`, { type: "success" });
@@ -265,28 +321,30 @@ export function useUser(tableRef: Ref) {
   }
 
   /** 当CheckBox选择项发生变化时会触发该事件 */
-  function handleSelectionChange(val) {
+  function handleSelectionChange(val: UserRow[]) {
     selectedNum.value = val.length;
     // 重置表格高度
     tableRef.value.setAdaptive();
     if (val.length === 1) {
       userEdit.user = val[0];
     } else {
-      userEdit.user = {};
+      userEdit.user = {} as Partial<UserRow>;
     }
   }
 
   /** 取消选择 */
   function onSelectionCancel() {
     selectedNum.value = 0;
-    userEdit.user = {};
+    userEdit.user = {} as Partial<UserRow>;
     // 用于多选表格，清空用户的选择
     tableRef.value.getTableRef().clearSelection();
   }
 
   /** 批量删除 */
   function onbatchDel() {
-    const curSelected = tableRef.value.getTableRef().getSelectionRows();
+    const curSelected = tableRef.value
+      .getTableRef()
+      .getSelectionRows() as UserRow[];
     if (curSelected.length === 0) {
       message("请先选择要删除的用户", {
         type: "warning"
@@ -310,7 +368,7 @@ export function useUser(tableRef: Ref) {
       });
   }
 
-  async function onSearch() {
+  async function onSearch(): Promise<void> {
     loading.value = true;
     try {
       const queryType = new User.UserQueryCriteria();
@@ -350,22 +408,24 @@ export function useUser(tableRef: Ref) {
     }
   }
 
-  const resetForm = formEl => {
+  const resetForm = (formEl: { resetFields: () => void } | undefined) => {
     if (!formEl) return;
     formEl.resetFields();
     form.deptId = "";
     onSearch();
   };
 
-  function onTreeSelect({ id, selected }) {
+  function onTreeSelect({ id, selected }: { id: string; selected: boolean }) {
     form.deptId = selected ? id : "";
     onSearch();
   }
 
-  function formatHigherDeptOptions(treeList) {
+  function formatHigherDeptOptions(
+    treeList: HigherDeptOption[] | undefined
+  ): HigherDeptOption[] | undefined {
     // 根据返回数据的status字段值判断追加是否禁用disabled字段，返回处理后的树结构，用于上级部门级联选择器的展示（实际开发中也是如此，不可能前端需要的每个字段后端都会返回，这时需要前端自行根据后端返回的某些字段做逻辑处理）
     if (!treeList || !treeList.length) return;
-    const newTreeList = [];
+    const newTreeList: HigherDeptOption[] = [];
     for (let i = 0; i < treeList.length; i++) {
       treeList[i].disabled = treeList[i].status === 0 ? true : false;
       formatHigherDeptOptions(treeList[i].children);
@@ -374,7 +434,7 @@ export function useUser(tableRef: Ref) {
     return newTreeList;
   }
 
-  function openDialog(title = "新增", row?: FormItemProps | any) {
+  function openDialog(title: string = "新增", row?: Partial<UserRow>) {
     addDialog({
       title: `${title}用户`,
       props: {
@@ -402,9 +462,9 @@ export function useUser(tableRef: Ref) {
       fullscreenIcon: true,
       closeOnClickModal: false,
       contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      beforeSure: (done: () => void, { options }: { options: any }) => {
         const FormRef = formRef.value.getRef();
-        const curData = options.props.formInline as FormItemProps;
+        const curData = options.props.formInline as any;
         function chores() {
           message(`您${title}了用户名称为${curData.nickName}的这条数据`, {
             type: "success"
@@ -412,7 +472,7 @@ export function useUser(tableRef: Ref) {
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
-        FormRef.validate(valid => {
+        FormRef.validate((valid: boolean) => {
           if (valid) {
             const userClone = cloneDeep(curData);
             userClone["dept"] = { id: userClone.parentId };
@@ -465,7 +525,7 @@ export function useUser(tableRef: Ref) {
   }
 
   /** 上传头像 */
-  function handleUpload(row) {
+  function handleUpload(row: UserRow) {
     addDialog({
       title: "裁剪、上传头像",
       width: "40%",
@@ -474,13 +534,13 @@ export function useUser(tableRef: Ref) {
       contentRenderer: () =>
         h(ReCropperPreview, {
           imgSrc: baseUrlHello(row.avatarPath),
-          onCropper: ({ blob }) => (cropperBlob.value = blob)
+          onCropper: ({ blob }: CropperResult) => (cropperBlob.value = blob)
         }),
-      beforeSure: done => {
+      beforeSure: (done: () => void) => {
         const fd = new FormData();
         fd.append("file", cropperBlob.value, "test.png");
         Img.uploadPost(fd)
-          .then(data => {
+          .then((data: UploadResult) => {
             if (data) {
               User.updateAvatarByid({
                 id: row.id,
@@ -520,12 +580,12 @@ export function useUser(tableRef: Ref) {
 
   watch(
     pwdForm,
-    ({ newPwd }) =>
+    ({ newPwd }: PwdFormData) =>
       (curScore.value = isAllEmpty(newPwd) ? -1 : zxcvbn(newPwd).score)
   );
 
   /** 重置密码 */
-  function handleReset(row) {
+  function handleReset(row: UserRow) {
     addDialog({
       title: `重置 ${row.username} 用户的密码`,
       width: "10%",
@@ -536,7 +596,7 @@ export function useUser(tableRef: Ref) {
           <div class="mt-1 flex"></div>
         </>
       ),
-      beforeSure: done => {
+      beforeSure: (done: () => void) => {
         User.resetPwd([row.id])
           .then(() => {
             message(`已成功重置 ${row.username} 用户的密码`, {
@@ -558,7 +618,9 @@ export function useUser(tableRef: Ref) {
   }
   /** 批量重置密码 */
   function handleResetBatch() {
-    const curSelected = tableRef.value.getTableRef().getSelectionRows();
+    const curSelected = tableRef.value
+      .getTableRef()
+      .getSelectionRows() as UserRow[];
     if (curSelected.length === 0) {
       message("请先选择要重置密码的用户", {
         type: "warning"
@@ -576,7 +638,7 @@ export function useUser(tableRef: Ref) {
           <div class="mt-1 flex"></div>
         </>
       ),
-      beforeSure: done => {
+      beforeSure: (done: () => void) => {
         User.resetPwd(getKeyList(curSelected, "id"))
           .then(() => {
             message(`已成功重置 ${getKeyList(curSelected, "id")} 用户的密码`, {
@@ -597,7 +659,7 @@ export function useUser(tableRef: Ref) {
     });
   }
 
-  const exportClick = async () => {
+  const exportClick = async (): Promise<void> => {
     CRUD.download("users");
 
     message("导出成功", {

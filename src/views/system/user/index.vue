@@ -47,7 +47,7 @@ const {
   handleSelectionChange,
   handleResetBatch,
   exportClick
-} = useUser(tableRef, treeRef);
+} = useUser(tableRef);
 </script>
 
 <template>

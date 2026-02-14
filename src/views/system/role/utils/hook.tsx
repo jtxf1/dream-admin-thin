@@ -178,11 +178,16 @@ export function useRole() {
             } else if (title === "编辑") {
               const roleOne = {
                 ...curData,
-                depts: curData.deptIds.map(person => ({
-                  id: isFiniteNumber(person)
-                    ? person
-                    : Object.values(person)[Object.values(person).length - 1]
-                }))
+                depts: curData.deptIds.map(person => {
+                  let idValue: string | number;
+                  if (isFiniteNumber(person)) {
+                    idValue = person;
+                  } else {
+                    const values = Object.values(person);
+                    idValue = values[values.length - 1] as string | number;
+                  }
+                  return { id: idValue };
+                })
               };
               Role.edit(roleOne)
                 .then(() => {

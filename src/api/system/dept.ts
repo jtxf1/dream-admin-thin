@@ -1,6 +1,7 @@
 import { http } from "@/utils/http";
 import { PageQuery, type ApiAbstract } from "@/utils/http/ApiAbstract";
 import { baseUrlApi } from "../utils";
+import type { Menu } from "./role";
 
 export class Dept {
   createBy: string;
@@ -18,21 +19,25 @@ export class Dept {
   subCount: number;
   updateBy: string;
   updateTime: Date;
-  menus: any[];
+  menus: Menu[];
 }
 export class DeptQueryCriteria extends PageQuery {
   name: string;
   enabled: boolean;
-  pid: number;
+  pid: string | number;
   pidIsNull: boolean;
 }
 
-export const getDepts = (params: DeptQueryCriteria | any) => {
+export const getDepts = (
+  params: DeptQueryCriteria | Partial<DeptQueryCriteria>
+) => {
   return http.request<ApiAbstract<Dept>>("get", baseUrlApi("dept"), {
     params
   });
 };
-export const getDeptTree = (params?: DeptQueryCriteria | any) => {
+export const getDeptTree = (
+  params?: DeptQueryCriteria | Partial<DeptQueryCriteria>
+) => {
   return http.request<ApiAbstract<Dept>>("get", baseUrlApi("dept/treeAll"), {
     params
   });
@@ -51,9 +56,9 @@ export const add = (data: Partial<Dept>) => {
   });
 };
 
-export const del = (ids: number[] | any) => {
-  return http.request("delete", baseUrlApi("dept"), {
-    data: ids
+export const del = (ids: number[] | number) => {
+  return http.request<ApiAbstract<unknown>>("delete", baseUrlApi("dept"), {
+    data: Array.isArray(ids) ? ids : [ids]
   });
 };
 export const edit = (data: Partial<Dept>) => {
