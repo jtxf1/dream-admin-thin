@@ -18,6 +18,59 @@ import NProgress from "../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { message } from "@/utils/message";
 
+/**
+ * 防抖函数类型
+ */
+type DebounceFunction<T extends (...args: any[]) => any> = {
+  (
+    ...args: Parameters<T>
+  ): ReturnType<T> extends Promise<infer R>
+    ? Promise<R>
+    : Promise<ReturnType<T>>;
+  cancel: () => void;
+};
+
+/**
+ * 防抖函数
+ * @param func - 要执行的函数
+ * @param wait - 等待时间（毫秒）
+ * @returns 防抖处理后的函数
+ */
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number = 300
+): DebounceFunction<T> {
+  let timeout: NodeJS.Timeout | null = null;
+
+  const debounced = (...args: Parameters<T>): any => {
+    return new Promise((resolve, reject) => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(async () => {
+        try {
+          const result = await func(...args);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          timeout = null;
+        }
+      }, wait);
+    });
+  };
+
+  debounced.cancel = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+  };
+
+  return debounced as DebounceFunction<T>;
+}
+
 // 禁用跨域请求时携带凭证
 Axios.defaults.withCredentials = false;
 
@@ -59,6 +112,15 @@ class PureHttp {
 
   /** 保存当前`Axios`实例对象 */
   private static axiosInstance: AxiosInstance = Axios.create(defaultConfig);
+
+  /** 防抖请求映射表 */
+  private static debounceMap: Map<string, DebounceFunction<any>> = new Map();
+
+  /** 防抖默认配置 */
+  private static readonly defaultDebounceConfig = {
+    wait: 300, // 默认防抖延迟时间
+    enabled: true // 默认禁用防抖
+  };
 
   /**
    * 请求白名单
@@ -190,6 +252,22 @@ class PureHttp {
   }
 
   /**
+   * 生成请求唯一键
+   * @param method - 请求方法
+   * @param url - 请求URL
+   * @param param - 请求参数
+   * @returns 请求唯一键
+   */
+  private static generateRequestKey(
+    method: RequestMethods,
+    url: string,
+    param?: AxiosRequestConfig
+  ): string {
+    const paramsStr = param ? JSON.stringify(param) : "";
+    return `${method}:${url}:${paramsStr}`;
+  }
+
+  /**
    * 通用请求工具函数
    * @template T - 响应数据类型
    * @param method - 请求方法
@@ -202,17 +280,56 @@ class PureHttp {
     method: RequestMethods,
     url: string,
     param?: AxiosRequestConfig,
-    axiosConfig?: PureHttpRequestConfig
+    axiosConfig?: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    }
   ): Promise<T> {
-    const config: PureHttpRequestConfig = {
+    const config: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    } = {
       method,
       url,
       ...param,
       ...axiosConfig
     };
 
-    // 直接返回axios实例的请求结果，避免不必要的Promise包装
-    // 由于响应拦截器会返回response.data，所以实际返回类型是T
+    // 获取防抖配置
+    const debounceConfig = {
+      ...PureHttp.defaultDebounceConfig,
+      ...config.debounce
+    };
+
+    // 如果启用防抖
+    if (debounceConfig.enabled) {
+      const requestKey = PureHttp.generateRequestKey(method, url, param);
+
+      // 如果已有相同请求的防抖函数，取消之前的
+      if (PureHttp.debounceMap.has(requestKey)) {
+        const existingDebounce = PureHttp.debounceMap.get(requestKey);
+        if (existingDebounce) {
+          existingDebounce.cancel();
+        }
+      }
+
+      // 创建新的防抖函数
+      const debouncedRequest = debounce((): Promise<T> => {
+        return PureHttp.axiosInstance.request(config) as unknown as Promise<T>;
+      }, debounceConfig.wait);
+
+      // 保存到映射表
+      PureHttp.debounceMap.set(requestKey, debouncedRequest);
+
+      // 执行防抖请求
+      return debouncedRequest();
+    }
+
+    // 直接执行请求，不使用防抖
     return PureHttp.axiosInstance.request(config) as unknown as Promise<T>;
   }
 
@@ -228,7 +345,12 @@ class PureHttp {
   public post<T, P>(
     url: string,
     params?: AxiosRequestConfig<P>,
-    config?: PureHttpRequestConfig
+    config?: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    }
   ): Promise<T> {
     return this.request<T>("post", url, params, config);
   }
@@ -245,7 +367,12 @@ class PureHttp {
   public get<T, P>(
     url: string,
     params?: AxiosRequestConfig<P>,
-    config?: PureHttpRequestConfig
+    config?: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    }
   ): Promise<T> {
     return this.request<T>("get", url, params, config);
   }
@@ -262,7 +389,12 @@ class PureHttp {
   public put<T, P>(
     url: string,
     params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig
+    config?: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    }
   ): Promise<P> {
     return this.request<P>("put", url, params, config);
   }
@@ -279,7 +411,12 @@ class PureHttp {
   public delete<T, P>(
     url: string,
     params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig
+    config?: PureHttpRequestConfig & {
+      debounce?: {
+        enabled?: boolean;
+        wait?: number;
+      };
+    }
   ): Promise<P> {
     return this.request<P>("delete", url, params, config);
   }
