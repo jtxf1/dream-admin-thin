@@ -113,6 +113,17 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       sourcemap: false,
       // 消除打包大小超过500kb警告
       chunkSizeWarningLimit: 4000,
+      // 启用CSS代码分割
+      cssCodeSplit: true,
+      // 启用terser压缩
+      minify: "terser",
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ["console.log"]
+        }
+      },
       rollupOptions: {
         input: {
           index: pathResolve("./index.html", import.meta.url)
@@ -121,7 +132,20 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         output: {
           chunkFileNames: "static/js/[name]-[hash].js",
           entryFileNames: "static/js/[name]-[hash].js",
-          assetFileNames: "static/[ext]/[name]-[hash].[ext]"
+          assetFileNames: "static/[ext]/[name]-[hash].[ext]",
+          // 代码分割策略
+          manualChunks: {
+            // 第三方依赖打包
+            vendor: ["vue", "vue-router", "pinia", "axios"],
+            // 大型UI库单独打包
+            element: ["element-plus"],
+            // 图表库单独打包
+            echarts: ["echarts"],
+            // 编辑器相关打包
+            editor: ["@wangeditor/editor", "@wangeditor/editor-for-vue"],
+            // 工具库打包
+            utils: ["@pureadmin/utils", "@vueuse/core", "dayjs", "mitt"]
+          }
         }
       }
     },

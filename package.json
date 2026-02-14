@@ -132,6 +132,7 @@
     "stylelint-prettier": "latest",
     "svgo": "latest",
     "tailwindcss": "latest",
+    "terser": "^5.46.0",
     "typescript": "latest",
     "typescript-eslint": "latest",
     "unplugin-icons": "latest",

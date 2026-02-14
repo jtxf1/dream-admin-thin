@@ -18,7 +18,11 @@ const include = [
   "sortablejs",
   "@vueuse/core",
   "@pureadmin/utils",
-  "responsive-storage"
+  "responsive-storage",
+  "element-plus",
+  "echarts",
+  "@wangeditor/editor",
+  "@wangeditor/editor-for-vue"
 ];
 
 /**
