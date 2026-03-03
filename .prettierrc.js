@@ -5,5 +5,11 @@ export default {
   bracketSpacing: true,
   singleQuote: false,
   arrowParens: "avoid",
-  trailingComma: "none"
+  trailingComma: "none",
+  semi: true,
+  useTabs: false,
+  tabWidth: 2,
+  endOfLine: "lf",
+  printWidth: 80,
+  proseWrap: "preserve"
 };

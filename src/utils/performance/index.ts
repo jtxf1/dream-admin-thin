@@ -415,10 +415,7 @@ export class PerformanceMonitor {
    */
   private reportMetric(metric: PerformanceMetric): void {
     // 这里可以实现指标上报到后端的逻辑
-    // 暂时只在控制台打印
-    if (process.env.NODE_ENV === "development") {
-      console.log("Performance Metric:", metric);
-    }
+    metric;
   }
 
   /**

@@ -2,77 +2,16 @@
  * HTTP请求工具类
  * 基于Axios的封装，提供统一的请求拦截、响应处理、错误处理等功能
  */
-import Axios, {
-  type AxiosInstance,
-  type AxiosRequestConfig,
-  type CustomParamsSerializer
-} from "axios";
+import Axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
 import type {
-  PureHttpError,
-  RequestMethods,
-  PureHttpResponse,
   PureHttpRequestConfig,
-  ErrorType
-} from "./types.d";
-import { ErrorType as ErrorTypeEnum } from "./types.d";
-import { stringify } from "qs";
-import NProgress from "../progress";
-import { getToken, formatToken, removeToken } from "@/utils/auth";
-import { message } from "@/utils/message";
-import router from "@/router";
-
-/**
- * 防抖函数类型
- */
-type DebounceFunction<T extends (...args: any[]) => any> = {
-  (
-    ...args: Parameters<T>
-  ): ReturnType<T> extends Promise<infer R>
-    ? Promise<R>
-    : Promise<ReturnType<T>>;
-  cancel: () => void;
-};
-
-/**
- * 防抖函数
- * @param func - 要执行的函数
- * @param wait - 等待时间（毫秒）
- * @returns 防抖处理后的函数
- */
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number = 300
-): DebounceFunction<T> {
-  let timeout: NodeJS.Timeout | null = null;
-
-  const debounced = (...args: Parameters<T>): any => {
-    return new Promise((resolve, reject) => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      timeout = setTimeout(async () => {
-        try {
-          const result = await func(...args);
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        } finally {
-          timeout = null;
-        }
-      }, wait);
-    });
-  };
-
-  debounced.cancel = () => {
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-    }
-  };
-
-  return debounced as DebounceFunction<T>;
-}
+  RequestMethods
+} from "@/utils/http/modules/types";
+import { debounce, type DebounceFunction } from "./modules/debounce";
+import {
+  setupRequestInterceptor,
+  setupResponseInterceptor
+} from "./modules/interceptors";
 
 // 禁用跨域请求时携带凭证
 Axios.defaults.withCredentials = false;
@@ -92,7 +31,17 @@ const defaultConfig: AxiosRequestConfig = {
   },
   // 数组格式参数序列化（https://github.com/axios/axios/issues/5142）
   paramsSerializer: {
-    serialize: stringify as unknown as CustomParamsSerializer
+    serialize: (params: any) => {
+      const arr: string[] = [];
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          arr.push(
+            `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+          );
+        }
+      });
+      return arr.join("&");
+    }
   }
 };
 
@@ -101,15 +50,6 @@ const defaultConfig: AxiosRequestConfig = {
  * 提供请求拦截、响应拦截、统一错误处理等功能
  */
 class PureHttp {
-  /**
-   * 构造函数
-   * 初始化请求拦截器和响应拦截器
-   */
-  constructor() {
-    this.httpInterceptorsRequest();
-    this.httpInterceptorsResponse();
-  }
-
   /** 初始化配置对象 */
   private static initConfig: PureHttpRequestConfig = {};
 
@@ -126,140 +66,19 @@ class PureHttp {
   };
 
   /**
-   * 请求白名单
-   * 放置一些不需要`token`的接口
-   * 通过设置请求白名单，防止`token`过期后再请求造成的死循环问题
+   * 构造函数
+   * 初始化请求拦截器和响应拦截器
    */
-  private static readonly whiteList: string[] = [
-    "/refresh-token",
-    "/login",
-    "/auth",
-    "/auth/*",
-    "/i/*"
-  ];
-
-  /**
-   * 检查URL是否在白名单中
-   * @param url - 要检查的URL
-   * @returns 是否在白名单中
-   */
-  private static isInWhiteList(url: string): boolean {
-    return this.whiteList.some(
-      whiteUrl =>
-        whiteUrl === url ||
-        (whiteUrl.endsWith("*") &&
-          url.startsWith(whiteUrl.replace("*", "")) &&
-          url !== "/auth/logout")
-    );
+  constructor() {
+    this.setupInterceptors();
   }
 
   /**
-   * 请求拦截器
-   * 处理请求前的逻辑，如添加token、开启进度条等
+   * 设置拦截器
    */
-  private httpInterceptorsRequest(): void {
-    PureHttp.axiosInstance.interceptors.request.use(
-      async (config): Promise<any> => {
-        // 开启进度条动画
-        NProgress.start();
-
-        // 删除请求头中的 cookie 属性
-        if (config.headers && "cookie" in config.headers) {
-          delete config.headers["cookie"];
-        }
-
-        // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
-        if (
-          typeof (config as PureHttpRequestConfig).beforeRequestCallback ===
-          "function"
-        ) {
-          (config as PureHttpRequestConfig).beforeRequestCallback(
-            config as PureHttpRequestConfig
-          );
-          return config;
-        }
-
-        if (PureHttp.initConfig.beforeRequestCallback) {
-          PureHttp.initConfig.beforeRequestCallback(
-            config as PureHttpRequestConfig
-          );
-          return config;
-        }
-
-        // 检查是否在白名单中，不在则添加token
-        if (!PureHttp.isInWhiteList(config.url || "")) {
-          const data = getToken();
-          if (data && data.accessToken) {
-            // 使用类型断言来处理headers类型问题
-            (config.headers as any) = {
-              ...config.headers,
-              Authorization: formatToken(data.accessToken)
-            };
-          }
-        }
-
-        return config;
-      },
-      (error: any): Promise<any> => {
-        // 关闭进度条
-        NProgress.done();
-        // 显示错误消息
-        message("请求异常!", { type: "error" });
-        return Promise.reject(error);
-      }
-    );
-  }
-
-  /**
-   * 响应拦截器
-   * 处理响应后逻辑，如关闭进度条、处理响应数据、统一错误处理等
-   */
-  private httpInterceptorsResponse(): void {
-    const instance = PureHttp.axiosInstance;
-
-    instance.interceptors.response.use(
-      (response: PureHttpResponse): any => {
-        const $config = response.config;
-        // 关闭进度条动画
-        NProgress.done();
-
-        // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
-        if (typeof $config.beforeResponseCallback === "function") {
-          $config.beforeResponseCallback(response);
-          return response.data;
-        }
-
-        if (PureHttp.initConfig.beforeResponseCallback) {
-          PureHttp.initConfig.beforeResponseCallback(response);
-          return response.data;
-        }
-
-        return response.data;
-      },
-      (error: PureHttpError): Promise<PureHttpError> => {
-        // 关闭进度条
-        NProgress.done();
-
-        // 处理错误
-        const handledError = PureHttp.handleError(error);
-
-        // 检查是否需要显示错误消息
-        const showMessage =
-          (error.config as any)?.errorHandlerConfig?.showMessage !== false;
-        if (showMessage && !handledError.isCancelRequest) {
-          const errorMessage = PureHttp.getErrorMessage(handledError);
-          message(errorMessage, { type: "error" });
-        }
-
-        // 检查是否有自定义错误处理函数
-        if ((error.config as any)?.errorHandlerConfig?.customHandler) {
-          (error.config as any).errorHandlerConfig.customHandler(handledError);
-        }
-
-        // 所有的响应异常 区分来源为取消请求/非取消请求
-        return Promise.reject(handledError);
-      }
-    );
+  private setupInterceptors(): void {
+    setupRequestInterceptor(PureHttp.axiosInstance);
+    setupResponseInterceptor(PureHttp.axiosInstance);
   }
 
   /**
@@ -279,168 +98,6 @@ class PureHttp {
   }
 
   /**
-   * 识别错误类型
-   * @param error - HTTP错误对象
-   * @returns 错误类型
-   */
-  private static identifyErrorType(error: PureHttpError): ErrorType {
-    // 检查是否为取消请求
-    if (Axios.isCancel(error)) {
-      return ErrorTypeEnum.CANCEL_ERROR;
-    }
-
-    // 检查是否为网络错误
-    if (!error.response) {
-      return ErrorTypeEnum.NETWORK_ERROR;
-    }
-
-    const status = error.response.status;
-
-    // 根据HTTP状态码判断错误类型
-    switch (true) {
-      case status === 401:
-        return ErrorTypeEnum.AUTH_ERROR;
-      case status === 403:
-        return ErrorTypeEnum.PERMISSION_ERROR;
-      case status === 404:
-        return ErrorTypeEnum.NOT_FOUND_ERROR;
-      case status >= 500:
-        return ErrorTypeEnum.SERVER_ERROR;
-      case status >= 400:
-        return ErrorTypeEnum.CLIENT_ERROR;
-      default:
-        return ErrorTypeEnum.CLIENT_ERROR;
-    }
-  }
-
-  /**
-   * 处理业务错误码
-   * @param error - HTTP错误对象
-   * @returns 业务错误码对象
-   */
-  private static handleBusinessError(error: PureHttpError) {
-    if (error.response?.data) {
-      const data = error.response.data as any;
-      if (data.code || data.message) {
-        return {
-          code: data.code || "UNKNOWN",
-          message: data.message || "业务处理失败"
-        };
-      }
-    }
-    return null;
-  }
-
-  /**
-   * 记录错误日志
-   * @param error - HTTP错误对象
-   */
-  private static logError(error: PureHttpError) {
-    const errorInfo = {
-      timestamp: new Date().toISOString(),
-      url: error.config?.url || "未知URL",
-      method: error.config?.method || "未知方法",
-      errorType: error.errorType,
-      status: error.response?.status,
-      businessError: error.businessError,
-      message: error.message,
-      stack: error.stack
-    };
-
-    // 在开发环境下打印详细错误信息
-    if (import.meta.env.DEV) {
-      console.error("[HTTP Error]:", errorInfo);
-    }
-
-    // 可以在这里添加错误日志上报逻辑
-    // 例如：sendErrorLog(errorInfo);
-  }
-
-  /**
-   * 获取错误提示信息
-   * @param error - HTTP错误对象
-   * @returns 错误提示信息
-   */
-  private static getErrorMessage(error: PureHttpError): string {
-    // 优先使用业务错误消息
-    if (error.businessError?.message) {
-      return error.businessError.message;
-    }
-
-    // 根据错误类型返回默认错误消息
-    switch (error.errorType) {
-      case ErrorTypeEnum.NETWORK_ERROR:
-        return "网络连接失败，请检查网络设置";
-      case ErrorTypeEnum.AUTH_ERROR:
-        return "认证失败，请重新登录";
-      case ErrorTypeEnum.PERMISSION_ERROR:
-        return "权限不足，无法访问该资源";
-      case ErrorTypeEnum.NOT_FOUND_ERROR:
-        return "请求的资源不存在";
-      case ErrorTypeEnum.SERVER_ERROR:
-        return "服务器内部错误，请稍后重试";
-      case ErrorTypeEnum.CLIENT_ERROR:
-        return "请求参数错误，请检查请求信息";
-      case ErrorTypeEnum.CANCEL_ERROR:
-        return "请求已取消";
-      default:
-        return "请求失败，请稍后重试";
-    }
-  }
-
-  /**
-   * 处理错误
-   * @param error - HTTP错误对象
-   * @returns 处理后的错误对象
-   */
-  private static handleError(error: PureHttpError): PureHttpError {
-    // 标记是否为取消请求
-    error.isCancelRequest = Axios.isCancel(error);
-
-    // 识别错误类型
-    error.errorType = this.identifyErrorType(error);
-
-    // 处理业务错误码
-    const businessError = this.handleBusinessError(error);
-    if (businessError) {
-      error.businessError = businessError;
-      error.errorType = ErrorTypeEnum.BUSINESS_ERROR;
-    }
-
-    // 添加错误时间戳
-    error.timestamp = Date.now();
-
-    // 记录错误日志
-    this.logError(error);
-
-    // 根据错误类型执行不同的处理策略
-    switch (error.errorType) {
-      case ErrorTypeEnum.AUTH_ERROR:
-        // 认证错误，清除token并重定向到登录页
-        removeToken();
-        router.push({
-          path: "/login",
-          query: { redirect: router.currentRoute.value.fullPath }
-        });
-        break;
-      case ErrorTypeEnum.PERMISSION_ERROR:
-        // 权限错误，重定向到403页面
-        router.push("/403");
-        break;
-      case ErrorTypeEnum.NOT_FOUND_ERROR:
-        // 资源不存在错误，重定向到404页面
-        router.push("/404");
-        break;
-      case ErrorTypeEnum.SERVER_ERROR:
-        // 服务器内部错误，重定向到500页面
-        router.push("/500");
-        break;
-    }
-
-    return error;
-  }
-
-  /**
    * 通用请求工具函数
    * @template T - 响应数据类型
    * @param method - 请求方法
@@ -453,19 +110,9 @@ class PureHttp {
     method: RequestMethods,
     url: string,
     param?: AxiosRequestConfig,
-    axiosConfig?: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    }
+    axiosConfig?: PureHttpRequestConfig
   ): Promise<T> {
-    const config: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    } = {
+    const config: PureHttpRequestConfig = {
       method,
       url,
       ...param,
@@ -518,12 +165,7 @@ class PureHttp {
   public post<T, P>(
     url: string,
     params?: AxiosRequestConfig<P>,
-    config?: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    }
+    config?: PureHttpRequestConfig
   ): Promise<T> {
     return this.request<T>("post", url, params, config);
   }
@@ -540,12 +182,7 @@ class PureHttp {
   public get<T, P>(
     url: string,
     params?: AxiosRequestConfig<P>,
-    config?: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    }
+    config?: PureHttpRequestConfig
   ): Promise<T> {
     return this.request<T>("get", url, params, config);
   }
@@ -562,12 +199,7 @@ class PureHttp {
   public put<T, P>(
     url: string,
     params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    }
+    config?: PureHttpRequestConfig
   ): Promise<P> {
     return this.request<P>("put", url, params, config);
   }
@@ -584,12 +216,7 @@ class PureHttp {
   public delete<T, P>(
     url: string,
     params?: AxiosRequestConfig<T>,
-    config?: PureHttpRequestConfig & {
-      debounce?: {
-        enabled?: boolean;
-        wait?: number;
-      };
-    }
+    config?: PureHttpRequestConfig
   ): Promise<P> {
     return this.request<P>("delete", url, params, config);
   }
