@@ -228,7 +228,7 @@ defineExpose({ onTreeReset });
                   : Dept
             "
           />
-          {{ data.title }}
+          {{ data.title || data.name || data.label }}
         </span>
       </template>
     </el-tree>
