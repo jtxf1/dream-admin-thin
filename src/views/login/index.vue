@@ -2,7 +2,7 @@
 import { useI18n } from "vue-i18n";
 import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
-import { loginRules } from "./utils/rule";
+import { loginRules, loginRulesRealTime } from "./utils/rule";
 import phone from "./components/phone.vue";
 import TypeIt from "@/components/ReTypeit";
 import { debounce } from "@pureadmin/utils";
@@ -190,7 +190,7 @@ watch(loginDay, value => {
             v-if="currentPage === 0"
             ref="ruleFormRef"
             :model="ruleForm"
-            :rules="loginRules"
+            :rules="loginRulesRealTime"
             size="large"
           >
             <Motion :delay="100">

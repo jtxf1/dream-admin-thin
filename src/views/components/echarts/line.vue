@@ -79,7 +79,7 @@ const initChartOptions = () => {
     },
     series: [
       {
-        name: "内存",
+        name: "ROM",
         type: "line",
         stack: "Total",
         data: props.romData,

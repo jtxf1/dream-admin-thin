@@ -29,7 +29,10 @@ const calculate = (
   el: HTMLElement,
   value: RippleOptions = {}
 ) => {
+  // 批量读取布局属性，减少强制重排
   const offset = el.getBoundingClientRect();
+  const clientWidth = el.clientWidth;
+  const clientHeight = el.clientHeight;
 
   // 获取点击位置距离 el 的垂直和水平距离
   const localX = e.clientX - offset.left;
@@ -40,17 +43,17 @@ const calculate = (
   // 计算点击位置到 el 顶点最远距离，即为圆的最大半径（勾股定理）
   if (el._ripple?.circle) {
     scale = 0.15;
-    radius = el.clientWidth / 2;
+    radius = clientWidth / 2;
     radius = value.center
       ? radius
       : radius + Math.sqrt((localX - radius) ** 2 + (localY - radius) ** 2) / 4;
   } else {
-    radius = Math.sqrt(el.clientWidth ** 2 + el.clientHeight ** 2) / 2;
+    radius = Math.sqrt(clientWidth ** 2 + clientHeight ** 2) / 2;
   }
 
   // 中心点坐标
-  const centerX = `${(el.clientWidth - radius * 2) / 2}px`;
-  const centerY = `${(el.clientHeight - radius * 2) / 2}px`;
+  const centerX = `${(clientWidth - radius * 2) / 2}px`;
+  const centerY = `${(clientHeight - radius * 2) / 2}px`;
 
   // 点击位置坐标
   const x = value.center ? centerX : `${localX - radius}px`;

@@ -86,19 +86,18 @@ const moveToView = async (index: number): Promise<void> => {
   const tabNavPadding = 10;
   if (!instance.refs["dynamic" + index]) return;
   const tabItemEl = instance.refs["dynamic" + index][0];
+
+  // 批量读取布局属性，减少强制重排
   const tabItemElOffsetLeft = (tabItemEl as HTMLElement)?.offsetLeft;
   const tabItemOffsetWidth = (tabItemEl as HTMLElement)?.offsetWidth;
-  // 标签页导航栏可视长度（不包含溢出部分）
   const scrollbarDomWidth = scrollbarDom.value
     ? scrollbarDom.value?.offsetWidth
     : 0;
-
-  // 已有标签页总长度（包含溢出部分）
   const tabDomWidth = tabDom.value ? tabDom.value?.offsetWidth : 0;
 
-  scrollbarDomWidth <= tabDomWidth
-    ? (isShowArrow.value = true)
-    : (isShowArrow.value = false);
+  // 批量更新状态，减少DOM操作次数
+  isShowArrow.value = scrollbarDomWidth <= tabDomWidth;
+
   if (tabDomWidth < scrollbarDomWidth || tabItemElOffsetLeft === 0) {
     translateX.value = 0;
   } else if (tabItemElOffsetLeft < -translateX.value) {

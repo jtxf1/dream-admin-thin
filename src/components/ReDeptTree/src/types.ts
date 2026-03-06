@@ -1,20 +1,17 @@
 export interface TreeData {
   id: string | number;
+  name?: string;
   label: string;
+  type?: number;
   children?: TreeData[];
   [key: string]: any;
 }
 
 export interface DeptTreeProps {
   treeData: TreeData[];
-  loading?: boolean;
-  defaultExpandedKeys?: (string | number)[];
-  defaultCheckedKeys?: (string | number)[];
-  checkStrictly?: boolean;
-  showCheckbox?: boolean;
+  treeLoading?: boolean;
 }
 
 export interface DeptTreeEmits {
-  select: [node: any, selected: boolean];
-  check: [checkedKeys: (string | number)[], checkedNodes: any[]];
+  "tree-select": [{ id: number; menuIds: (string | number)[] }];
 }

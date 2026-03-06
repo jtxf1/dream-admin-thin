@@ -32,7 +32,6 @@ const exportClick = async () => {
   });
 };
 const formRef = ref();
-const tableRef = ref();
 const {
   form,
   loading,
@@ -52,7 +51,6 @@ const {
   handleCurrentChange,
   handleCurrentChange1
 } = useRole();
-
 const searchFields: SearchFormField[] = [
   {
     label: "角色名称：",
@@ -193,9 +191,3 @@ const handleRowOperation = (action: string, row: any) => {
     />
   </div>
 </template>
-
-<style scoped lang="scss">
-/* 使用Tailwind工具类替代原有样式 */
-
-/* .search-form 已通过class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] space-y-3"实现 */
-</style>

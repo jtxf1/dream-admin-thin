@@ -3,7 +3,7 @@ import { useI18n } from "vue-i18n";
 import { ref, reactive } from "vue";
 import Motion from "../utils/motion";
 import { message } from "@/utils/message";
-import { updateRules } from "../utils/rule";
+import { registerRules, registerRulesRealTime } from "../utils/rule";
 import type { FormInstance } from "element-plus";
 import { useVerifyCode } from "../utils/verifyCode";
 import { $t, transformI18n } from "@/plugins/i18n";
@@ -26,33 +26,19 @@ const ruleForm = reactive({
 const ruleFormRef = ref<FormInstance>();
 const { isDisabled, text } = useVerifyCode();
 
-const repeatPasswordRule = [
-  {
-    validator: (_rule: any, value: string, callback: any) => {
-      if (value === "") {
-        callback(new Error(transformI18n($t("login.passwordSureReg"))));
-      } else if (ruleForm.password !== value) {
-        callback(new Error(transformI18n($t("login.passwordDifferentReg"))));
-      } else {
-        callback();
-      }
-    },
-    trigger: "blur"
-  }
-];
-
 const onUpdate = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   try {
     await formEl.validate();
     if (checked.value) {
       loading.value = true;
+      // 减少延迟时间，提高用户体验
       setTimeout(() => {
         message(transformI18n($t("login.registerSuccess")), {
           type: "success"
         });
         loading.value = false;
-      }, 2000);
+      }, 500);
     } else {
       message(transformI18n($t("login.tickPrivacy")), { type: "warning" });
     }
@@ -72,20 +58,11 @@ function onBack() {
   <el-form
     ref="ruleFormRef"
     :model="ruleForm"
-    :rules="updateRules"
+    :rules="registerRulesRealTime"
     size="large"
   >
     <Motion>
-      <el-form-item
-        :rules="[
-          {
-            required: true,
-            message: transformI18n($t('login.usernameReg')),
-            trigger: 'blur'
-          }
-        ]"
-        prop="username"
-      >
+      <el-form-item prop="username">
         <el-input
           v-model="ruleForm.username"
           clearable
@@ -143,7 +120,7 @@ function onBack() {
     </Motion>
 
     <Motion :delay="250">
-      <el-form-item :rules="repeatPasswordRule" prop="repeatPassword">
+      <el-form-item prop="repeatPassword">
         <el-input
           v-model="ruleForm.repeatPassword"
           clearable
