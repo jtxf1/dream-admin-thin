@@ -18,6 +18,9 @@
     "lint:prettier": "prettier --write  \"src/**/*.{js,ts,json,tsx,css,scss,vue,html,md}\"",
     "lint:stylelint": "stylelint --cache --fix \"**/*.{html,vue,css,scss}\" --cache-location node_modules/.cache/stylelint/",
     "lint": "pnpm lint:eslint && pnpm lint:prettier && pnpm lint:stylelint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "prepare": "husky",
     "preinstall": "npx only-allow pnpm"
   },
@@ -106,6 +109,7 @@
     "@types/sortablejs": "latest",
     "@vitejs/plugin-vue": "latest",
     "@vitejs/plugin-vue-jsx": "latest",
+    "@vitest/coverage-v8": "4.0.18",
     "baseline-browser-mapping": "^2.9.19",
     "boxen": "latest",
     "code-inspector-plugin": "latest",
@@ -144,6 +148,7 @@
     "vite-plugin-router-warn": "latest",
     "vite-plugin-vue-devtools": "latest",
     "vite-svg-loader": "latest",
+    "vitest": "^4.0.18",
     "vue-eslint-parser": "latest",
     "vue-img-cutter": "latest",
     "vue-tsc": "latest"
