@@ -82,7 +82,6 @@ onMounted(() => {
           }
           if (latestData) {
             Object.assign(monitorCPU, latestData);
-            console.log("monitorCPU 已更新:", monitorCPU);
             // 更新图表数据
             const currentTime = dayjs().format("HH:mm:ss");
             // 添加数据到数组

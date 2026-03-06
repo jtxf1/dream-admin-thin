@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRole } from "./utils/hook";
-import tree from "./tree.vue";
 import { PureTableBar } from "@/components/RePureTableBar";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { ReSearchForm } from "@/components/ReSearchForm";
+import { ReTableActions } from "@/components/ReTableActions";
+import { ReTableOperation } from "@/components/ReTableOperation";
+import { ReDeptTree } from "@/components/ReDeptTree";
 import * as Role from "@/api/system/role";
 import { message } from "@/utils/message";
-import datePicker from "@/views/components/date-picker.vue";
-
-// import Database from "~icons/ri/database-2-line";
-// import More from "~icons/ep/more-filled";
-import Delete from "~icons/ep/delete";
-import EditPen from "~icons/ep/edit-pen";
-import Refresh from "~icons/ep/refresh";
-import AddFill from "~icons/ri/add-circle-line";
-import Search from "~icons/ep/search";
+import type { SearchFormField } from "@/components/ReSearchForm/src/types";
+import type { TableAction } from "@/components/ReTableActions/src/types";
+import type { TableOperation } from "@/components/ReTableOperation/src/types";
 
 defineOptions({
   name: "Role"
@@ -47,71 +43,110 @@ const {
   treeLoading,
   currentRow,
   parentId,
-  // buttonClass,
   onTreeSelect,
-  // buttonClass,
   onSearch,
   resetForm,
   openDialog,
   handleDelete,
-  // handleDatabase,
   handleSizeChange,
   handleCurrentChange,
   handleCurrentChange1
 } = useRole();
+
+const searchFields: SearchFormField[] = [
+  {
+    label: "角色名称：",
+    prop: "blurry",
+    type: "input",
+    placeholder: "请输入角色名称",
+    clearable: true,
+    width: "200px"
+  },
+  {
+    label: "",
+    prop: "createTime",
+    type: "daterange"
+  }
+];
+
+const tableActions: TableAction[] = [
+  {
+    label: "新增角色",
+    type: "primary",
+    icon: "ri:add-circle-line",
+    action: "add",
+    disabled: () => false
+  },
+  {
+    label: "导出数据",
+    type: "success",
+    icon: "solar:upload-bold",
+    action: "export",
+    disabled: () => false
+  }
+];
+
+const rowOperations: TableOperation[] = [
+  {
+    label: "修改",
+    type: "primary",
+    icon: "ep:edit-pen",
+    action: "edit",
+    visible: () => true
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: "ep:delete",
+    action: "delete",
+    visible: () => true,
+    confirm: true,
+    confirmMessage: row => `是否确认删除角色名称为${row.name}的这条数据`
+  }
+];
+
+const handleTableAction = (action: string) => {
+  switch (action) {
+    case "add":
+      openDialog();
+      break;
+    case "export":
+      exportClick();
+      break;
+  }
+};
+
+const handleRowOperation = (action: string, row: any) => {
+  switch (action) {
+    case "edit":
+      openDialog("编辑", row);
+      break;
+    case "delete":
+      handleDelete(row);
+      break;
+  }
+};
 </script>
 
 <template>
   <div class="flex justify-between">
     <div class="w-[calc(90%-180px)]">
-      <el-form
-        ref="formRef"
-        :inline="true"
+      <ReSearchForm
+        :fields="searchFields"
         :model="form"
-        class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px]"
-      >
-        <el-form-item label="角色名称：" prop="blurry">
-          <el-input
-            v-model="form.blurry"
-            placeholder="请输入角色名称"
-            clearable
-            class="!w-[200px]"
-          />
-        </el-form-item>
-        <el-form-item label="" prop="createTime">
-          <datePicker v-model="form.createTime" />
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            :icon="useRenderIcon(Search)"
-            :loading="loading"
-            @click="onSearch"
-          >
-            搜索
-          </el-button>
-          <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
-            重置
-          </el-button>
-        </el-form-item>
-      </el-form>
+        :loading="loading"
+        @search="onSearch"
+        @reset="resetForm(formRef)"
+      />
 
       <PureTableBar title="角色列表" :columns="columns" @refresh="onSearch">
         <template #buttons>
-          <el-button
-            type="primary"
-            :icon="useRenderIcon(AddFill)"
-            @click="openDialog()"
-          >
-            新增角色
-          </el-button>
-          <el-button
-            type="success"
-            :icon="useRenderIcon('solar:upload-bold')"
-            @click="exportClick()"
-          >
-            导出数据
-          </el-button>
+          <ReTableActions
+            :actions="tableActions"
+            :selectedCount="0"
+            :loading="loading"
+            @action="handleTableAction"
+          />
         </template>
         <template v-slot="{ size, dynamicColumns }">
           <pure-table
@@ -137,44 +172,24 @@ const {
             @current-change="handleCurrentChange1"
           >
             <template #operation="{ row }">
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
+              <ReTableOperation
+                :row="row"
                 :size="size"
-                :icon="useRenderIcon(EditPen)"
-                @click="openDialog('编辑', row)"
-              >
-                修改
-              </el-button>
-              <el-popconfirm
-                :title="`是否确认删除角色名称为${row.name}的这条数据`"
-                @confirm="handleDelete(row)"
-              >
-                <template #reference>
-                  <el-button
-                    class="reset-margin"
-                    link
-                    type="primary"
-                    :size="size"
-                    :icon="useRenderIcon(Delete)"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-popconfirm>
+                :operations="rowOperations"
+                @operation="handleRowOperation"
+              />
             </template>
           </pure-table>
         </template>
       </PureTableBar>
     </div>
-    <tree
+    <ReDeptTree
       v-model:currentRow="currentRow"
       v-model:deptId="parentId"
       class="w-[calc(25%-180px)]"
       :treeData="treeData"
       :treeLoading="treeLoading"
-      @tree-select="onTreeSelect"
+      @select="onTreeSelect"
     />
   </div>
 </template>
