@@ -194,6 +194,7 @@ defineExpose({ onTreeReset });
       :current-node-key="treeRef2"
       :expand-on-click-node="false"
       :filter-node-method="filterNode"
+      class="dept-tree"
     >
       <template #default="{ node, data }">
         <span
@@ -204,7 +205,9 @@ defineExpose({ onTreeReset });
             'flex',
             'items-center',
             'select-none',
-            'hover:text-primary',
+            'transition-all',
+            'duration-200',
+            'ease-in-out',
             searchValue.trim().length > 0 &&
               (data.name || data.label)?.includes(searchValue) &&
               'text-red-500',
@@ -234,3 +237,66 @@ defineExpose({ onTreeReset });
     </el-tree>
   </div>
 </template>
+
+<style scoped>
+.dept-tree {
+  --hover-color: var(--el-color-primary-light-9);
+  --selected-color: var(--el-color-primary-light-8);
+  --half-selected-color: var(--el-color-primary-light-9);
+  --disabled-color: var(--el-text-color-disabled);
+  --disabled-opacity: 0.6;
+}
+
+/* 鼠标悬停效果 */
+.dept-tree .el-tree-node__content:hover {
+  background-color: var(--hover-color) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.dept-tree .el-tree-node__content:hover .el-tree-node__label {
+  text-decoration: underline;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 选中状态效果 */
+.dept-tree .el-tree-node.is-current > .el-tree-node__content {
+  position: relative;
+  background-color: var(--selected-color) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.dept-tree .el-tree-node.is-current > .el-tree-node__content::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  content: "";
+  background-color: var(--el-color-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/* 半选中状态效果 */
+.dept-tree .el-tree-node.is-half-checked > .el-tree-node__content {
+  background-color: var(--half-selected-color) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 禁用状态效果 */
+.dept-tree .el-tree-node.is-disabled > .el-tree-node__content {
+  color: var(--disabled-color) !important;
+  opacity: var(--disabled-opacity);
+  transition: all 0.2s ease-in-out;
+}
+
+.dept-tree .el-tree-node.is-disabled > .el-tree-node__content:hover {
+  background-color: transparent !important;
+}
+
+.dept-tree
+  .el-tree-node.is-disabled
+  > .el-tree-node__content:hover
+  .el-tree-node__label {
+  text-decoration: none;
+}
+</style>

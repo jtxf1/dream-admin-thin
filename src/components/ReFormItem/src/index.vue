@@ -115,8 +115,6 @@ defineProps({
 </script>
 
 <style scoped lang="scss">
-
-
 @keyframes fade-in {
   from {
     opacity: 0;
