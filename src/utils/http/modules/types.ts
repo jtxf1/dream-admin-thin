@@ -58,6 +58,8 @@ export interface ErrorHandlerConfig {
 export interface PureHttpError extends AxiosError {
   /** 错误类型 */
   errorType?: ErrorType;
+  /** 增强错误类型 */
+  enhancedErrorType?: any;
   /** 业务错误码对象 */
   businessError?: BusinessError;
   /** 是否为取消请求 */

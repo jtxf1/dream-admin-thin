@@ -7,7 +7,10 @@ import type {
 import NProgress from "../../progress";
 import { getToken, formatToken } from "@/utils/auth";
 import { message } from "@/utils/message";
-import { handleError } from "./errorHandler";
+import {
+  handleEnhancedError,
+  getEnhancedErrorMessage
+} from "./enhancedErrorHandler";
 
 /**
  * 请求白名单
@@ -107,24 +110,25 @@ export function setupResponseInterceptor(instance: AxiosInstance): void {
 
       return response.data;
     },
-    (error: PureHttpError): Promise<PureHttpError> => {
+    async (error: PureHttpError): Promise<PureHttpError> => {
       // 关闭进度条
       NProgress.done();
 
       // 处理错误
-      const handledError = handleError(error);
+      const errorHandlerConfig =
+        (error.config as any)?.errorHandlerConfig || {};
+      const handledError = await handleEnhancedError(error, errorHandlerConfig);
 
       // 检查是否需要显示错误消息
-      const showMessage =
-        (error.config as any)?.errorHandlerConfig?.showMessage !== false;
+      const showMessage = errorHandlerConfig.showMessage !== false;
       if (showMessage && !handledError.isCancelRequest) {
-        const errorMessage = handledError.businessError?.message || "请求失败";
+        const errorMessage = getEnhancedErrorMessage(handledError);
         message(errorMessage, { type: "error" });
       }
 
       // 检查是否有自定义错误处理函数
-      if ((error.config as any)?.errorHandlerConfig?.customHandler) {
-        (error.config as any).errorHandlerConfig.customHandler(handledError);
+      if (errorHandlerConfig.customHandler) {
+        errorHandlerConfig.customHandler(handledError);
       }
 
       // 所有的响应异常 区分来源为取消请求/非取消请求
