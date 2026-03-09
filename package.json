@@ -120,6 +120,7 @@
     "eslint-plugin-vue": "latest",
     "gradient-string": "latest",
     "husky": "latest",
+    "jsdom": "^28.1.0",
     "lint-staged": "latest",
     "postcss": "latest",
     "postcss-html": "latest",

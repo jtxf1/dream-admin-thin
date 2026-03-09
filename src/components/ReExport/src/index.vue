@@ -8,7 +8,8 @@ const props = withDefaults(defineProps<ExportProps>(), {
     { label: "Excel", value: "excel" },
     { label: "CSV", value: "csv" },
     { label: "PDF", value: "pdf" }
-  ]
+  ],
+  errorHandlerConfig: () => ({})
 });
 
 const emit = defineEmits<ExportEmits>();

@@ -21,6 +21,8 @@ import { ElMessageBox } from "element-plus";
 import { h, ref, watch, computed, reactive, onMounted } from "vue";
 import ReCropperPreview from "@/components/ReCropperPreview";
 import * as Img from "@/api/tools/img";
+import { ExportUtil } from "@/utils/exportUtil";
+import { http } from "@/utils/http";
 
 // 类型定义
 interface TableRef {
@@ -673,10 +675,30 @@ export function useUser(tableRef: TableRef) {
   }
 
   const exportClick = async (): Promise<void> => {
-    CRUD.download("users");
+    // 定义导出API函数
+    const exportApi = async (params: any, format: string) => {
+      const requestUrl = `/api/users/download?format=${format}`;
+      const config = { responseType: "blob" as const };
+      const blob = await http.get<Blob, null>(requestUrl, null, config);
+      return blob;
+    };
 
-    message("导出成功", {
-      type: "success"
+    // 使用 ExportUtil 执行导出
+    await ExportUtil.export({
+      api: exportApi,
+      params: form,
+      format: "excel",
+      fileName: `users_${new Date().getTime()}`,
+      onLoading: _loading => {
+        // 这里可以设置加载状态
+      },
+      onSuccess: () => {
+        // 导出成功的额外处理
+      },
+      onError: error => {
+        // 导出失败的额外处理
+        console.error("导出失败:", error);
+      }
     });
   };
   return {
