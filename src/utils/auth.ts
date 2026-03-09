@@ -31,12 +31,55 @@ export const TokenKey = "authorized-token";
  * */
 export const multipleTabsKey = "multiple-tabs";
 
+/**
+ * 简单的 token 加密函数
+ * @param token - 原始 token
+ * @returns 加密后的 token
+ */
+export function encryptToken(token: string): string {
+  try {
+    // 使用 btoa 进行简单的 Base64 编码
+    return btoa(unescape(encodeURIComponent(token)));
+  } catch (error) {
+    console.error("Token 加密失败:", error);
+    return token;
+  }
+}
+
+/**
+ * 简单的 token 解密函数
+ * @param encryptedToken - 加密后的 token
+ * @returns 解密后的 token
+ */
+export function decryptToken(encryptedToken: string): string {
+  try {
+    // 使用 atob 进行简单的 Base64 解码
+    return decodeURIComponent(escape(atob(encryptedToken)));
+  } catch (error) {
+    console.error("Token 解密失败:", error);
+    return encryptedToken;
+  }
+}
+
 /** 获取`token` */
 export function getToken(): DataInfo<number> {
-  // 此处与`TokenKey`相同，此写法解决初始化时`Cookies`中不存在`TokenKey`报错
-  return Cookies.get(TokenKey)
-    ? JSON.parse(Cookies.get(TokenKey))
-    : storageLocal().getItem(userKey);
+  // 从 cookie 中获取 token
+  const cookieToken = Cookies.get(TokenKey);
+  if (cookieToken) {
+    try {
+      const parsedToken = JSON.parse(cookieToken);
+      // 解密 token
+      if (parsedToken.accessToken) {
+        parsedToken.accessToken = decryptToken(parsedToken.accessToken);
+      }
+      return parsedToken;
+    } catch (error) {
+      console.error("Token 解析失败:", error);
+      return storageLocal().getItem(userKey) || { accessToken: "", expires: 0 };
+    }
+  }
+  // 如果 cookie 中没有，则从 localStorage 中获取
+  return storageLocal().getItem(userKey) || { accessToken: "", expires: 0 };
 }
 
 /**
@@ -50,22 +93,36 @@ export function setToken(data: DataInfo<Date>) {
   const { accessToken } = data;
   const { isRemembered, loginDay } = useUserStoreHook();
   expires = new Date(data.expires).getTime(); // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
-  const cookieString = JSON.stringify({ accessToken, expires });
+
+  // 加密 token
+  const encryptedToken = encryptToken(accessToken);
+  const cookieString = JSON.stringify({ accessToken: encryptedToken, expires });
+
+  // 使用 HttpOnly 和 Secure 选项存储 cookie
+  const cookieOptions = {
+    expires: expires > 0 ? (expires - Date.now()) / 86400000 : undefined,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // 生产环境使用 HTTPS
+    sameSite: "strict" as const // 防止 CSRF 攻击
+  };
 
   expires > 0
-    ? Cookies.set(TokenKey, cookieString, {
-        expires: (expires - Date.now()) / 86400000
-      })
-    : Cookies.set(TokenKey, cookieString);
+    ? Cookies.set(TokenKey, cookieString, cookieOptions)
+    : Cookies.set(TokenKey, cookieString, cookieOptions);
 
   Cookies.set(
     multipleTabsKey,
     "true",
     isRemembered
       ? {
-          expires: loginDay
+          expires: loginDay,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict"
         }
-      : {}
+      : {
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict"
+        }
   );
 
   function setUserKey({
@@ -83,7 +140,7 @@ export function setToken(data: DataInfo<Date>) {
     useUserStoreHook().SET_ROLES(roles);
     useUserStoreHook().SET_PERMS(permissions);
     storageLocal().setItem(userKey, {
-      accessToken,
+      accessToken, // 注意：localStorage 中存储的是原始 token
       expires,
       avatar,
       username,
