@@ -103,13 +103,42 @@ export function useRole() {
   async function onSearch() {
     loading.value = true;
     try {
-      const { data } = await Role.get(
-        Object.entries(toRaw(form))
-          .filter(([_, value]) => value !== null && value !== "")
-          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
-      );
+      const params = Object.entries(toRaw(form))
+        .filter(([_, value]) => value !== null && value !== "")
+        .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+      // 数据格式验证
+      if (!params) {
+        message("请求参数格式错误", { type: "error" });
+        return;
+      }
+
+      const { data } = await Role.get(params);
+
+      // 数据格式验证
+      if (!data || !Array.isArray(data.content)) {
+        message("返回数据格式错误", { type: "error" });
+        console.error("返回数据格式错误:", data);
+        return;
+      }
+
+      // 空数据处理
+      if (data.content.length === 0) {
+        message("未找到角色数据", { type: "info" });
+      }
+
       dataList.value = data.content;
       pagination.total = data.totalElements;
+    } catch (error) {
+      message(`获取角色数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+      console.error("获取角色数据失败:", error);
+      // 错误恢复：使用缓存数据或默认数据
+      if (dataList.value.length === 0) {
+        dataList.value = [];
+        pagination.total = 0;
+      }
     } finally {
       loading.value = false;
     }

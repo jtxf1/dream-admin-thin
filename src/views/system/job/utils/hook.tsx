@@ -98,19 +98,47 @@ export function useDept() {
   async function onSearch() {
     loading.value = true;
     try {
+      // 先获取字典数据
       await getDictDetails("job_status");
+
+      // 数据格式验证
+      if (!formQuery) {
+        message("请求参数格式错误", { type: "error" });
+        return;
+      }
+
       formQuery.page = pagination.currentPage - 1;
       formQuery.size = pagination.pageSize;
       dataList.splice(0, dataList.length);
+
       const res = await CRUD.get<FormQuery, FormItemProps>(crudURL, {
         params: formQuery
       });
+
+      // 数据格式验证
+      if (!res || !res.data || !Array.isArray(res.data.content)) {
+        message("返回数据格式错误", { type: "error" });
+        console.error("返回数据格式错误:", res);
+        return;
+      }
+
+      // 空数据处理
+      if (res.data.content.length === 0) {
+        message("未找到岗位数据", { type: "info" });
+      }
+
       pagination.total = res.data.totalElements;
       dataList.push(...res.data.content);
     } catch (error) {
       message(`获取岗位数据失败：${error.message || "未知错误"}`, {
         type: "error"
       });
+      console.error("获取岗位数据失败:", error);
+      // 错误恢复：使用缓存数据或默认数据
+      if (dataList.length === 0) {
+        dataList.splice(0, dataList.length);
+        pagination.total = 0;
+      }
     } finally {
       loading.value = false;
     }

@@ -219,15 +219,64 @@ export function useUser(tableRef: TableRef) {
 
   onMounted(async () => {
     treeLoading.value = true;
-    onSearch();
+    try {
+      // 获取部门树数据
+      const { data: deptData } = await Dept.getDeptTree({ enabled: true });
+      if (deptData) {
+        higherDeptOptions.value = handleTree(deptData, "id", "pid");
+        treeData.value = handleTree(deptData, "id", "pid");
+      } else {
+        message("获取部门树数据失败", { type: "error" });
+        higherDeptOptions.value = [];
+        treeData.value = [];
+      }
 
-    const { data } = await Dept.getDeptTree({ enabled: true });
-    higherDeptOptions.value = handleTree(data, "id", "pid");
-    treeData.value = handleTree(data, "id", "pid");
-    treeLoading.value = false;
+      // 获取角色数据
+      try {
+        const roleRes = await Role.get();
+        if (roleRes && roleRes.data && Array.isArray(roleRes.data.content)) {
+          roleOptions.value = roleRes.data.content;
+        } else {
+          message("获取角色数据失败", { type: "error" });
+          roleOptions.value = [];
+        }
+      } catch (error) {
+        message(`获取角色数据失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+        console.error("获取角色数据失败:", error);
+        roleOptions.value = [];
+      }
 
-    roleOptions.value = (await Role.get()).data.content;
-    jobOptions.value = (await CRUD.get("job")).data.content;
+      // 获取岗位数据
+      try {
+        const jobRes = await CRUD.get("job");
+        if (jobRes && jobRes.data && Array.isArray(jobRes.data.content)) {
+          jobOptions.value = jobRes.data.content;
+        } else {
+          message("获取岗位数据失败", { type: "error" });
+          jobOptions.value = [];
+        }
+      } catch (error) {
+        message(`获取岗位数据失败：${error.message || "未知错误"}`, {
+          type: "error"
+        });
+        console.error("获取岗位数据失败:", error);
+        jobOptions.value = [];
+      }
+    } catch (error) {
+      message(`初始化数据失败：${error.message || "未知错误"}`, {
+        type: "error"
+      });
+      console.error("初始化数据失败:", error);
+      higherDeptOptions.value = [];
+      treeData.value = [];
+      roleOptions.value = [];
+      jobOptions.value = [];
+    } finally {
+      treeLoading.value = false;
+      onSearch();
+    }
   });
 
   const buttonClass = computed(() => {
