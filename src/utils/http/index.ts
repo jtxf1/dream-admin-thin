@@ -59,11 +59,29 @@ class PureHttp {
   /** 防抖请求映射表 */
   private static debounceMap: Map<string, DebounceFunction<any>> = new Map();
 
+  /** 全局防抖开关 */
+  private static globalDebounceEnabled = true;
+
   /** 防抖默认配置 */
   private static readonly defaultDebounceConfig = {
-    wait: 300, // 默认防抖延迟时间
-    enabled: true // 默认启用防抖
+    wait: 500, // 默认防抖延迟时间（查询接口）
+    enabled: true, // 默认启用防抖
+    merge: true // 默认合并相同请求
   };
+
+  /** 防抖延迟配置（根据请求类型） */
+  private static readonly debounceWaitConfig = {
+    get: 500, // 查询接口
+    post: 800, // 数据提交接口
+    put: 800, // 数据更新接口
+    delete: 800, // 数据删除接口
+    patch: 800,
+    head: 500,
+    options: 500
+  };
+
+  /** 进行中的请求映射表（用于请求合并） */
+  private static pendingRequests: Map<string, Promise<any>> = new Map();
 
   /**
    * 构造函数
@@ -122,35 +140,75 @@ class PureHttp {
     // 获取防抖配置
     const debounceConfig = {
       ...PureHttp.defaultDebounceConfig,
-      ...config.debounce
+      ...config.debounce,
+      wait: config.debounce?.wait || PureHttp.debounceWaitConfig[method] || 500
     };
 
-    // 如果启用防抖
-    if (debounceConfig.enabled) {
-      const requestKey = PureHttp.generateRequestKey(method, url, param);
+    // 生成请求唯一键
+    const requestKey = PureHttp.generateRequestKey(method, url, param);
+
+    // 日志记录
+    console.log(`[HTTP] 请求 ${method} ${url}，防抖配置:`, debounceConfig);
+
+    // 如果启用防抖（同时考虑全局开关）
+    if (debounceConfig.enabled && PureHttp.globalDebounceEnabled) {
+      // 检查是否有进行中的相同请求（用于请求合并）
+      if (debounceConfig.merge && PureHttp.pendingRequests.has(requestKey)) {
+        console.log(`[HTTP] 合并相同请求 ${requestKey}`);
+        return PureHttp.pendingRequests.get(requestKey) as Promise<T>;
+      }
 
       // 如果已有相同请求的防抖函数，取消之前的
       if (PureHttp.debounceMap.has(requestKey)) {
         const existingDebounce = PureHttp.debounceMap.get(requestKey);
         if (existingDebounce) {
           existingDebounce.cancel();
+          console.log(`[HTTP] 取消之前的防抖请求 ${requestKey}`);
         }
       }
 
       // 创建新的防抖函数
       const debouncedRequest = debounce((): Promise<T> => {
-        return PureHttp.axiosInstance.request(config) as unknown as Promise<T>;
+        // 执行实际请求
+        const requestPromise = PureHttp.axiosInstance.request(
+          config
+        ) as unknown as Promise<T>;
+
+        // 请求完成后清理
+        requestPromise.finally(() => {
+          PureHttp.debounceMap.delete(requestKey);
+          if (debounceConfig.merge) {
+            PureHttp.pendingRequests.delete(requestKey);
+          }
+          console.log(`[HTTP] 请求完成，清理映射表 ${requestKey}`);
+        });
+
+        return requestPromise;
       }, debounceConfig.wait);
 
       // 保存到映射表
       PureHttp.debounceMap.set(requestKey, debouncedRequest);
 
       // 执行防抖请求
-      return debouncedRequest();
+      const resultPromise = debouncedRequest();
+
+      // 如果启用请求合并，保存到进行中请求映射表
+      if (debounceConfig.merge) {
+        PureHttp.pendingRequests.set(requestKey, resultPromise);
+      }
+
+      return resultPromise;
     }
 
     // 直接执行请求，不使用防抖
-    return PureHttp.axiosInstance.request(config) as unknown as Promise<T>;
+    const requestPromise = PureHttp.axiosInstance.request(
+      config
+    ) as unknown as Promise<T>;
+
+    // 记录非防抖请求
+    console.log(`[HTTP] 直接执行请求 ${method} ${url}`);
+
+    return requestPromise;
   }
 
   /**
@@ -219,6 +277,35 @@ class PureHttp {
     config?: PureHttpRequestConfig
   ): Promise<P> {
     return this.request<P>("delete", url, params, config);
+  }
+
+  /**
+   * 设置全局防抖开关
+   * @param enabled - 是否启用防抖
+   */
+  public static setGlobalDebounceEnabled(enabled: boolean): void {
+    PureHttp.globalDebounceEnabled = enabled;
+    console.log(`[HTTP] 全局防抖开关已${enabled ? "启用" : "禁用"}`);
+  }
+
+  /**
+   * 获取全局防抖开关状态
+   * @returns 当前全局防抖开关状态
+   */
+  public static getGlobalDebounceEnabled(): boolean {
+    return PureHttp.globalDebounceEnabled;
+  }
+
+  /**
+   * 清除所有防抖请求
+   */
+  public static clearDebounceRequests(): void {
+    PureHttp.debounceMap.forEach(debounceFn => {
+      debounceFn.cancel();
+    });
+    PureHttp.debounceMap.clear();
+    PureHttp.pendingRequests.clear();
+    console.log("[HTTP] 已清除所有防抖请求");
   }
 }
 

@@ -94,5 +94,7 @@ export interface PureHttpRequestConfig extends AxiosRequestConfig {
     enabled?: boolean;
     /** 防抖延迟时间（毫秒） */
     wait?: number;
+    /** 是否合并相同参数的请求 */
+    merge?: boolean;
   };
 }
