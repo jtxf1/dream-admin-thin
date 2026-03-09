@@ -588,13 +588,19 @@ export function useUser(tableRef: TableRef) {
   function handleReset(row: UserRow) {
     addDialog({
       title: `重置 ${row.username} 用户的密码`,
-      width: "10%",
+      width: "300px",
       draggable: true,
       closeOnClickModal: false,
       contentRenderer: () => (
-        <>
-          <div class="mt-1 flex"></div>
-        </>
+        <div class="p-4">
+          <p class="text-center mb-4">
+            确定要重置 <strong class="text-primary">{row.username}</strong>{" "}
+            用户的密码吗？
+          </p>
+          <p class="text-sm text-gray-500 text-center">
+            重置后密码将恢复为默认值
+          </p>
+        </div>
       ),
       beforeSure: (done: () => void) => {
         User.resetPwd([row.id])
@@ -629,19 +635,26 @@ export function useUser(tableRef: TableRef) {
     }
 
     addDialog({
-      title: `重置 ${getKeyList(curSelected, "id")} 用户的密码`,
-      width: "10%",
+      title: `批量重置密码`,
+      width: "300px",
       draggable: true,
       closeOnClickModal: false,
       contentRenderer: () => (
-        <>
-          <div class="mt-1 flex"></div>
-        </>
+        <div class="p-4">
+          <p class="text-center mb-4">
+            确定要重置选中的{" "}
+            <strong class="text-primary">{curSelected.length}</strong>{" "}
+            个用户的密码吗？
+          </p>
+          <p class="text-sm text-gray-500 text-center">
+            重置后密码将恢复为默认值
+          </p>
+        </div>
       ),
       beforeSure: (done: () => void) => {
         User.resetPwd(getKeyList(curSelected, "id"))
           .then(() => {
-            message(`已成功重置 ${getKeyList(curSelected, "id")} 用户的密码`, {
+            message(`已成功重置 ${curSelected.length} 个用户的密码`, {
               type: "success"
             });
           })
