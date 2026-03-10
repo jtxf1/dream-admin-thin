@@ -9,6 +9,8 @@ import { createApp, type Directive } from "vue";
 import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
 import { setupGlobalErrorHandler } from "@/utils/errorHandling";
+import { http } from "@/utils/http";
+import { setHttpClient } from "@/api/utils";
 
 import Table from "@pureadmin/table";
 import PureDescriptions from "@pureadmin/descriptions";
@@ -61,6 +63,9 @@ getPlatformConfig(app).then(async config => {
 
   // 初始化全局错误处理
   setupGlobalErrorHandler();
+
+  // 初始化CRUD实例的HTTP客户端
+  setHttpClient(http);
 
   app
     .use(MotionPlugin)

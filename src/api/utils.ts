@@ -1,4 +1,3 @@
-import { http } from "@/utils/http";
 import type { PureHttpRequestConfig } from "@/utils/http/types";
 import type { AxiosRequestConfig } from "axios";
 import type { ApiAbstract, Page } from "@/utils/http/ApiAbstract";
@@ -124,14 +123,14 @@ export interface HttpClient {
  * CRUD工具类
  */
 export class Crud implements ICrud {
-  private readonly httpClient: HttpClient;
+  private static httpClient: HttpClient | null = null;
 
   /**
-   * 构造函数
+   * 设置HTTP客户端实例
    * @param httpClient HTTP客户端实例
    */
-  constructor(httpClient: HttpClient) {
-    this.httpClient = httpClient;
+  public static setHttpClient(httpClient: HttpClient): void {
+    Crud.httpClient = httpClient;
   }
 
   /**
@@ -184,11 +183,17 @@ export class Crud implements ICrud {
     params?: AxiosRequestConfig<P>,
     options?: CrudOptions
   ): Promise<ApiAbstract<Page<T>>> {
+    if (!Crud.httpClient) {
+      throw new Error(
+        "HTTP client not initialized. Call Crud.setHttpClient() first."
+      );
+    }
+
     const requestUrl = this.buildUrl(url, options);
     const config = this.getRequestConfig(options);
 
     return this.executeRequest(() =>
-      this.httpClient.get<ApiAbstract<Page<T>>, P>(requestUrl, params, config)
+      Crud.httpClient!.get<ApiAbstract<Page<T>>, P>(requestUrl, params, config)
     );
   }
 
@@ -207,11 +212,17 @@ export class Crud implements ICrud {
     params?: AxiosRequestConfig<P>,
     options?: CrudOptions
   ): Promise<ApiAbstract<T>> {
+    if (!Crud.httpClient) {
+      throw new Error(
+        "HTTP client not initialized. Call Crud.setHttpClient() first."
+      );
+    }
+
     const requestUrl = this.buildUrl(url, options);
     const config = this.getRequestConfig(options);
 
     return this.executeRequest(() =>
-      this.httpClient.post<ApiAbstract<T>, P>(requestUrl, params, config)
+      Crud.httpClient!.post<ApiAbstract<T>, P>(requestUrl, params, config)
     );
   }
 
@@ -230,11 +241,17 @@ export class Crud implements ICrud {
     params?: AxiosRequestConfig<P>,
     options?: CrudOptions
   ): Promise<ApiAbstract<T>> {
+    if (!Crud.httpClient) {
+      throw new Error(
+        "HTTP client not initialized. Call Crud.setHttpClient() first."
+      );
+    }
+
     const requestUrl = this.buildUrl(url, options);
     const config = this.getRequestConfig(options);
 
     return this.executeRequest(() =>
-      this.httpClient.put<P, ApiAbstract<T>>(requestUrl, params, config)
+      Crud.httpClient!.put<P, ApiAbstract<T>>(requestUrl, params, config)
     );
   }
 
@@ -253,11 +270,17 @@ export class Crud implements ICrud {
     params?: AxiosRequestConfig<P>,
     options?: CrudOptions
   ): Promise<ApiAbstract<T>> {
+    if (!Crud.httpClient) {
+      throw new Error(
+        "HTTP client not initialized. Call Crud.setHttpClient() first."
+      );
+    }
+
     const requestUrl = this.buildUrl(url, options);
     const config = this.getRequestConfig(options);
 
     return this.executeRequest(() =>
-      this.httpClient.delete<P, ApiAbstract<T>>(requestUrl, params, config)
+      Crud.httpClient!.delete<P, ApiAbstract<T>>(requestUrl, params, config)
     );
   }
 
@@ -271,11 +294,17 @@ export class Crud implements ICrud {
    * CRUD.download('user/export')
    */
   public async download(url: string, options?: CrudOptions): Promise<void> {
+    if (!Crud.httpClient) {
+      throw new Error(
+        "HTTP client not initialized. Call Crud.setHttpClient() first."
+      );
+    }
+
     const requestUrl = this.buildUrl(url + "/download", options);
     const config = this.getRequestConfig({ ...options, responseType: "blob" });
 
     const blob = await this.executeRequest(() =>
-      this.httpClient.get<Blob, null>(requestUrl, null, config)
+      Crud.httpClient!.get<Blob, null>(requestUrl, null, config)
     );
 
     downloadByData(blob, url + Date.now() + ".xls");
@@ -283,4 +312,7 @@ export class Crud implements ICrud {
 }
 
 // 默认导出实例
-export const CRUD = new Crud(http);
+export const CRUD = new Crud();
+
+// 导出设置HTTP客户端的函数
+export const setHttpClient = Crud.setHttpClient;
