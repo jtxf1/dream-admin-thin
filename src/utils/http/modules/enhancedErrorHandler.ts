@@ -2,6 +2,7 @@ import Axios from "axios";
 import { type PureHttpError, ErrorType, type BusinessError } from "./types";
 import router from "@/router";
 import { removeToken } from "@/utils/auth";
+import { Logger } from "./logger";
 
 /**
  * 扩展的错误类型枚举
@@ -198,20 +199,16 @@ export function logEnhancedError(
   // 根据日志级别打印不同详细程度的错误信息
   switch (level) {
     case LogLevel.DEBUG:
-      if (import.meta.env.DEV) {
-        console.debug("[HTTP Debug]:", errorInfo);
-      }
+      Logger.debug("HTTP错误详情", errorInfo);
       break;
     case LogLevel.INFO:
-      if (import.meta.env.DEV) {
-        console.info("[HTTP Info]:", errorInfo);
-      }
+      Logger.info("HTTP错误信息", errorInfo);
       break;
     case LogLevel.WARN:
-      console.warn("[HTTP Warning]:", errorInfo);
+      Logger.warn("HTTP错误警告", errorInfo);
       break;
     case LogLevel.ERROR:
-      console.error("[HTTP Error]:", errorInfo);
+      Logger.error("HTTP错误", errorInfo);
       break;
   }
 
@@ -392,9 +389,14 @@ export async function handleEnhancedError(
     isRetryableError(error, config.retryableErrorTypes)
   ) {
     try {
+      Logger.info("开始错误重试", {
+        errorType: error.enhancedErrorType,
+        retryCount: config.retryCount || 3
+      });
       return await retryRequest(error, config);
     } catch (retryError) {
       // 重试失败，继续处理原始错误
+      Logger.warn("错误重试失败", retryError);
       error = retryError as PureHttpError;
     }
   }
@@ -404,31 +406,118 @@ export async function handleEnhancedError(
     case EnhancedErrorType.AUTH_ERROR:
     case EnhancedErrorType.TOKEN_EXPIRED:
       // 认证错误，清除token并重定向到登录页
-      removeToken();
-      router.push({
-        path: "/login",
-        query: { redirect: router.currentRoute.value.fullPath }
-      });
+      handleAuthError();
       break;
     case EnhancedErrorType.PERMISSION_ERROR:
     case EnhancedErrorType.RESOURCE_FORBIDDEN:
       // 权限错误，重定向到403页面
-      router.push("/error/403");
+      handlePermissionError();
       break;
     case EnhancedErrorType.NOT_FOUND_ERROR:
     case EnhancedErrorType.RESOURCE_DELETED:
       // 资源不存在错误，重定向到404页面
-      router.push("/error/404");
+      handleNotFoundError();
       break;
     case EnhancedErrorType.SERVER_ERROR:
     case EnhancedErrorType.DATABASE_ERROR:
     case EnhancedErrorType.SERVICE_UNAVAILABLE:
       // 服务器内部错误，重定向到500页面
-      router.push("/error/500");
+      handleServerError();
+      break;
+    case EnhancedErrorType.NETWORK_ERROR:
+    case EnhancedErrorType.NETWORK_TIMEOUT:
+    case EnhancedErrorType.NETWORK_OFFLINE:
+      // 网络错误，显示错误消息但不重定向
+      handleNetworkError(error);
+      break;
+    case EnhancedErrorType.CLIENT_ERROR:
+    case EnhancedErrorType.INVALID_PARAMETERS:
+    case EnhancedErrorType.VALIDATION_ERROR:
+      // 客户端错误，显示错误消息
+      handleClientError(error);
+      break;
+    case EnhancedErrorType.BUSINESS_ERROR:
+    case EnhancedErrorType.TRANSACTION_FAILED:
+    case EnhancedErrorType.QUOTA_EXCEEDED:
+      // 业务错误，显示错误消息
+      handleBusinessError(error);
       break;
   }
 
   return error;
+}
+
+/**
+ * 处理认证错误
+ */
+function handleAuthError(): void {
+  Logger.warn("认证错误，清除token并重定向到登录页");
+  removeToken();
+  router.push({
+    path: "/login",
+    query: { redirect: router.currentRoute.value.fullPath }
+  });
+}
+
+/**
+ * 处理权限错误
+ */
+function handlePermissionError(): void {
+  Logger.warn("权限错误，重定向到403页面");
+  router.push("/error/403");
+}
+
+/**
+ * 处理资源不存在错误
+ */
+function handleNotFoundError(): void {
+  Logger.warn("资源不存在错误，重定向到404页面");
+  router.push("/error/404");
+}
+
+/**
+ * 处理服务器错误
+ */
+function handleServerError(): void {
+  Logger.error("服务器内部错误，重定向到500页面");
+  router.push("/error/500");
+}
+
+/**
+ * 处理网络错误
+ * @param error - HTTP错误对象
+ */
+function handleNetworkError(error: PureHttpError): void {
+  Logger.warn("网络错误", {
+    errorType: error.enhancedErrorType,
+    message: error.message
+  });
+  // 网络错误通常不需要重定向，只需要显示错误消息
+}
+
+/**
+ * 处理客户端错误
+ * @param error - HTTP错误对象
+ */
+function handleClientError(error: PureHttpError): void {
+  Logger.warn("客户端错误", {
+    errorType: error.enhancedErrorType,
+    message: error.message,
+    status: error.response?.status
+  });
+  // 客户端错误通常不需要重定向，只需要显示错误消息
+}
+
+/**
+ * 处理业务错误
+ * @param error - HTTP错误对象
+ */
+function handleBusinessError(error: PureHttpError): void {
+  Logger.warn("业务错误", {
+    errorType: error.enhancedErrorType,
+    businessError: error.businessError
+  });
+  // 业务错误通常不需要重定向，只需要显示错误消息
 }
 
 /**

@@ -11,6 +11,7 @@ import {
   handleEnhancedError,
   getEnhancedErrorMessage
 } from "./enhancedErrorHandler";
+import { Logger } from "./logger";
 
 /**
  * 请求白名单
@@ -84,6 +85,8 @@ export function setupRequestInterceptor(instance: AxiosInstance): void {
     (error: any): Promise<any> => {
       // 关闭进度条
       NProgress.done();
+      // 记录错误日志
+      Logger.error("请求拦截器错误", error);
       // 显示错误消息
       message("请求异常!", { type: "error" });
       return Promise.reject(error);
@@ -130,6 +133,9 @@ export function setupResponseInterceptor(instance: AxiosInstance): void {
       if (errorHandlerConfig.customHandler) {
         errorHandlerConfig.customHandler(handledError);
       }
+
+      // 记录错误日志
+      Logger.error("响应拦截器错误", handledError);
 
       // 所有的响应异常 区分来源为取消请求/非取消请求
       return Promise.reject(handledError);
