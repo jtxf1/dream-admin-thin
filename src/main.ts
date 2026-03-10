@@ -8,7 +8,6 @@ import { useEcharts } from "@/plugins/echarts";
 import { createApp, type Directive } from "vue";
 import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
-import { performanceMonitor } from "@/utils/performance";
 
 import Table from "@pureadmin/table";
 import PureDescriptions from "@pureadmin/descriptions";
@@ -58,9 +57,6 @@ getPlatformConfig(app).then(async config => {
   app.use(router);
   await router.isReady();
   injectResponsiveStorage(app, config);
-
-  // 初始化性能监控
-  performanceMonitor.init();
 
   app
     .use(MotionPlugin)
