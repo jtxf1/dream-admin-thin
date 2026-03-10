@@ -6,11 +6,7 @@ import type {
 } from "@/utils/http/modules/types";
 import NProgress from "../../progress";
 import { getToken, formatToken } from "@/utils/auth";
-import { message } from "@/utils/message";
-import {
-  handleEnhancedError,
-  getEnhancedErrorMessage
-} from "./enhancedErrorHandler";
+import { handleError } from "@/utils/errorHandling";
 import { Logger } from "./logger";
 
 /**
@@ -87,8 +83,8 @@ export function setupRequestInterceptor(instance: AxiosInstance): void {
       NProgress.done();
       // 记录错误日志
       Logger.error("请求拦截器错误", error);
-      // 显示错误消息
-      message("请求异常!", { type: "error" });
+      // 使用全局错误处理系统处理错误
+      handleError(error, { showMessage: true }, undefined, "http-request");
       return Promise.reject(error);
     }
   );
@@ -117,28 +113,25 @@ export function setupResponseInterceptor(instance: AxiosInstance): void {
       // 关闭进度条
       NProgress.done();
 
+      // 构建请求上下文
+      const context = {
+        url: error.config?.url,
+        method: error.config?.method,
+        params: error.config?.params,
+        headers: error.config?.headers,
+        body: error.config?.data
+      };
+
       // 处理错误
       const errorHandlerConfig =
         (error.config as any)?.errorHandlerConfig || {};
-      const handledError = await handleEnhancedError(error, errorHandlerConfig);
-
-      // 检查是否需要显示错误消息
-      const showMessage = errorHandlerConfig.showMessage !== false;
-      if (showMessage && !handledError.isCancelRequest) {
-        const errorMessage = getEnhancedErrorMessage(handledError);
-        message(errorMessage, { type: "error" });
-      }
-
-      // 检查是否有自定义错误处理函数
-      if (errorHandlerConfig.customHandler) {
-        errorHandlerConfig.customHandler(handledError);
-      }
+      handleError(error, errorHandlerConfig, context, "http-response");
 
       // 记录错误日志
-      Logger.error("响应拦截器错误", handledError);
+      Logger.error("响应拦截器错误", error);
 
       // 所有的响应异常 区分来源为取消请求/非取消请求
-      return Promise.reject(handledError);
+      return Promise.reject(error);
     }
   );
 }

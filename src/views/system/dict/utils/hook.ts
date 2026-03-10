@@ -192,7 +192,8 @@ export function useDept() {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
+      contentRenderer: ({ options }) =>
+        h(editForm, { ref: formRef, formInline: options.props.formInline }),
       beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
@@ -267,7 +268,8 @@ export function useDept() {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm1, { ref: formRef, formInline: null }),
+      contentRenderer: ({ options }) =>
+        h(editForm1, { ref: formRef, formInline: options.props.formInline }),
       beforeSure: async (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as DictDetailProps;

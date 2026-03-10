@@ -8,6 +8,7 @@ import { useEcharts } from "@/plugins/echarts";
 import { createApp, type Directive } from "vue";
 import { useElementPlus } from "@/plugins/elementPlus";
 import { injectResponsiveStorage } from "@/utils/responsive";
+import { setupGlobalErrorHandler } from "@/utils/errorHandling";
 
 import Table from "@pureadmin/table";
 import PureDescriptions from "@pureadmin/descriptions";
@@ -57,6 +58,9 @@ getPlatformConfig(app).then(async config => {
   app.use(router);
   await router.isReady();
   injectResponsiveStorage(app, config);
+
+  // 初始化全局错误处理
+  setupGlobalErrorHandler();
 
   app
     .use(MotionPlugin)

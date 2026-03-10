@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { formRules } from "./utils/rule";
 import { FormProps } from "./utils/types";
 
@@ -22,11 +22,21 @@ const props1 = {
   label: "name",
   checkStrictly: true
 };
+
+// 监听props.formInline的变化，更新newFormInline
+watch(
+  () => props.formInline,
+  newValue => {
+    newFormInline.value = { ...newValue };
+  },
+  { deep: true }
+);
+
 function getRef() {
   return ruleFormRef.value;
 }
 
-defineExpose({ getRef });
+defineExpose({ getRef, newFormInline });
 </script>
 
 <template>

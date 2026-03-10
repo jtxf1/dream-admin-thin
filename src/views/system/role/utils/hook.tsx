@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import editForm from "../form.vue";
 import { message } from "@/utils/message";
 import * as Role from "@/api/system/role";
+import * as Dept from "@/api/system/dept";
 import { addDialog } from "@/components/ReDialog";
 import type { FormItemProps } from "../utils/types";
 import type { PaginationProps } from "@pureadmin/table";
@@ -172,10 +173,13 @@ export function useRole() {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
-      beforeSure: (done, { options }) => {
+      contentRenderer: ({ options }) =>
+        h(editForm, { ref: formRef, formInline: options.props.formInline }),
+      beforeSure: done => {
         const FormRef = formRef.value.getRef();
-        const curData = options.props.formInline as FormItemProps;
+        // 获取表单组件中的实际数据
+        const formComponent = formRef.value;
+        const curData = formComponent.newFormInline;
         function chores() {
           message(`您${title}了角色名称为${curData.name}的这条数据`, {
             type: "success"
@@ -267,11 +271,24 @@ export function useRole() {
       nenus.value = await Menu.menuTree([]);
       const { data } = nenus.value;
       treeData.value = cloneDeep(handleTree(data, "id", "parentId"));
+
+      // 获取部门列表
+      const deptRes = await Dept.getDeptTree({ enabled: true });
+      if (deptRes && deptRes.data) {
+        deptList.value = deptRes.data.content;
+      } else {
+        message("获取部门列表失败", {
+          type: "error"
+        });
+        console.error("获取部门列表失败:", deptRes);
+        deptList.value = [];
+      }
     } catch (error) {
-      message("获取菜单树失败，请稍后重试", {
+      message("初始化数据失败，请稍后重试", {
         type: "error"
       });
-      console.error("获取菜单树失败:", error);
+      console.error("初始化数据失败:", error);
+      deptList.value = [];
     } finally {
       treeLoading.value = false;
       onSearch();

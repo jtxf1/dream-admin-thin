@@ -512,7 +512,8 @@ export function useUser(tableRef: TableRef) {
       draggable: true,
       fullscreenIcon: true,
       closeOnClickModal: false,
-      contentRenderer: () => h(editForm, { ref: formRef, formInline: null }),
+      contentRenderer: ({ options }) =>
+        h(editForm, { ref: formRef, formInline: options.props.formInline }),
       beforeSure: (done: () => void, { options }: { options: any }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as any;
