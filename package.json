@@ -1,5 +1,5 @@
 {
-  "name": "pure-admin-thin",
+  "name": "dream-admin-thin",
   "version": "6.0.0",
   "private": true,
   "type": "module",
@@ -25,11 +25,11 @@
     "preinstall": "npx only-allow pnpm"
   },
   "keywords": [
-    "pure-admin-thin",
-    "vue-pure-admin",
+    "dream-admin-thin",
+    "vue-dream-admin",
     "element-plus",
     "tailwindcss",
-    "pure-admin",
+    "dream-admin",
     "typescript",
     "pinia",
     "vue3",

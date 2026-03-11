@@ -17,7 +17,8 @@ import { TreeKey } from "element-plus/es/components/tree/src/tree.type.mjs";
 import { DeptTreeProps, DeptTreeEmits } from "./types";
 
 const props = withDefaults(defineProps<DeptTreeProps>(), {
-  treeLoading: false
+  treeLoading: false,
+  visible: true
 });
 const currentRow = defineModel<TreeKey[]>("currentRow");
 const deptId = defineModel<number>("deptId");
@@ -102,139 +103,143 @@ watch(searchValue, val => {
   treeRef.value!.filter(val);
 });
 
-defineExpose({ onTreeReset });
+defineExpose({ onTreeReset, testClick, treeRef });
 </script>
 
 <template>
-  <div
-    v-loading="props.treeLoading"
-    class="h-full bg-bg_color overflow-auto"
-    :style="{ minHeight: `calc(100vh - 133px)` }"
-  >
-    <el-row :gutter="20">
-      <el-col :span="17"> 菜单分配</el-col>
-      <el-col :span="3">
-        <el-button
-          type="primary"
-          :icon="useRenderIcon(Check)"
-          size="small"
-          @click="testClick"
-          >保存</el-button
-        >
-      </el-col>
-    </el-row>
-    <div class="flex items-center h-[34px]">
-      <el-input
-        v-model="searchValue"
-        class="ml-2"
-        size="small"
-        placeholder="请输入部门名称"
-        clearable
-      >
-        <template #suffix>
-          <el-icon v-show="searchValue.length === 0" class="el-input__icon">
-            <IconifyIconOffline icon="search" />
-          </el-icon>
-        </template>
-      </el-input>
-      <el-dropdown :hide-on-click="false">
-        <IconifyIconOffline
-          class="w-[28px] cursor-pointer"
-          width="18px"
-          :icon="More2Fill"
-        />
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item>
-              <el-button
-                :class="buttonClass"
-                link
-                type="primary"
-                :icon="useRenderIcon(isExpand ? ExpandIcon : UnExpandIcon)"
-                @click="toggleRowExpansionAll(isExpand ? false : true)"
-              >
-                {{ isExpand ? "折叠全部" : "展开全部" }}
-              </el-button>
-            </el-dropdown-item>
-            <el-dropdown-item>
-              <el-button
-                :class="buttonClass"
-                link
-                type="primary"
-                :icon="useRenderIcon(isSelectAll ? CheckListAll : CircleCheck)"
-                @click="onTreeReset(isSelectAll ? false : true)"
-              >
-                {{ isSelectAll ? "全选" : "全不选" }}
-              </el-button>
-            </el-dropdown-item>
-            <el-dropdown-item>
-              <el-button
-                :class="buttonClass"
-                link
-                type="primary"
-                :icon="useRenderIcon(SemiSelect)"
-                @click="onTreeInvert"
-              >
-                反选
-              </el-button>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </div>
-    <el-divider />
-    <el-tree
-      ref="treeRef"
-      node-key="id"
-      size="small"
-      show-checkbox
-      :data="treeData"
-      :props="defaultProps"
-      :default-checked-keys="currentRow"
-      :current-node-key="treeRef2"
-      :expand-on-click-node="false"
-      :filter-node-method="filterNode"
-      class="dept-tree"
+  <div>
+    <div
+      v-loading="props.treeLoading"
+      class="h-full bg-bg_color overflow-auto"
+      :style="{ minHeight: `calc(100vh - 133px)` }"
     >
-      <template #default="{ node, data }">
-        <span
-          :class="[
-            'pl-1',
-            'pr-1',
-            'rounded',
-            'flex',
-            'items-center',
-            'select-none',
-            'transition-all',
-            'duration-200',
-            'ease-in-out',
-            searchValue.trim().length > 0 &&
-              (data.name || data.label)?.includes(searchValue) &&
-              'text-red-500',
-            highlightMap[node.id]?.highlight ? 'dark:text-primary' : ''
-          ]"
-          :style="{
-            color: highlightMap[node.id]?.highlight
-              ? 'var(--el-color-primary)'
-              : '',
-            background: highlightMap[node.id]?.highlight
-              ? 'var(--el-color-primary-light-7)'
-              : 'transparent'
-          }"
+      <el-row v-if="props.visible" :gutter="20">
+        <el-col :span="17"> 菜单分配</el-col>
+        <el-col :span="3">
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(Check)"
+            size="small"
+            @click="testClick"
+            >保存</el-button
+          >
+        </el-col>
+      </el-row>
+      <div class="flex items-center h-[34px]">
+        <el-input
+          v-model="searchValue"
+          class="ml-2"
+          size="small"
+          placeholder="请输入部门名称"
+          clearable
         >
+          <template #suffix>
+            <el-icon v-show="searchValue.length === 0" class="el-input__icon">
+              <IconifyIconOffline icon="search" />
+            </el-icon>
+          </template>
+        </el-input>
+        <el-dropdown :hide-on-click="false">
           <IconifyIconOffline
-            :icon="
-              data.type === 1
-                ? OfficeBuilding
-                : data.type === 2
-                  ? LocationCompany
-                  : Dept
-            "
+            class="w-[28px] cursor-pointer"
+            width="18px"
+            :icon="More2Fill"
           />
-          {{ data.title || data.name || data.label }}
-        </span>
-      </template>
-    </el-tree>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item>
+                <el-button
+                  :class="buttonClass"
+                  link
+                  type="primary"
+                  :icon="useRenderIcon(isExpand ? ExpandIcon : UnExpandIcon)"
+                  @click="toggleRowExpansionAll(isExpand ? false : true)"
+                >
+                  {{ isExpand ? "折叠全部" : "展开全部" }}
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  :class="buttonClass"
+                  link
+                  type="primary"
+                  :icon="
+                    useRenderIcon(isSelectAll ? CheckListAll : CircleCheck)
+                  "
+                  @click="onTreeReset(isSelectAll ? false : true)"
+                >
+                  {{ isSelectAll ? "全选" : "全不选" }}
+                </el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  :class="buttonClass"
+                  link
+                  type="primary"
+                  :icon="useRenderIcon(SemiSelect)"
+                  @click="onTreeInvert"
+                >
+                  反选
+                </el-button>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
+      <el-divider />
+      <el-tree
+        ref="treeRef"
+        node-key="id"
+        size="small"
+        show-checkbox
+        :data="treeData"
+        :props="defaultProps"
+        :default-checked-keys="currentRow"
+        :current-node-key="treeRef2"
+        :expand-on-click-node="false"
+        :filter-node-method="filterNode"
+        class="dept-tree"
+      >
+        <template #default="{ node, data }">
+          <span
+            :class="[
+              'pl-1',
+              'pr-1',
+              'rounded',
+              'flex',
+              'items-center',
+              'select-none',
+              'transition-all',
+              'duration-200',
+              'ease-in-out',
+              searchValue.trim().length > 0 &&
+                (data.name || data.label)?.includes(searchValue) &&
+                'text-red-500',
+              highlightMap[node.id]?.highlight ? 'dark:text-primary' : ''
+            ]"
+            :style="{
+              color: highlightMap[node.id]?.highlight
+                ? 'var(--el-color-primary)'
+                : '',
+              background: highlightMap[node.id]?.highlight
+                ? 'var(--el-color-primary-light-7)'
+                : 'transparent'
+            }"
+          >
+            <IconifyIconOffline
+              :icon="
+                data.type === 1
+                  ? OfficeBuilding
+                  : data.type === 2
+                    ? LocationCompany
+                    : Dept
+              "
+            />
+            {{ data.title || data.name || data.label }}
+          </span>
+        </template>
+      </el-tree>
+    </div>
   </div>
 </template>
 

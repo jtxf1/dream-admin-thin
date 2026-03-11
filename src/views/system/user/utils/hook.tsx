@@ -54,6 +54,7 @@ interface UserRow extends User.User {
 
 interface FormData {
   deptId: string;
+  deptIds: number[];
   username: string;
   createTime: string;
   phone: string;
@@ -83,6 +84,7 @@ export function useUser(tableRef: TableRef) {
   const form = reactive<FormData>({
     // 左侧部门树的id
     deptId: "",
+    deptIds: [],
     username: "",
     createTime: "",
     phone: "",
@@ -432,13 +434,8 @@ export function useUser(tableRef: TableRef) {
       if (!isAllEmpty(form.createTime)) {
         queryType.createTime = form.createTime;
       }
-      if (
-        form.deptId !== null &&
-        form.deptId !== "0" &&
-        form.deptId !== "" &&
-        form.deptId !== " "
-      ) {
-        queryType.deptId = Number(form.deptId);
+      if (form.deptIds && form.deptIds.length > 0) {
+        queryType.deptIds = form.deptIds;
       }
       queryType.page = pagination.currentPage - 1;
       queryType.size = pagination.pageSize;
@@ -462,12 +459,18 @@ export function useUser(tableRef: TableRef) {
   const resetForm = (formEl: { resetFields: () => void } | undefined) => {
     if (!formEl) return;
     formEl.resetFields();
-    form.deptId = "";
     onSearch();
   };
 
-  function onTreeSelect({ id, selected }: { id: string; selected: boolean }) {
-    form.deptId = selected ? id : "";
+  function onTreeSelect({
+    id,
+    menuIds
+  }: {
+    id: number;
+    menuIds: (string | number)[];
+  }) {
+    form.deptId = id.toString();
+    form.deptIds = menuIds.map(item => Number(item));
     onSearch();
   }
 

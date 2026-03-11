@@ -178,6 +178,20 @@ const handleRowOperation = (action: string, row: any) => {
       break;
   }
 };
+
+// 重置表单时清空部门树选中状态
+const handleResetForm = formEl => {
+  resetForm(formEl);
+  // 清空ReDeptTree组件的选中状态
+  treeRef.value?.onTreeReset(true);
+};
+
+// 搜索时获取部门树选中值作为搜索条件
+const handleSearch = () => {
+  // 调用ReDeptTree组件的testClick方法来获取选中的值
+  treeRef.value?.testClick();
+  onSearch();
+};
 </script>
 
 <template>
@@ -185,17 +199,18 @@ const handleRowOperation = (action: string, row: any) => {
     <ReDeptTree
       ref="treeRef"
       class="min-w-[200px] mr-2"
+      :visible="true"
       :treeData="treeData"
       :treeLoading="treeLoading"
-      @select="onTreeSelect"
+      @tree-select="onTreeSelect"
     />
     <div class="w-[calc(100%-200px)]">
       <ReSearchForm
         :fields="searchFields"
         :model="form"
         :loading="loading"
-        @search="onSearch"
-        @reset="resetForm(formRef)"
+        @search="handleSearch"
+        @reset="handleResetForm(formRef)"
       />
 
       <PureTableBar title="用户管理" :columns="columns" @refresh="onSearch">

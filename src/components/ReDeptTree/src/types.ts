@@ -10,6 +10,11 @@ export interface TreeData {
 export interface DeptTreeProps {
   treeData: TreeData[];
   treeLoading?: boolean;
+  /**
+   * 控制组件显示/隐藏
+   * @default true
+   */
+  visible?: boolean;
 }
 
 export interface DeptTreeEmits {
