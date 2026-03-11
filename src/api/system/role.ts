@@ -15,6 +15,12 @@ export interface Menu {
   children?: Menu[];
 }
 
+// 部门类型定义
+export interface Dept {
+  id: number | string;
+}
+
+// 角色类型定义
 export class Role {
   id: number;
   /**
@@ -28,7 +34,7 @@ export class Role {
   /**
    * 部门
    */
-  depts: Array<{ id: number | string }>;
+  depts: Dept[];
   /**
    * 名称
    */
@@ -46,56 +52,87 @@ export class Role {
    */
   description: string;
 }
+
+// 角色查询条件类型
 export class RoleQueryCriteria extends PageQuery {
   blurry: string;
   declare createTime: Date[];
 }
-export const getAll = (data: Partial<RoleQueryCriteria>) => {
+
+// 菜单编辑参数类型
+export interface EditMenuParams {
+  id: number;
+  menus: Menu[];
+}
+
+// 级别响应类型
+export interface LevelResponse {
+  level: number;
+}
+
+// 获取所有角色
+export const getAll = (data: Partial<RoleQueryCriteria>): Promise<Role[]> => {
   return http.request<Role[]>("get", baseUrlApi("roles/all"), {
     data
   });
 };
 
-export const get = (params?: number | Partial<RoleQueryCriteria>) => {
+// 获取角色列表
+export const get = (
+  params?: number | Partial<RoleQueryCriteria>
+): Promise<ApiAbstract<Role>> => {
   return http.request<ApiAbstract<Role>>("get", baseUrlApi("roles"), {
     params
   });
 };
 
-export const getLevel = () => {
-  return http.request<ApiAbstract<{ level: number }>>(
+// 获取角色级别
+export const getLevel = (): Promise<ApiAbstract<LevelResponse>> => {
+  return http.request<ApiAbstract<LevelResponse>>(
     "get",
     baseUrlApi("roles/level")
   );
 };
 
-export const editMenu = (data: { id: number; menus: Menu[] }) => {
+// 编辑角色菜单
+export const editMenu = (
+  data: EditMenuParams
+): Promise<ApiAbstract<unknown>> => {
   return http.request<ApiAbstract<unknown>>("put", baseUrlApi("roles/menu"), {
     data
   });
 };
-export const add = (data: Partial<Role>) => {
+
+// 添加角色
+export const add = (data: Partial<Role>): Promise<ApiAbstract<Role>> => {
   return http.request<ApiAbstract<Role>>("post", baseUrlApi("roles"), {
     data
   });
 };
 
-export const del = (ids: number[] | number) => {
+// 删除角色
+export const del = (ids: number[] | number): Promise<ApiAbstract<unknown>> => {
   return http.request<ApiAbstract<unknown>>("delete", baseUrlApi("roles"), {
     data: Array.isArray(ids) ? ids : [ids]
   });
 };
-export const edit = (data: Partial<Role>) => {
+
+// 编辑角色
+export const edit = (data: Partial<Role>): Promise<ApiAbstract<Role>> => {
   return http.request<ApiAbstract<Role>>("put", baseUrlApi("roles"), {
     data
   });
 };
-export const menus = (data: { id: number; menus: Menu[] }) => {
+
+// 设置角色菜单
+export const menus = (data: EditMenuParams): Promise<ApiAbstract<unknown>> => {
   return http.request<ApiAbstract<unknown>>("put", baseUrlApi("roles/menu"), {
     data
   });
 };
-export const download = (data: Partial<RoleQueryCriteria>) => {
+
+// 下载角色数据
+export const download = (data: Partial<RoleQueryCriteria>): Promise<Blob> => {
   return http.request<Blob>(
     "get",
     baseUrlApi("roles/download"),

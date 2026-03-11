@@ -1,4 +1,4 @@
-import type { RouteRecordName } from "vue-router";
+import type { RouteRecordName, RouteMeta } from "vue-router";
 
 export type cacheType = {
   mode: string;
@@ -25,9 +25,9 @@ export type appType = {
 export type multiType = {
   path: string;
   name: string;
-  meta: any;
-  query?: object;
-  params?: object;
+  meta: RouteMeta;
+  query?: Record<string, any>;
+  params?: Record<string, any>;
 };
 
 export type setType = {

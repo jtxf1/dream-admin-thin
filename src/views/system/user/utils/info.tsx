@@ -352,7 +352,10 @@ export function useUser() {
     getLogs();
   }
   function getLogs() {
-    User.getLog<LogProps>(pagination.currentPage - 1, pagination.pageSize)
+    User.getLog<LogProps>({
+      page: pagination.currentPage - 1,
+      size: pagination.pageSize
+    })
       .then(res => {
         dataList.value = res.data.content;
         pagination.total = res.data.totalElements;

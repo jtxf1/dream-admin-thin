@@ -21,6 +21,7 @@ export interface Job {
   updateTime?: Date;
 }
 
+// 用户类型定义
 export class User extends VersionEntity {
   id: number;
   /**
@@ -80,6 +81,8 @@ export class User extends VersionEntity {
    */
   pwdResetTime: Date;
 }
+
+// 用户查询条件类型
 export class UserQueryCriteria extends PageQuery {
   name: string;
   deptId: number;
@@ -88,29 +91,65 @@ export class UserQueryCriteria extends PageQuery {
   blurry: string;
 }
 
-export const get = (params: number | Partial<UserQueryCriteria>) => {
+// 更新头像参数类型
+export interface UpdateAvatarParams {
+  id: number;
+  avatar: string;
+  key: string;
+}
+
+// 更新密码参数类型
+export interface UpdatePassParams {
+  oldPass: string;
+  newPass: string;
+}
+
+// 更新邮箱参数类型
+export interface UpdateEmailParams {
+  pass: string;
+  email: string;
+  code: string;
+}
+
+// 日志查询参数类型
+export interface LogQueryParams {
+  page: number;
+  size: number;
+  sort?: string;
+}
+
+// 获取用户列表
+export const get = (
+  params: number | Partial<UserQueryCriteria>
+): Promise<ApiAbstract<User>> => {
   return http.request<ApiAbstract<User>>("get", baseUrlApi("users"), {
     params
   });
 };
 
-export const add = (data: Partial<User>) => {
+// 添加用户
+export const add = (data: Partial<User>): Promise<ApiAbstract<User>> => {
   return http.request<ApiAbstract<User>>("post", baseUrlApi("users"), {
     data
   });
 };
 
-export const del = (ids: number[] | number) => {
+// 删除用户
+export const del = (ids: number[] | number): Promise<ApiAbstract<unknown>> => {
   return http.request<ApiAbstract<unknown>>("delete", baseUrlApi("users"), {
     data: Array.isArray(ids) ? ids : [ids]
   });
 };
-export const edit = (data: Partial<User>) => {
+
+// 编辑用户
+export const edit = (data: Partial<User>): Promise<ApiAbstract<User>> => {
   return http.request<ApiAbstract<User>>("put", baseUrlApi("users"), {
     data
   });
 };
-export const download = (data: Partial<UserQueryCriteria>) => {
+
+// 下载用户数据
+export const download = (data: Partial<UserQueryCriteria>): Promise<Blob> => {
   return http.request<Blob>(
     "get",
     baseUrlApi("users/download"),
@@ -121,48 +160,50 @@ export const download = (data: Partial<UserQueryCriteria>) => {
   );
 };
 
-export const updateAvatarByid = ({
-  id,
-  avatar,
-  key
-}: {
-  id: number;
-  avatar: string;
-  key: string;
-}) => {
-  return http.request("post", baseUrlApi(`users/updateAvatar2/${id}`), {
-    data: { avatar, key }
-  });
+// 更新用户头像
+export const updateAvatarByid = (
+  params: UpdateAvatarParams
+): Promise<ApiAbstract<unknown>> => {
+  const { id, avatar, key } = params;
+  return http.request<ApiAbstract<unknown>>(
+    "post",
+    baseUrlApi(`users/updateAvatar2/${id}`),
+    {
+      data: { avatar, key }
+    }
+  );
 };
 
-export function updatePass({
-  oldPass,
-  newPass
-}: {
-  oldPass: string;
-  newPass: string;
-}) {
+// 更新密码
+export function updatePass(
+  params: UpdatePassParams
+): Promise<ApiAbstract<unknown>> {
+  const { oldPass, newPass } = params;
   const data = {
     oldPass: encrypt(oldPass),
     newPass: encrypt(newPass)
   };
-  return http.request("post", baseUrlApi("users/updatePass"), {
-    data
-  });
+  return http.request<ApiAbstract<unknown>>(
+    "post",
+    baseUrlApi("users/updatePass"),
+    {
+      data
+    }
+  );
 }
 
-export function resetEmail(email: string) {
+// 重置邮箱
+export function resetEmail(email: string): Promise<ApiAbstract<unknown>> {
   return http.request<ApiAbstract<unknown>>(
     "post",
     baseUrlApi("code/resetEmail?email=" + email)
   );
 }
 
-export function updateEmail(form: {
-  pass: string;
-  email: string;
-  code: string;
-}) {
+// 更新邮箱
+export function updateEmail(
+  form: UpdateEmailParams
+): Promise<ApiAbstract<unknown>> {
   const data = {
     password: encrypt(form.pass),
     email: form.email
@@ -175,23 +216,28 @@ export function updateEmail(form: {
     }
   );
 }
-export function editUser(data: Partial<User>) {
+
+// 编辑用户中心信息
+export function editUser(data: Partial<User>): Promise<ApiAbstract<User>> {
   return http.request<ApiAbstract<User>>("put", baseUrlApi("users/center"), {
     data
   });
 }
 
-export function getLog<T>(page: number, size: number) {
+// 获取用户日志
+export function getLog<T>(params: LogQueryParams): Promise<ApiAbstract<T>> {
   return http.request<ApiAbstract<T>>("get", baseUrlApi("logs/user"), {
     params: {
-      page: page,
-      size: size,
-      sort: "id,desc"
+      ...params,
+      sort: params.sort || "id,desc"
     }
   });
 }
 
-export function resetPwd(ids: number[] | number) {
+// 重置密码
+export function resetPwd(
+  ids: number[] | number
+): Promise<ApiAbstract<unknown>> {
   return http.request<ApiAbstract<unknown>>(
     "put",
     baseUrlApi("users/resetPwd"),

@@ -11,10 +11,10 @@ export interface iconType {
   horizontalAlign?: boolean;
   verticalAlign?: boolean;
   align?: string;
-  onLoad?: Function;
-  includes?: Function;
+  onLoad?: () => void;
+  includes?: () => boolean;
   // svg 需要什么SVG属性自行添加
   fill?: string;
   // all icon
-  style?: object;
+  style?: Record<string, string | number>;
 }

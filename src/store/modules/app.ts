@@ -8,6 +8,12 @@ import {
   responsiveStorageNameSpace
 } from "../utils";
 
+// 存储配置类型
+export interface StorageConfigs {
+  sidebarStatus?: boolean;
+  layout?: string;
+}
+
 export const useAppStore = defineStore("pure-app", {
   state: (): appType => ({
     sidebar: {
@@ -48,7 +54,10 @@ export const useAppStore = defineStore("pure-app", {
     TOGGLE_SIDEBAR(opened?: boolean, resize?: string) {
       const layout = storageLocal().getItem<StorageConfigs>(
         `${responsiveStorageNameSpace()}layout`
-      );
+      ) || {
+        sidebarStatus: getConfig().SidebarStatus,
+        layout: getConfig().Layout
+      };
       if (opened && resize) {
         this.sidebar.withoutAnimation = true;
         this.sidebar.opened = true;
@@ -71,10 +80,10 @@ export const useAppStore = defineStore("pure-app", {
     toggleDevice(device: string) {
       this.device = device;
     },
-    setLayout(layout) {
+    setLayout(layout: string) {
       this.layout = layout;
     },
-    setViewportSize(size) {
+    setViewportSize(size: { width: number; height: number }) {
       this.viewportSize = size;
     }
   }

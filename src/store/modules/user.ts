@@ -84,7 +84,7 @@ export const useUserStore = defineStore("pure-user", {
                 accessToken: data.data.token,
                 username: data.data?.user?.user?.nickName,
                 expires: new Date("2033-03-15T12:00:00Z"),
-                roles: data.data?.user?.roles,
+                roles: data.data?.roles,
                 user: data.data?.user?.user
               });
               resolve(data);

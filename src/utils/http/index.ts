@@ -18,6 +18,29 @@ import { Logger } from "./modules/logger";
 Axios.defaults.withCredentials = false;
 
 /**
+ * 防抖配置类型
+ */
+export interface DebounceConfig {
+  wait: number;
+  enabled: boolean;
+  merge: boolean;
+}
+
+/**
+ * 防抖延迟配置类型
+ */
+export interface DebounceWaitConfig {
+  [key: string]: number;
+  get: number;
+  post: number;
+  put: number;
+  delete: number;
+  patch: number;
+  head: number;
+  options: number;
+}
+
+/**
  * 默认请求配置
  * 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
  */
@@ -32,7 +55,7 @@ const defaultConfig: AxiosRequestConfig = {
   },
   // 数组格式参数序列化（https://github.com/axios/axios/issues/5142）
   paramsSerializer: {
-    serialize: (params: any) => {
+    serialize: (params: Record<string, any>) => {
       const arr: string[] = [];
       Object.keys(params).forEach(key => {
         if (params[key] !== undefined && params[key] !== null) {
@@ -55,7 +78,10 @@ class PureHttp {
   private static axiosInstance: AxiosInstance = Axios.create(defaultConfig);
 
   /** 防抖请求映射表 */
-  private static debounceMap: Map<string, DebounceFunction<any>> = new Map();
+  private static debounceMap: Map<
+    string,
+    DebounceFunction<() => Promise<any>>
+  > = new Map();
 
   /** 进行中的请求映射表（用于请求合并） */
   private static pendingRequests: Map<string, Promise<any>> = new Map();
@@ -64,14 +90,14 @@ class PureHttp {
   private static globalDebounceEnabled = true;
 
   /** 防抖默认配置 */
-  private static readonly defaultDebounceConfig = {
+  private static readonly defaultDebounceConfig: DebounceConfig = {
     wait: 500,
     enabled: true,
     merge: true
   };
 
   /** 防抖延迟配置（根据请求类型） */
-  private static readonly debounceWaitConfig = {
+  private static readonly debounceWaitConfig: DebounceWaitConfig = {
     get: 500,
     post: 800,
     put: 800,
@@ -136,7 +162,7 @@ class PureHttp {
     };
 
     // 获取防抖配置
-    const debounceConfig = {
+    const debounceConfig: DebounceConfig = {
       ...PureHttp.defaultDebounceConfig,
       ...config.debounce,
       wait: config.debounce?.wait || PureHttp.debounceWaitConfig[method] || 500
@@ -218,7 +244,7 @@ class PureHttp {
   private static createDebouncedRequest<T>(
     requestKey: string,
     config: PureHttpRequestConfig,
-    debounceConfig: any
+    debounceConfig: DebounceConfig
   ): Promise<T> {
     // 创建新的防抖函数
     const debouncedRequest = debounce((): Promise<T> => {
