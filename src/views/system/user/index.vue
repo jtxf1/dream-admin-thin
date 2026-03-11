@@ -199,7 +199,7 @@ const handleSearch = () => {
     <ReDeptTree
       ref="treeRef"
       class="min-w-[200px] mr-2"
-      :visible="true"
+      :visible="false"
       :treeData="treeData"
       :treeLoading="treeLoading"
       @tree-select="onTreeSelect"

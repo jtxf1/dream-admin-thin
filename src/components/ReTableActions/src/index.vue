@@ -21,7 +21,7 @@ const isDisabled = (action: any) => {
 </script>
 
 <template>
-  <div class="flex mr-4">
+  <div class="flex mr-4 space-x-2">
     <el-button
       v-for="action in actions"
       :key="action.action"
@@ -29,6 +29,7 @@ const isDisabled = (action: any) => {
       :icon="action.icon ? useRenderIcon(action.icon) : undefined"
       :disabled="isDisabled(action)"
       :loading="loading"
+      size="small"
       @click="handleAction(action.action)"
     >
       {{ action.label }}
