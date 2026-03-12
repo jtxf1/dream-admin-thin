@@ -167,21 +167,6 @@ export class Logger {
   }
 
   /**
-   * 记录请求发起日志
-   * @param method - 请求方法
-   * @param url - 请求URL
-   * @param config - 请求配置
-   */
-  public static logRequest(method: string, url: string, config: any): void {
-    Logger.info(`请求发起: ${method} ${url}`, {
-      headers: config.headers,
-      params: config.params,
-      data: config.data,
-      debounce: config.debounce
-    });
-  }
-
-  /**
    * 记录请求响应日志
    * @param method - 请求方法
    * @param url - 请求URL

@@ -171,9 +171,6 @@ class PureHttp {
     // 生成请求唯一键
     const requestKey = PureHttp.generateRequestKey(method, url, param);
 
-    // 日志记录
-    Logger.logRequest(method, url, config);
-
     // 如果启用防抖（同时考虑全局开关）
     if (debounceConfig.enabled && PureHttp.globalDebounceEnabled) {
       // 检查是否有进行中的相同请求（用于请求合并）
@@ -201,16 +198,12 @@ class PureHttp {
     }
 
     // 直接执行请求，不使用防抖
-    const startTime = performance.now();
     const requestPromise = PureHttp.axiosInstance.request<any, any>(
       config
     ) as unknown as Promise<T>;
 
     requestPromise
-      .then(() => {
-        const duration = performance.now() - startTime;
-        Logger.info(`请求完成 ${method} ${url} (${duration}ms)`);
-      })
+      .then(() => {})
       .catch(error => {
         Logger.logError(method, url, error);
       });
@@ -248,7 +241,6 @@ class PureHttp {
   ): Promise<T> {
     // 创建新的防抖函数
     const debouncedRequest = debounce((): Promise<T> => {
-      const startTime = performance.now();
       // 执行实际请求
       const requestPromise = PureHttp.axiosInstance.request<any, any>(
         config
@@ -256,12 +248,7 @@ class PureHttp {
 
       // 请求完成后处理
       requestPromise
-        .then(() => {
-          const duration = performance.now() - startTime;
-          Logger.info(
-            `请求完成 ${config.method} ${config.url} (${duration}ms)`
-          );
-        })
+        .then(() => {})
         .catch(error => {
           Logger.logError(config.method as string, config.url as string, error);
         })
@@ -270,7 +257,6 @@ class PureHttp {
           if (debounceConfig.merge) {
             PureHttp.pendingRequests.delete(requestKey);
           }
-          Logger.debug(`请求完成，清理映射表 ${requestKey}`);
         });
 
       return requestPromise;

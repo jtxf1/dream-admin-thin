@@ -79,12 +79,6 @@ const {
   openDialog,
   handleDelete
 } = useDept();
-
-const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
-  setTimeout(() => {
-    resolve(row?.children ?? []);
-  }, 100);
-};
 </script>
 
 <template>
