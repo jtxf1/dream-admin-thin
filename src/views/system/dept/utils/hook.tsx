@@ -123,7 +123,7 @@ export function useDept() {
         label: item.name,
         subCount: item.subCount,
         leaf: item.subCount === 0,
-        children: []
+        children: extractFields(item.children)
       };
       result.push(obj);
     });
@@ -215,7 +215,10 @@ export function useDept() {
             if (title === "新增") {
               await Dept.add({
                 name: curData.name,
-                pid: curData.pid === 0 ? null : curData.pid[0],
+                pid:
+                  curData.pid === 0
+                    ? null
+                    : curData.pid[curData.pid.length - 1],
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
               });
@@ -223,7 +226,10 @@ export function useDept() {
               await Dept.edit({
                 id: curData.id,
                 name: curData.name,
-                pid: curData.pid === 0 ? null : curData.pid,
+                pid:
+                  curData.pid === 0
+                    ? null
+                    : curData.pid[curData.pid.length - 1],
                 deptSort: curData.deptSort,
                 enabled: curData.enabled
               });

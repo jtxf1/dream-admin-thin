@@ -5,7 +5,7 @@ interface FormItemProps {
   deptCascader?: any[];
   parentId: number;
   id: number;
-  pid: number;
+  pid: number | number[] | any;
   deptSort: number;
   name: string;
   principal: string;
