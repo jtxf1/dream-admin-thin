@@ -152,6 +152,7 @@ const handleRowOperation = (action: string, row: any) => {
             align-whole="center"
             showOverflowTooltip
             adaptive
+            stripe
             table-layout="auto"
             :loading="loading"
             :size="size"

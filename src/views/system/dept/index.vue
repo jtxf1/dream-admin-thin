@@ -164,6 +164,7 @@ const load = (row: any, treeNode: unknown, resolve: (date: any) => void) => {
           align-whole="center"
           row-key="id"
           showOverflowTooltip
+          stripe
           table-layout="auto"
           :loading="loading"
           :size="size"

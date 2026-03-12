@@ -128,6 +128,7 @@ const {
           :loading="loading"
           :size="size"
           adaptive
+          stripe
           :adaptiveConfig="{ offsetBottom: 108 }"
           :data="dataList"
           :columns="dynamicColumns"

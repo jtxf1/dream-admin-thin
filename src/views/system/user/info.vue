@@ -250,6 +250,7 @@ const handleSubmitImage = () => {
               <pure-table
                 ref="tableRef"
                 adaptive
+                stripe
                 :loading="loading"
                 :data="dataList"
                 :columns="columns"
