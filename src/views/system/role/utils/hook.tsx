@@ -13,7 +13,7 @@ import { cloneDeep } from "@pureadmin/utils";
 import type { ApiAbstract } from "@/utils/http/ApiAbstract";
 
 export function useRole() {
-  const deptList = ref();
+  const deptList = ref([]);
   const form = reactive({
     blurry: "",
     createTime: "",
@@ -275,7 +275,10 @@ export function useRole() {
       // 获取部门列表
       const deptRes = await Dept.getDeptTree({ enabled: true });
       if (deptRes && deptRes.data) {
-        deptList.value = deptRes.data.content;
+        const deptData = Array.isArray(deptRes.data)
+          ? deptRes.data
+          : deptRes.data.content || [];
+        deptList.value = cloneDeep(handleTree(deptData, "id", "parentId"));
       } else {
         message("获取部门列表失败", {
           type: "error"

@@ -188,7 +188,7 @@ const handleRowOperation = (action: string, row: any) => {
       class="w-[calc(25%-180px)]"
       :treeData="treeData"
       :treeLoading="treeLoading"
-      @select="onTreeSelect"
+      @tree-select="onTreeSelect"
     />
   </div>
 </template>

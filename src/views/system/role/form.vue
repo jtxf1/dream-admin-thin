@@ -2,6 +2,7 @@
 import { ref, watch } from "vue";
 import { formRules } from "./utils/rule";
 import { FormProps } from "./utils/types";
+import { handleTree } from "@/utils/tree";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -16,6 +17,7 @@ const props = withDefaults(defineProps<FormProps>(), {
 });
 const ruleFormRef = ref();
 const newFormInline = ref(props.formInline);
+const depts = ref(handleTree(newFormInline.value.depts, "id", "pid"));
 const props1 = {
   multiple: true,
   value: "id",
@@ -88,7 +90,7 @@ defineExpose({ getRef, newFormInline });
             filterable
             :props="props1"
             :show-all-levels="false"
-            :options="newFormInline.depts"
+            :options="depts"
           >
             <template #default="{ node, data }">
               <span>{{ data.name }}</span>
