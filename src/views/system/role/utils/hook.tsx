@@ -239,13 +239,9 @@ export function useRole() {
     });
   }
   function onTreeSelect({ id, menuIds }) {
-    if (
-      id.value !== null &&
-      id.value !== undefined &&
-      id.value === parentId.value
-    ) {
+    if (id !== null && id !== undefined && id === parentId.value) {
       Role.menus({
-        id: id.value,
+        id: id,
         menus: menuIds.map(person => ({
           id: person
         }))

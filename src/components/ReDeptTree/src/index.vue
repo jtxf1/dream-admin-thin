@@ -114,8 +114,8 @@ defineExpose({ onTreeReset, testClick, treeRef });
       :style="{ minHeight: `calc(100vh - 133px)` }"
     >
       <el-row v-if="props.visible" :gutter="20">
-        <el-col :span="17"> 菜单分配</el-col>
-        <el-col :span="3">
+        <el-col :span="12"> 菜单分配</el-col>
+        <el-col :span="4">
           <el-button
             type="primary"
             :icon="useRenderIcon(Check)"
