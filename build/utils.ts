@@ -3,13 +3,15 @@ import { readdir, stat } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { sum, formatBytes } from "@pureadmin/utils";
-import {
+// ✅ 默认导入，再解构
+import pkg from "../package.json" with { type: 'json' };
+const {
   name,
   version,
   engines,
   dependencies,
   devDependencies
-} from "../package.json";
+} = pkg;
 
 /** 启动`node`进程时所在工作目录的绝对路径 */
 const root: string = process.cwd();

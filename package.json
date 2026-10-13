@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS=--max-old-space-size=4096 vite",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite",
     "serve": "pnpm dev",
     "build": "rimraf dist && NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build:staging": "rimraf dist && vite build --mode staging",
@@ -113,6 +113,7 @@
     "baseline-browser-mapping": "^2.9.19",
     "boxen": "latest",
     "code-inspector-plugin": "latest",
+    "cross-env": "^10.1.0",
     "cssnano": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
@@ -155,43 +156,7 @@
     "vue-tsc": "latest"
   },
   "engines": {
-    "node": "^18.18.0 || ^20.9.0 || >=22.14.0",
-    "pnpm": ">=9"
-  },
-  "pnpm": {
-    "allowedDeprecatedVersions": {
-      "are-we-there-yet": "*",
-      "sourcemap-codec": "*",
-      "lodash.isequal": "*",
-      "domexception": "*",
-      "w3c-hr-time": "*",
-      "inflight": "*",
-      "npmlog": "*",
-      "rimraf": "*",
-      "stable": "*",
-      "gauge": "*",
-      "abab": "*",
-      "glob": "*"
-    },
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "core-js",
-      "es5-ext",
-      "esbuild",
-      "typeit",
-      "vue-demi"
-    ],
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "eslint": "9"
-      }
-    },
-    "ignoredBuiltDependencies": [
-      "@tailwindcss/oxide",
-      "es5-ext",
-      "esbuild",
-      "typeit",
-      "vue-demi"
-    ]
+    "node": "^20.9.0 || >=25.14.0",
+    "pnpm": ">=11"
   }
 }

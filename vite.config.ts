@@ -1,5 +1,5 @@
-import { getPluginsList } from "./build/plugins";
-import { include, exclude } from "./build/optimize";
+import { getPluginsList } from "./build/plugins.js";
+import { include, exclude } from "./build/optimize.js";
 import { type UserConfigExport, type ConfigEnv, loadEnv } from "vite";
 import {
   root,
@@ -7,7 +7,7 @@ import {
   wrapperEnv,
   pathResolve,
   __APP_INFO__
-} from "./build/utils";
+} from "./build/utils.js";
 
 export default ({ mode }: ConfigEnv): UserConfigExport => {
   const {

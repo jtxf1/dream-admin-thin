@@ -1,13 +1,13 @@
-import { cdn } from "./cdn";
+import { cdn } from "./cdn.js";
 import vue from "@vitejs/plugin-vue";
-import { pathResolve } from "./utils";
-import { viteBuildInfo } from "./info";
+import { pathResolve } from "./utils.js";
+import { viteBuildInfo } from "./info.js";
 import svgLoader from "vite-svg-loader";
 import Icons from "unplugin-icons/vite";
 import type { PluginOption } from "vite";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 import tailwindcss from "@tailwindcss/vite";
-import { configCompressPlugin } from "./compress";
+import { configCompressPlugin } from "./compress.js";
 import removeNoMatch from "vite-plugin-router-warn";
 import { visualizer } from "rollup-plugin-visualizer";
 import removeConsole from "vite-plugin-remove-console";
