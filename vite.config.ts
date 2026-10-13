@@ -128,23 +128,31 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
         input: {
           index: pathResolve("./index.html", import.meta.url)
         },
-        // 静态资源分类打包
         output: {
           chunkFileNames: "static/js/[name]-[hash].js",
           entryFileNames: "static/js/[name]-[hash].js",
           assetFileNames: "static/[ext]/[name]-[hash].[ext]",
-          // 代码分割策略
-          manualChunks: {
-            // 第三方依赖打包
-            vendor: ["vue", "vue-router", "pinia", "axios"],
-            // 大型UI库单独打包
-            element: ["element-plus"],
-            // 图表库单独打包
-            echarts: ["echarts"],
-            // 编辑器相关打包
-            editor: ["@wangeditor/editor", "@wangeditor/editor-for-vue"],
-            // 工具库打包
-            utils: ["@pureadmin/utils", "@vueuse/core", "dayjs", "mitt"]
+
+          // 代码分割策略 → 改成函数写法，消除TS报错
+          manualChunks(id: string) {
+            // node_modules里的文件才分割
+            if (!id.includes('node_modules')) return
+
+            if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia') || id.includes('axios')) {
+              return 'vendor'
+            }
+            if (id.includes('element-plus')) {
+              return 'element'
+            }
+            if (id.includes('echarts')) {
+              return 'echarts'
+            }
+            if (id.includes('@wangeditor/editor')) {
+              return 'editor'
+            }
+            if (id.includes('@pureadmin/utils') || id.includes('@vueuse/core') || id.includes('dayjs') || id.includes('mitt')) {
+              return 'utils'
+            }
           }
         }
       }
