@@ -136,22 +136,32 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
           // 代码分割策略 → 改成函数写法，消除TS报错
           manualChunks(id: string) {
             // node_modules里的文件才分割
-            if (!id.includes('node_modules')) return
+            if (!id.includes("node_modules")) return;
 
-            if (id.includes('vue') || id.includes('vue-router') || id.includes('pinia') || id.includes('axios')) {
-              return 'vendor'
+            if (
+              id.includes("vue") ||
+              id.includes("vue-router") ||
+              id.includes("pinia") ||
+              id.includes("axios")
+            ) {
+              return "vendor";
             }
-            if (id.includes('element-plus')) {
-              return 'element'
+            if (id.includes("element-plus")) {
+              return "element";
             }
-            if (id.includes('echarts')) {
-              return 'echarts'
+            if (id.includes("echarts")) {
+              return "echarts";
             }
-            if (id.includes('@wangeditor/editor')) {
-              return 'editor'
+            if (id.includes("@wangeditor/editor")) {
+              return "editor";
             }
-            if (id.includes('@pureadmin/utils') || id.includes('@vueuse/core') || id.includes('dayjs') || id.includes('mitt')) {
-              return 'utils'
+            if (
+              id.includes("@pureadmin/utils") ||
+              id.includes("@vueuse/core") ||
+              id.includes("dayjs") ||
+              id.includes("mitt")
+            ) {
+              return "utils";
             }
           }
         }
