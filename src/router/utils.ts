@@ -206,11 +206,11 @@ export const RouteUtil = {
         // 返回父级path
         if (item[key] === value) return parents;
         // children不存在或为空则不递归
-        if (!item.children || !item.children.length) continue;
+        if (!item?.children || !item?.children.length) continue;
         // 往下查找时将当前path入栈
-        parents.push(item.path);
+        parents.push(item?.path);
 
-        if (dfs(item.children as T[], value, parents).length) return parents;
+        if (dfs(item?.children as T[], value, parents).length) return parents;
         // 深度遍历查找未找到时当前path 出栈
         parents.pop();
       }

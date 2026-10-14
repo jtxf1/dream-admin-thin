@@ -57,7 +57,7 @@ Object.keys(modules).forEach(key => {
 });
 
 /** 导出处理后的静态路由（三级及以上的路由全部拍成二级） */
-export const constantRoutes: Array<RouteRecordRaw> = formatTwoStageRoutes(
+export const constantRoutes = formatTwoStageRoutes(
   formatFlatteningRoutes(buildHierarchyTree(ascending(routes.flat(Infinity))))
 );
 

@@ -1,8 +1,18 @@
+#!/usr/bin/env sh
 . "$(dirname "$0")/common.sh"
 
+# 如果是 CI 环境，直接退出
 [ -n "$CI" ] && exit 0
 
-PATH="/usr/local/bin:$PATH"
+# 1. 定义 Node.js 和 pnpm 的安装目录 (Unix 风格路径)
+# 注意：node.exe 在 .nodejs 目录下，所以 PATH 需要指向该目录
+NODE_DIR="/c/Users/admin/AppData/Local/Author Software/nvm/.nodejs"
+PNPM_DIR="/c/Users/admin/AppData/Local/pnpm/bin"
 
-# Perform lint check on files in the staging area through .lintstagedrc configuration
+# 2. 将这些目录添加到 PATH 的最前面
+# 使用引号包裹包含空格的路径，但在 export PATH= 中通常不需要额外引号，只要变量本身正确即可
+export PATH="$NODE_DIR:$PNPM_DIR:$PATH"
+
+# 3. 执行 lint-staged
+# 现在 pnpm 应该可以在 PATH 中找到了
 pnpm exec lint-staged

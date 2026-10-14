@@ -4,13 +4,7 @@ import type { AxiosRequestConfig, AxiosError } from "axios";
  * HTTP请求方法类型
  */
 export type RequestMethods =
-  | "get"
-  | "post"
-  | "put"
-  | "delete"
-  | "patch"
-  | "head"
-  | "options";
+  "get" | "post" | "put" | "delete" | "patch" | "head" | "options";
 
 /**
  * HTTP错误类型枚举
