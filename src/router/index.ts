@@ -111,7 +111,7 @@ const whiteList = ["/login"];
 
 const { VITE_HIDE_HOME } = import.meta.env;
 
-router.beforeEach((_to, _from, next) => {
+router.beforeEach(async (_to, _from) => {
   const to = _to as unknown as ToRouteType;
   if (to.meta?.keepAlive) {
     handleAliveRoute(to, "add");
@@ -132,81 +132,77 @@ router.beforeEach((_to, _from, next) => {
       else document.title = transformI18n(item.meta.title);
     });
   }
-  /** 如果已经登录并存在登录信息后不能跳转到路由白名单，而是继续保持在当前页面 */
-  function toCorrectRoute() {
-    whiteList.includes(to.fullPath) ? next(_from.fullPath) : next();
-  }
+
+  const isWhiteListed = whiteList.includes(to.fullPath);
+  const blockToWhiteList = () => (_from.fullPath ? _from.fullPath : undefined);
+
   if (Cookies.get(multipleTabsKey) && userInfo) {
     // 无权限跳转403页面
     if (to.meta?.roles && !isOneOfArray(to.meta?.roles, userInfo?.roles)) {
-      next({ path: "/error/403" });
+      return { path: "/error/403" };
     }
     // 开启隐藏首页后在浏览器地址栏手动输入首页welcome路由则跳转到404页面
     if (VITE_HIDE_HOME === "true" && to.fullPath === "/welcome") {
-      next({ path: "/error/404" });
+      return { path: "/error/404" };
     }
     if (_from?.name) {
       // name为超链接
       if (externalLink) {
         openLink(to?.name as string);
         NProgress.done();
-      } else {
-        toCorrectRoute();
+        return;
       }
+      // 已登录用户访问白名单路由 → 返回原页面
+      if (isWhiteListed) return blockToWhiteList();
+      return;
     } else {
       // 刷新
       if (
         usePermissionStoreHook().wholeMenus.length === 0 &&
         to.path !== "/login"
       ) {
-        initRouter().then((router: Router) => {
-          if (!useMultiTagsStoreHook().getMultiTagsCache) {
-            const { path } = to;
-            const route = findRouteByPath(
-              path,
-              router.options.routes[0].children
-            );
-            getTopMenu(true);
-            // query、params模式路由传参数的标签页不在此处处理
-            if (route && route.meta?.title) {
-              if (
-                isAllEmpty((route as any).parentId) &&
-                route.meta?.backstage
-              ) {
-                // 此处为动态顶级路由（目录）
-                const { path, name, meta } = route.children[0];
-                useMultiTagsStoreHook().handleTags("push", {
-                  path,
-                  name,
-                  meta
-                });
-              } else {
-                const { path, name, meta } = route;
-                useMultiTagsStoreHook().handleTags("push", {
-                  path,
-                  name,
-                  meta
-                });
-              }
+        await initRouter();
+        if (!useMultiTagsStoreHook().getMultiTagsCache) {
+          const { path } = to;
+          const route = findRouteByPath(
+            path,
+            router.options.routes[0].children
+          );
+          getTopMenu(true);
+          // query、params模式路由传参数的标签页不在此处处理
+          if (route && route.meta?.title) {
+            if (isAllEmpty((route as any).parentId) && route.meta?.backstage) {
+              // 此处为动态顶级路由（目录）
+              const { path, name, meta } = route.children[0];
+              useMultiTagsStoreHook().handleTags("push", {
+                path,
+                name,
+                meta
+              });
+            } else {
+              const { path, name, meta } = route;
+              useMultiTagsStoreHook().handleTags("push", {
+                path,
+                name,
+                meta
+              });
             }
           }
-          // 确保动态路由完全加入路由列表并且不影响静态路由（注意：动态路由刷新时router.beforeEach可能会触发两次，第一次触发动态路由还未完全添加，第二次动态路由才完全添加到路由列表，如果需要在router.beforeEach做一些判断可以在to.name存在的条件下去判断，这样就只会触发一次）
-          if (isAllEmpty(to.name)) router.push(to.fullPath);
-        });
+        }
       }
-      toCorrectRoute();
+      // 已登录用户访问白名单路由 → 返回原页面
+      if (isWhiteListed) return blockToWhiteList();
+      return;
     }
   } else {
     if (to.path !== "/login") {
       if (whiteList.indexOf(to.path) !== -1) {
-        next();
-      } else {
-        removeToken();
-        next({ path: "/login" });
+        return;
       }
-    } else {
-      next();
+      removeToken();
+      return { path: "/login" };
     }
+    return;
   }
 });
 
