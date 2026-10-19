@@ -1,26 +1,27 @@
 import type { FunctionalComponent } from "vue";
+import type { RouteMeta } from "vue-router";
 const { VITE_HIDE_HOME } = import.meta.env;
 
-export const routerArrays: Array<RouteConfigs> =
-  VITE_HIDE_HOME === "false"
-    ? [
-        {
-          path: "/welcome",
-          meta: {
-            title: "menus.pureHome",
-            icon: "ep/home-filled"
-          }
-        }
-      ]
-    : [];
+const defaultRoutes: Array<RouteConfigs> = [
+  {
+    path: "/welcome",
+    meta: {
+      title: "menus.pureHome",
+      icon: "ep/home-filled"
+    }
+  }
+];
 
-export type routeMetaType = {
+export const routerArrays: Array<RouteConfigs> =
+  VITE_HIDE_HOME === "false" ? defaultRoutes : [];
+
+export interface routeMetaType extends RouteMeta {
   title?: string;
   icon?: string | FunctionalComponent;
   showLink?: boolean;
   savedPosition?: boolean;
   auths?: Array<string>;
-};
+}
 
 export type RouteConfigs = {
   path?: string;

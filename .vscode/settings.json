@@ -27,16 +27,17 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  // ⚠️ 关键：禁用 ESLint 的格式化能力，避免冲突
+  "eslint.format.enable": false,
+  // 可选：仅让 ESLint 在保存时执行非格式相关的代码修复
+  "eslint.codeAction.onSave.fixAll": true,
   "i18n-ally.localesPaths": "locales",
   "i18n-ally.keystyle": "nested",
   "i18n-ally.sortKeys": true,
   "i18n-ally.namespace": true,
   "i18n-ally.enabledParsers": [
-    
     "yaml",
-   
     "js"
-  
   ],
   "i18n-ally.sourceLanguage": "zh-CN",
   "i18n-ally.displayLanguage": "zh-CN",
