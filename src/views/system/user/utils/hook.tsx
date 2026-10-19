@@ -1,7 +1,8 @@
 import "./reset.css";
 import dayjs from "dayjs";
 import editForm from "../form/index.vue";
-import { zxcvbn } from "@zxcvbn-ts/core";
+import { ZxcvbnFactory } from "@zxcvbn-ts/core";
+const zxcvbn = new ZxcvbnFactory();
 import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
 import { usePublicHooks } from "@/utils/theme";
@@ -636,7 +637,7 @@ export function useUser(tableRef: TableRef) {
   watch(
     pwdForm,
     ({ newPwd }: PwdFormData) =>
-      (curScore.value = isAllEmpty(newPwd) ? -1 : zxcvbn(newPwd).score)
+      (curScore.value = isAllEmpty(newPwd) ? -1 : zxcvbn.check(newPwd).score)
   );
 
   /** 重置密码 */

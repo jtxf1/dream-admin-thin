@@ -1,6 +1,7 @@
 import { ref, watch, reactive, computed } from "vue";
 //import { baseUrlAvatar } from "@/api/utils";
-import { zxcvbn } from "@zxcvbn-ts/core";
+import { ZxcvbnFactory } from "@zxcvbn-ts/core";
+const zxcvbn = new ZxcvbnFactory();
 import { isAllEmpty, isNull, isEmail } from "@pureadmin/utils";
 import { addDialog } from "@/components/ReDialog";
 import { storageLocal } from "@pureadmin/utils";
@@ -90,7 +91,7 @@ export function useUser() {
   watch(
     pwdForm,
     ({ newPwd }) =>
-      (curScore.value = isAllEmpty(newPwd) ? -1 : zxcvbn(newPwd).score)
+      (curScore.value = isAllEmpty(newPwd) ? -1 : zxcvbn.check(newPwd).score)
   );
   /** 重置密码 */
   function handleReset() {
