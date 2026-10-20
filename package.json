@@ -111,7 +111,7 @@
     "@types/sortablejs": "latest",
     "@vitejs/plugin-vue": "latest",
     "@vitejs/plugin-vue-jsx": "latest",
-    "@vitest/coverage-v8": "^4.1.12",
+    "@vitest/coverage-v8": "latest",
     "baseline-browser-mapping": "^2.11.28",
     "boxen": "latest",
     "code-inspector-plugin": "latest",
@@ -156,7 +156,7 @@
     "vite-plugin-router-warn": "latest",
     "vite-plugin-vue-devtools": "latest",
     "vite-svg-loader": "latest",
-    "vitest": "^4.1.11",
+    "vitest": "latest",
     "vue-eslint-parser": "latest",
     "vue-img-cutter": "latest",
     "vue-tsc": "latest"
