@@ -8,6 +8,7 @@ report.html
 vite.config.*.timestamp*
 
 yarn.lock
+pnpm-lock.yaml
 npm-debug.log*
 .pnpm-error.log*
 .pnpm-debug.log
