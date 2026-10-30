@@ -199,6 +199,8 @@ watch(loginDay, value => {
                   v-model="ruleForm.username"
                   v-copy="ruleForm.username"
                   clearable
+                  name="username"
+                  autocomplete="username"
                   :placeholder="t('login.username')"
                   :prefix-icon="userIcon"
                 />
@@ -211,6 +213,8 @@ watch(loginDay, value => {
                   v-model="ruleForm.password"
                   clearable
                   show-password
+                  name="password"
+                  autocomplete="current-password"
                   :placeholder="t('login.password')"
                   :prefix-icon="lockIcon"
                 />
@@ -222,6 +226,8 @@ watch(loginDay, value => {
                 <el-input
                   v-model="ruleForm.verifyCode"
                   clearable
+                  name="verifyCode"
+                  autocomplete="off"
                   :placeholder="t('login.verifyCode')"
                   :prefix-icon="shieldIcon"
                 >

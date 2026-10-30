@@ -66,6 +66,8 @@ function onBack() {
         <el-input
           v-model="ruleForm.username"
           clearable
+          name="username"
+          autocomplete="username"
           :placeholder="t('login.username')"
           :prefix-icon="useRenderIcon(User)"
         />
@@ -77,6 +79,8 @@ function onBack() {
         <el-input
           v-model="ruleForm.phone"
           clearable
+          name="phone"
+          autocomplete="tel"
           :placeholder="t('login.phone')"
           :prefix-icon="useRenderIcon(Iphone)"
         />
@@ -89,6 +93,8 @@ function onBack() {
           <el-input
             v-model="ruleForm.verifyCode"
             clearable
+            name="smsVerifyCode"
+            autocomplete="one-time-code"
             :placeholder="t('login.smsVerifyCode')"
             :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
           />
@@ -113,6 +119,8 @@ function onBack() {
           v-model="ruleForm.password"
           clearable
           show-password
+          name="newPassword"
+          autocomplete="new-password"
           :placeholder="t('login.password')"
           :prefix-icon="useRenderIcon(Lock)"
         />
@@ -125,6 +133,8 @@ function onBack() {
           v-model="ruleForm.repeatPassword"
           clearable
           show-password
+          name="repeatPassword"
+          autocomplete="new-password"
           :placeholder="t('login.sure')"
           :prefix-icon="useRenderIcon(Lock)"
         />

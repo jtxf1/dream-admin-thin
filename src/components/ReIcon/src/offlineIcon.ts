@@ -4,41 +4,41 @@ import { addIcon } from "@iconify/vue/dist/offline";
 
 // https://icon-sets.iconify.design/ep/?keyword=ep
 // ~icons/ep
-import Menu from "~icons/ep/menu";
-import Edit from "~icons/ep/edit";
-import SetUp from "~icons/ep/set-up";
-import Guide from "~icons/ep/guide";
-import Monitor from "~icons/ep/monitor";
-import Lollipop from "~icons/ep/lollipop";
-import Histogram from "~icons/ep/histogram";
-import HomeFilled from "~icons/ep/home-filled";
+import Menu from "~icons/ep/menu?raw";
+import Edit from "~icons/ep/edit?raw";
+import SetUp from "~icons/ep/set-up?raw";
+import Guide from "~icons/ep/guide?raw";
+import Monitor from "~icons/ep/monitor?raw";
+import Lollipop from "~icons/ep/lollipop?raw";
+import Histogram from "~icons/ep/histogram?raw";
+import HomeFilled from "~icons/ep/home-filled?raw";
 import EpHomeFilled from "~icons/ep/home-filled?raw";
 
 // https://icon-sets.iconify.design/ri/?keyword=ri
 // ~icons/ri
-import Tag from "~icons/ri/bookmark-2-line";
-import Ppt from "~icons/ri/file-ppt-2-line";
-import Card from "~icons/ri/bank-card-line";
-import Role from "~icons/ri/admin-fill";
-import Info from "~icons/ri/file-info-line";
-import Dept from "~icons/ri/git-branch-line";
-import Table from "~icons/ri/table-line";
-import Links from "~icons/ri/links-fill";
-import Search from "~icons/ri/search-line";
-import FlUser from "~icons/ri/admin-line";
-import Setting from "~icons/ri/settings-3-line";
-import BarChart from "~icons/ri/bar-chart-horizontal-line";
-import LoginLog from "~icons/ri/window-line";
-import Artboard from "~icons/ri/artboard-line";
-import SystemLog from "~icons/ri/file-search-line";
-import ListCheck from "~icons/ri/list-check";
-import UbuntuFill from "~icons/ri/ubuntu-fill";
-import OnlineUser from "~icons/ri/user-voice-line";
-import EditBoxLine from "~icons/ri/edit-box-line";
-import OperationLog from "~icons/ri/history-fill";
-import InformationLine from "~icons/ri/information-line";
-import TerminalWindowLine from "~icons/ri/terminal-window-line";
-import CheckboxCircleLine from "~icons/ri/checkbox-circle-line";
+import Tag from "~icons/ri/bookmark-2-line?raw";
+import Ppt from "~icons/ri/file-ppt-2-line?raw";
+import Card from "~icons/ri/bank-card-line?raw";
+import Role from "~icons/ri/admin-fill?raw";
+import Info from "~icons/ri/file-info-line?raw";
+import Dept from "~icons/ri/git-branch-line?raw";
+import Table from "~icons/ri/table-line?raw";
+import Links from "~icons/ri/links-fill?raw";
+import Search from "~icons/ri/search-line?raw";
+import FlUser from "~icons/ri/admin-line?raw";
+import Setting from "~icons/ri/settings-3-line?raw";
+import BarChart from "~icons/ri/bar-chart-horizontal-line?raw";
+import LoginLog from "~icons/ri/window-line?raw";
+import Artboard from "~icons/ri/artboard-line?raw";
+import SystemLog from "~icons/ri/file-search-line?raw";
+import ListCheck from "~icons/ri/list-check?raw";
+import UbuntuFill from "~icons/ri/ubuntu-fill?raw";
+import OnlineUser from "~icons/ri/user-voice-line?raw";
+import EditBoxLine from "~icons/ri/edit-box-line?raw";
+import OperationLog from "~icons/ri/history-fill?raw";
+import InformationLine from "~icons/ri/information-line?raw";
+import TerminalWindowLine from "~icons/ri/terminal-window-line?raw";
+import CheckboxCircleLine from "~icons/ri/checkbox-circle-line?raw";
 import RiSearchLine from "~icons/ri/search-line?raw";
 import RiInformationLine from "~icons/ri/information-line?raw";
 

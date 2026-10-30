@@ -49,6 +49,8 @@ function onBack() {
         <el-input
           v-model="ruleForm.phone"
           clearable
+          name="phone"
+          autocomplete="tel"
           :placeholder="t('login.phone')"
           :prefix-icon="useCachedRenderIcon(Iphone)"
         />
@@ -61,6 +63,8 @@ function onBack() {
           <el-input
             v-model="ruleForm.verifyCode"
             clearable
+            name="smsVerifyCode"
+            autocomplete="one-time-code"
             :placeholder="t('login.smsVerifyCode')"
             :prefix-icon="useCachedRenderIcon('ri:shield-keyhole-line')"
           />

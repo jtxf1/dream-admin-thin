@@ -162,32 +162,41 @@ router.beforeEach(async (_to, _from) => {
         to.path !== "/login"
       ) {
         await initRouter();
-        if (!useMultiTagsStoreHook().getMultiTagsCache) {
-          const { path } = to;
-          const route = findRouteByPath(
-            path,
-            router.options.routes[0].children
-          );
-          getTopMenu(true);
-          // query、params模式路由传参数的标签页不在此处处理
-          if (route && route.meta?.title) {
-            if (isAllEmpty((route as any).parentId) && route.meta?.backstage) {
-              // 此处为动态顶级路由（目录）
-              const { path, name, meta } = route.children[0];
-              useMultiTagsStoreHook().handleTags("push", {
-                path,
-                name,
-                meta
-              });
-            } else {
-              const { path, name, meta } = route;
-              useMultiTagsStoreHook().handleTags("push", {
-                path,
-                name,
-                meta
-              });
+        // 动态路由是在本次导航开始后才注册的，当前导航仍按旧路由表匹配（matched 为空会导致刷新动态路由页面白屏），
+        // 需重新触发一次导航让新路由表生效；wholeMenus 为空说明 initRouter 失败（已走 logOut 逻辑），此时不重新导航避免死循环
+        if (usePermissionStoreHook().wholeMenus.length > 0) {
+          if (!useMultiTagsStoreHook().getMultiTagsCache) {
+            const { path } = to;
+            const route = findRouteByPath(
+              path,
+              router.options.routes[0].children
+            );
+            getTopMenu(true);
+            // query、params模式路由传参数的标签页不在此处处理
+            if (route && route.meta?.title) {
+              if (
+                isAllEmpty((route as any).parentId) &&
+                route.meta?.backstage
+              ) {
+                // 此处为动态顶级路由（目录）
+                const { path, name, meta } = route.children[0];
+                useMultiTagsStoreHook().handleTags("push", {
+                  path,
+                  name,
+                  meta
+                });
+              } else {
+                const { path, name, meta } = route;
+                useMultiTagsStoreHook().handleTags("push", {
+                  path,
+                  name,
+                  meta
+                });
+              }
             }
           }
+          // 重新触发一次导航，让新注册的动态路由表重新匹配当前地址（replace: true 避免产生多余历史记录）
+          return { path: to.fullPath, replace: true };
         }
       }
       // 已登录用户访问白名单路由 → 返回原页面
